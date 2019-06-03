@@ -1,0 +1,35 @@
+# is comment (text reader ignores this line)
+| to separate primary parameters
+
+proj|tags|speed|angle|size|startpos|duration
+-tags		
+ +circle	standard circle projectile
+ +wallBounce	bounce off walls, requires duration
+ +screenWrap	wraps screen edges
+-angle		angle of projectile movement (degrees)(counterclockwise from right)
+-speed 		speed of projectile (pixels/frame)
+-size		radius of projectile
+-startPos	pos to spawn projectiles (x,y)
+-duration	# times it will wallBounce(or similar)
+
+wait|#1
+waits #1 of frames before spawning projectiles again (including this frame)
+
+repeat|#1|#2
+repeats from line #1 #2 times
+
+val#1|#2
+sets val#1 to #2 (stored for later usage)
+
+Available Functions:
+t
+ -the age of the projectile
+n
+ -the number of projectiles spawned so far
+plyrx
+plyry
+ -the player's position
+RNG:#1:#2
+ -picks a random number between #1 and #2
+ABS:#1
+ -returns the absolute value of #1
