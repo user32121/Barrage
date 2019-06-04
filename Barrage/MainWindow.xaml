@@ -11,7 +11,7 @@
             <Grid.Effect>
                 <BlurEffect Radius="0"/>
             </Grid.Effect>
-            <Image x:Name="Player" HorizontalAlignment="Center" Height="25" Margin="0" VerticalAlignment="Center" Width="25" Source="C:/Users/jupit/source/repos/Barrage/Barrage/files/PlayerSprite.png" RenderTransformOrigin="0.5,0.5">
+            <Image x:Name="Player" HorizontalAlignment="Center" Height="25" Margin="0" VerticalAlignment="Center" Width="25" Source="files/PlayerSprite.png" RenderTransformOrigin="0.5,0.5">
                 <Image.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform/>
