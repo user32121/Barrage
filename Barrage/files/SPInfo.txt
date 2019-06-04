@@ -1,7 +1,8 @@
 # is comment (text reader ignores this line)
 | to separate primary parameters
 
-proj|tags|speed|angle|size|startpos|duration
+
+proj|tags|speed|angle|size|startPos|duration
 -tags		
  +circle	standard circle projectile
  +wallBounce	bounce off walls, requires duration
@@ -21,7 +22,8 @@ repeats from line #1 #2 times
 val#1|#2
 sets val#1 to #2 (stored for later usage)
 
-Available Functions:
+
+Available Values:
 t
  -the age of the projectile
 n
@@ -29,7 +31,31 @@ n
 plyrx
 plyry
  -the player's position
+lx
+ -x position from last frame
+ly
+ -y position from last frame
+lSPD
+ -the speed from the last frame
+lANG
+ -the angle from the last frame
+
+Available Functions:
 RNG:#1:#2
  -picks a random number between #1 and #2
+MOD:#1:#2
+ -returns the modulus of #1 / #2
 ABS:#1
  -returns the absolute value of #1
+SQRT:#1
+ -square root of #1
+SIN:#1
+ -sine of #1
+COS:#1
+ -cosine of #1
+TAN:#1
+ -tangent of #1
+ATAN:#1
+ -inverse tangent of #1
+ATAN:#1:#2
+ -inverse tangent of #1,#2 (usual format is y,x)

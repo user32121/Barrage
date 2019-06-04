@@ -1,3 +1,0 @@
-completely redid the text reader system
-please check new syntax format
-allows for more flexibility, but spawner feature needs to be reimplemented, and performance may be lower

@@ -20,14 +20,17 @@ namespace Barrage
         public string Radius;
         public int RadiusSqr;
         public int Duration;
-        //public string SpawnerPat;
         public bool IsAlive;
         int Age;
+
+        readonly double[] lastVals = new double[4];
+        public enum LVI //Last Value Index
+        { x, y, spd, ang }
 
         public Projectile(string radius, MainWindow parent)
         {
             Radius = radius;
-            int r = (int)ReadString.Interpret(radius, typeof(int), 0);
+            int r = (int)ReadString.Interpret(radius, typeof(int), 0, lastVals);
             RadiusSqr = r * r;
             m_parent = parent;
             IsAlive = true;
@@ -84,11 +87,13 @@ namespace Barrage
             }
 
             //speed and angle
-            double radians = (double)ReadString.Interpret(Angle, typeof(double), Age) * Math.PI / 180;
-            Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * (double)ReadString.Interpret(Speed, typeof(double), Age);
-          
+            double ang = (double)ReadString.Interpret(Angle, typeof(double), Age, lastVals);
+            double spd = (double)ReadString.Interpret(Speed, typeof(double), Age, lastVals);
+            double radians = ang * Math.PI / 180;
+            Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * spd;
+
             //radius
-            int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int), Age));
+            int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int), Age, lastVals));
             if (Sprite.Width / 2 != r)
             {
                 Sprite.Width = r * 2;
@@ -98,6 +103,12 @@ namespace Barrage
 
             //moves projectile by velocity
             SetPos(Position.X + Velocity.X * velDir.X, Position.Y + Velocity.Y * velDir.Y);
+
+            //sets lastVals
+            lastVals[(int)LVI.x] = Position.X;
+            lastVals[(int)LVI.y] = Position.Y;
+            lastVals[(int)LVI.spd] = spd;
+            lastVals[(int)LVI.ang] = ang;
         }
     }
 }

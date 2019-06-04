@@ -11,11 +11,15 @@ namespace Barrage
     {
         static Random rng = new Random();
 
-        public static object Interpret(string input, Type Treturn, int t)
+        public static object Interpret(string input, Type Treturn, int t, double[] lastVals)
         {
-            input = input.Replace("t", t.ToString());
-            input = input.Replace("plyrx", MainWindow.plyrX.ToString());
-            input = input.Replace("plyry", MainWindow.plyrY.ToString());
+            input = input.Replace("t", t.ToString()).
+                Replace("plyrx", MainWindow.plyrX.ToString()).
+                Replace("plyry", MainWindow.plyrY.ToString()).
+                Replace("lx", lastVals[(int)Projectile.LVI.x].ToString()).
+                Replace("ly", lastVals[(int)Projectile.LVI.y].ToString()).
+                Replace("lSPD", lastVals[(int)Projectile.LVI.spd].ToString()).
+                Replace("lANG", lastVals[(int)Projectile.LVI.ang].ToString());
 
             if (Treturn == typeof(int))
             {
@@ -99,6 +103,14 @@ namespace Barrage
                         p2 -= 4;
                     }
                     //math functions
+                    //MOD (modulo)
+                    else if (equation[c1 - 1] == "MOD")
+                    {
+                        equation[c1 - 1] = (double.Parse(equation[c1 + 1]) % double.Parse(equation[c2 + 1])).ToString();
+
+                        equation.RemoveRange(c1, 4);
+                        p2 -= 4;
+                    }
                     //ABS (absolute value)
                     else if (equation[c1 - 1] == "ABS")
                     {
@@ -107,10 +119,27 @@ namespace Barrage
                         equation.RemoveRange(c1, 2);
                         p2 -= 2;
                     }
+                    //SQRT (square root)
+                    else if (equation[c1 - 1] == "SQRT")
+                    {
+                        equation[c1 - 1] = Math.Sqrt(double.Parse(equation[c1 + 1])).ToString();
+
+                        equation.RemoveRange(c1, 2);
+                        p2 -= 2;
+                    }
+                    //SIGN (sign)
+                    else if (equation[c1 - 1] == "SIGN")
+                    {
+                        equation[c1 - 1] = Math.Sign(double.Parse(equation[c1 + 1])).ToString();
+
+                        equation.RemoveRange(c1, 2);
+                        p2 -= 2;
+                    }
                     //SIN (sine)
                     else if (equation[c1 - 1] == "SIN")
                     {
-                        equation[c1 - 1] = Math.Sin(double.Parse(equation[c1 + 1])).ToString();
+                        //                 sin      number                         * pi      / 180 (change to radians)
+                        equation[c1 - 1] = Math.Sin(double.Parse(equation[c1 + 1]) * Math.PI / 180).ToString();
 
                         equation.RemoveRange(c1, 2);
                         p2 -= 2;
@@ -118,7 +147,7 @@ namespace Barrage
                     //COS (cosine)
                     else if (equation[c1 - 1] == "COS")
                     {
-                        equation[c1 - 1] = Math.Cos(double.Parse(equation[c1 + 1])).ToString();
+                        equation[c1 - 1] = Math.Cos(double.Parse(equation[c1 + 1]) * Math.PI / 180).ToString();
 
                         equation.RemoveRange(c1, 2);
                         p2 -= 2;
@@ -126,10 +155,26 @@ namespace Barrage
                     //TAN (tangent)
                     else if (equation[c1 - 1] == "TAN")
                     {
-                        equation[c1 - 1] = Math.Tan(double.Parse(equation[c1 + 1])).ToString();
+                        equation[c1 - 1] = Math.Tan(double.Parse(equation[c1 + 1]) * Math.PI / 180).ToString();
 
                         equation.RemoveRange(c1, 2);
                         p2 -= 2;
+                    }
+                    //ATAN (inverse tangent)
+                    else if (equation[c1 - 1] == "ATAN")
+                    {
+                        if (c2 == -1)
+                        {
+                            equation[c1 - 1] = (Math.Atan(double.Parse(equation[c1 + 1])) / Math.PI * 180).ToString();
+                            equation.RemoveRange(c1, 2);
+                            p2 -= 2;
+                        }
+                        else
+                        {
+                            equation[c1 - 1] = (Math.Atan2(double.Parse(equation[c1 + 1]), double.Parse(equation[c2 + 1])) / Math.PI * 180).ToString();
+                            equation.RemoveRange(c1, 4);
+                            p2 -= 4;
+                        }
                     }
 
                     c1 = equation.IndexOf(":", p1, p2 - p1);
