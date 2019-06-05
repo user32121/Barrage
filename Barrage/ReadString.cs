@@ -16,8 +16,10 @@ namespace Barrage
             input = input.Replace("t", t.ToString()).
                 Replace("plyrx", MainWindow.plyrX.ToString()).
                 Replace("plyry", MainWindow.plyrY.ToString()).
-                Replace("lx", lastVals[(int)Projectile.LVI.x].ToString()).
-                Replace("ly", lastVals[(int)Projectile.LVI.y].ToString()).
+                Replace("lxPOS", lastVals[(int)Projectile.LVI.x].ToString()).
+                Replace("lyPOS", lastVals[(int)Projectile.LVI.y].ToString()).
+                Replace("lxVEL", lastVals[(int)Projectile.LVI.xVel].ToString()).
+                Replace("lyVEL", lastVals[(int)Projectile.LVI.yVel].ToString()).
                 Replace("lSPD", lastVals[(int)Projectile.LVI.spd].ToString()).
                 Replace("lANG", lastVals[(int)Projectile.LVI.ang].ToString());
 
@@ -89,20 +91,28 @@ namespace Barrage
                     oneMore = false;
                 }
 
+                //mathematic functions
                 c1 = equation.IndexOf(":", p1, p2 - p1);
                 if (c1 != -1)
                     c2 = equation.IndexOf(":", c1 + 1, p2 - c1);
                 while (c1 != -1)
                 {
-                    if (equation[c1 - 1] == "RNG")
+                    //ABS (absolute value)
+                    if (equation[c1 - 1] == "ABS")
                     {
-                        //RNG              random           * (b                              - a                            )  + a
-                        equation[c1 - 1] = (rng.NextDouble() * (double.Parse(equation[c2 + 1]) - double.Parse(equation[c1 + 1])) + double.Parse(equation[c1 + 1])).ToString();
+                        equation[c1 - 1] = Math.Abs(double.Parse(equation[c1 + 1])).ToString();
 
-                        equation.RemoveRange(c1, 4);
-                        p2 -= 4;
+                        equation.RemoveRange(c1, 2);
+                        p2 -= 2;
                     }
-                    //math functions
+                    //FLR (floor)
+                    else if (equation[c1 - 1] == "FLR")
+                    {
+                        equation[c1 - 1] = Math.Floor(double.Parse(equation[c1 + 1])).ToString();
+
+                        equation.RemoveRange(c1, 2);
+                        p2 -= 2;
+                    }
                     //MOD (modulo)
                     else if (equation[c1 - 1] == "MOD")
                     {
@@ -111,10 +121,27 @@ namespace Barrage
                         equation.RemoveRange(c1, 4);
                         p2 -= 4;
                     }
-                    //ABS (absolute value)
-                    else if (equation[c1 - 1] == "ABS")
+                    //POW (power or exponent)
+                    else if (equation[c1 - 1] == "POW")
                     {
-                        equation[c1 - 1] = Math.Abs(double.Parse(equation[c1 + 1])).ToString();
+                        equation[c1 - 1] = Math.Pow(double.Parse(equation[c1 + 1]), double.Parse(equation[c2 + 1])).ToString();
+
+                        equation.RemoveRange(c1, 4);
+                        p2 -= 4;
+                    }
+                    //RNG (random number generator)
+                    else if (equation[c1 - 1] == "RNG")
+                    {
+                        //                 random           * (b                              - a                            )  + a
+                        equation[c1 - 1] = (rng.NextDouble() * (double.Parse(equation[c2 + 1]) - double.Parse(equation[c1 + 1])) + double.Parse(equation[c1 + 1])).ToString();
+
+                        equation.RemoveRange(c1, 4);
+                        p2 -= 4;
+                    }
+                    //SIGN (sign)
+                    else if (equation[c1 - 1] == "SIGN")
+                    {
+                        equation[c1 - 1] = Math.Sign(double.Parse(equation[c1 + 1])).ToString();
 
                         equation.RemoveRange(c1, 2);
                         p2 -= 2;
@@ -127,14 +154,7 @@ namespace Barrage
                         equation.RemoveRange(c1, 2);
                         p2 -= 2;
                     }
-                    //SIGN (sign)
-                    else if (equation[c1 - 1] == "SIGN")
-                    {
-                        equation[c1 - 1] = Math.Sign(double.Parse(equation[c1 + 1])).ToString();
-
-                        equation.RemoveRange(c1, 2);
-                        p2 -= 2;
-                    }
+                    //trigonometric functions
                     //SIN (sine)
                     else if (equation[c1 - 1] == "SIN")
                     {
@@ -160,6 +180,22 @@ namespace Barrage
                         equation.RemoveRange(c1, 2);
                         p2 -= 2;
                     }
+                    //ASIN (tangent)
+                    else if (equation[c1 - 1] == "ASIN")
+                    {
+                        equation[c1 - 1] = Math.Asin(double.Parse(equation[c1 + 1]) * Math.PI / 180).ToString();
+
+                        equation.RemoveRange(c1, 2);
+                        p2 -= 2;
+                    }
+                    //ACOS (tangent)
+                    else if (equation[c1 - 1] == "ACOS")
+                    {
+                        equation[c1 - 1] = Math.Acos(double.Parse(equation[c1 + 1]) * Math.PI / 180).ToString();
+
+                        equation.RemoveRange(c1, 2);
+                        p2 -= 2;
+                    }
                     //ATAN (inverse tangent)
                     else if (equation[c1 - 1] == "ATAN")
                     {
@@ -175,6 +211,11 @@ namespace Barrage
                             equation.RemoveRange(c1, 4);
                             p2 -= 4;
                         }
+                    }
+                    else
+                    {
+                        //not implemented or empty colon
+                        equation.RemoveAt(c1);
                     }
 
                     c1 = equation.IndexOf(":", p1, p2 - p1);

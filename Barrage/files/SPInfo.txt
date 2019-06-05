@@ -2,60 +2,52 @@
 | to separate primary parameters
 
 
-proj|tags|speed|angle|size|startPos|duration
+proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration
 -tags		
  +circle	standard circle projectile
  +wallBounce	bounce off walls, requires duration
  +screenWrap	wraps screen edges
 -angle		angle of projectile movement (degrees)(counterclockwise from right)
 -speed 		speed of projectile (pixels/frame)
+-xyPos		position of projectile (overrides angle and speed)
+-xyVel		velocity of projectile (overrides xyPos, angle, and speed)
 -size		radius of projectile
 -startPos	pos to spawn projectiles (x,y)
 -duration	# times it will wallBounce(or similar)
 
-wait|#1
-waits #1 of frames before spawning projectiles again (including this frame)
+repeat|#1|#2	repeats from line #1 #2 times
 
-repeat|#1|#2
-repeats from line #1 #2 times
+val#1|#2	sets val#1 to #2 (stored for later usage)
 
-val#1|#2
-sets val#1 to #2 (stored for later usage)
+wait|#1		waits #1 of frames before spawning projectiles again (including this frame)
 
 
 Available Values:
-t
- -the age of the projectile
-n
- -the number of projectiles spawned so far
-plyrx
+t		the age of the projectile
+n		the number of projectiles spawned so far
+plyrx		the player's position
 plyry
- -the player's position
-lx
- -x position from last frame
-ly
- -y position from last frame
-lSPD
- -the speed from the last frame
-lANG
- -the angle from the last frame
+lxPOS		x position from last frame
+lyPOS		y position from last frame
+lxVEL		velocity from last frame
+lyVEL		
+lSPD		the speed from the last frame
+lANG		the angle from the last frame
+
 
 Available Functions:
-RNG:#1:#2
- -picks a random number between #1 and #2
-MOD:#1:#2
- -returns the modulus of #1 / #2
-ABS:#1
- -returns the absolute value of #1
-SQRT:#1
- -square root of #1
-SIN:#1
- -sine of #1
-COS:#1
- -cosine of #1
-TAN:#1
- -tangent of #1
-ATAN:#1
- -inverse tangent of #1
-ATAN:#1:#2
- -inverse tangent of #1,#2 (usual format is y,x)
+ABS:#1		returns the absolute value of #1
+FLR:#1		the int part of #1
+MOD:#1:#2	returns the modulus of #1 / #2
+POW:#1:#2	#1 to the power of #2
+RNG:#1:#2	picks a random number between #1 and #2
+SIGN:#1		sign of #1
+SQRT:#1		square root of #1
+
+SIN:#1		sine of #1
+COS:#1		cosine of #1
+TAN:#1		tangent of #1
+ASIN:#1		inverse sine of #1
+ACOS:#1		inverse cosine of #1
+ATAN:#1		inverse tangent of #1
+ATAN:#1:#2	inverse tangent of #1,#2 (usual format is y,x)

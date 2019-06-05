@@ -47,3 +47,8 @@ repeat|0|1000
 proj|tags=circle,screenWrap|speed=10|angle=t*t+val1|startPos=0,0|duration=1000
 wait|5
 repeat|0|1000
+
+#gravity fun
+proj|tags=circle|xyVel=1000/(POW:(plyrx-lxPOS):2+POW:(plyry-lyPOS):2)*COS:(ATAN:(plyry-lyPOS):(plyrx-lxPOS))+lxVEL,1000/(POW:(plyrx-lxPOS):2+POW:(plyry-lyPOS):2)*SIN:(ATAN:(plyry-lyPOS):(plyrx-lxPOS))+lyVEL
+wait|10
+repeat|0|10000

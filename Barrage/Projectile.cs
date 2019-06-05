@@ -17,15 +17,17 @@ namespace Barrage
         public List<string> Tags;
         public string Speed;
         public string Angle;
+        public string XyPos;
+        public string XyVel;
         public string Radius;
         public int RadiusSqr;
         public int Duration;
         public bool IsAlive;
         int Age;
 
-        readonly double[] lastVals = new double[4];
-        public enum LVI //Last Value Index
-        { x, y, spd, ang }
+        readonly double[] lastVals = new double[6];
+        public enum LVI /*Last Value Index*/ { x, y, xVel, yVel, spd, ang }
+        public static int LVIL = 6; //Last Value Index Length
 
         public Projectile(string radius, MainWindow parent)
         {
@@ -86,12 +88,6 @@ namespace Barrage
                 }
             }
 
-            //speed and angle
-            double ang = (double)ReadString.Interpret(Angle, typeof(double), Age, lastVals);
-            double spd = (double)ReadString.Interpret(Speed, typeof(double), Age, lastVals);
-            double radians = ang * Math.PI / 180;
-            Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * spd;
-
             //radius
             int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int), Age, lastVals));
             if (Sprite.Width / 2 != r)
@@ -101,12 +97,38 @@ namespace Barrage
                 RadiusSqr = r * r;
             }
 
+            double ang = 0, spd = 0;
+            //xyVel
+            if (XyVel != "")
+            {
+                Velocity = (Vector)ReadString.Interpret(XyVel, typeof(Vector), Age, lastVals);
+                spd = Velocity.Length;
+                ang = Math.Atan2(Velocity.Y, Velocity.X);
+            }
+            //xyPos
+            else if (XyPos != "")
+            {
+                Velocity = (Vector)ReadString.Interpret(XyPos, typeof(Vector), Age, lastVals) - Position;
+                spd = Velocity.Length;
+                ang = Math.Atan2(Velocity.Y, Velocity.X);
+            }
+            //speed and angle
+            else
+            {
+                ang = (double)ReadString.Interpret(Angle, typeof(double), Age, lastVals);
+                spd = (double)ReadString.Interpret(Speed, typeof(double), Age, lastVals);
+                double radians = ang * Math.PI / 180;
+                Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * spd;
+            }
+
             //moves projectile by velocity
             SetPos(Position.X + Velocity.X * velDir.X, Position.Y + Velocity.Y * velDir.Y);
 
             //sets lastVals
             lastVals[(int)LVI.x] = Position.X;
             lastVals[(int)LVI.y] = Position.Y;
+            lastVals[(int)LVI.xVel] = Velocity.X;
+            lastVals[(int)LVI.yVel] = Velocity.Y;
             lastVals[(int)LVI.spd] = spd;
             lastVals[(int)LVI.ang] = ang;
         }

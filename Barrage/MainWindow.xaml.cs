@@ -222,6 +222,8 @@ namespace Barrage
                     string size = "7";
                     string speed = "1";
                     string angle = "0";
+                    string xyPos = "";
+                    string xyVel = "";
                     string startPos = "0,-100";
                     int duration = 0;
 
@@ -235,19 +237,23 @@ namespace Barrage
                             speed = ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals);
                         else if (line[i].Contains("angle"))
                             angle = ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals);
+                        else if (line[i].Contains("xyPos"))
+                            xyPos = ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals);
+                        else if (line[i].Contains("xyVel"))
+                            xyVel = ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals);
                         else if (line[i].Contains("tags"))
                             tags = line[i].Split('=')[1].Split(',').ToList();
                         else if (line[i].Contains("duration"))
-                            duration = (int)ReadString.Interpret(ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals), typeof(int), 0, new double[4]);
+                            duration = (int)ReadString.Interpret(ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
                     }
 
-                    CreateProj(size, startPos, speed, angle, tags, duration);
+                    CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration);
                     spwnInd++;
                 }
                 else if (line[0] == "wait")
                 {
                     //waits # of frames untill spawns again
-                    wait = (int)ReadString.Interpret(ReadString.AddVals(line[1], spwnInd, spwnVals), typeof(int), 0, new double[4]);
+                    wait = (int)ReadString.Interpret(ReadString.AddVals(line[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
                 }
                 else if (line[0] == "repeat")
                 {
@@ -255,13 +261,13 @@ namespace Barrage
                     if (repeatVals[readIndex] > 0)
                     {
                         repeatVals[readIndex]--;
-                        readIndex = (int)ReadString.Interpret(ReadString.AddVals(line[1], spwnInd, spwnVals), typeof(int), 0, new double[4]) - 1;
+                        readIndex = (int)ReadString.Interpret(ReadString.AddVals(line[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]) - 1;
                         //(-1 because there is ++ later on)
                     }
                     //resets repeats left (and moves to next line)
                     else
                     {
-                        repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.AddVals(line[2], spwnInd, spwnVals), typeof(int), 0, new double[4]) - 1;
+                        repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.AddVals(line[2], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]) - 1;
                     }
                 }
                 else if (line[0].Contains("val"))
@@ -272,7 +278,7 @@ namespace Barrage
                     while (ind >= spwnVals.Count)
                         spwnVals.Add(0);
 
-                    spwnVals[ind] = (double)ReadString.Interpret(ReadString.AddVals(line[1], spwnInd, spwnVals), typeof(double), 0, new double[4]);
+                    spwnVals[ind] = (double)ReadString.Interpret(ReadString.AddVals(line[1], spwnInd, spwnVals), typeof(double), 0, new double[Projectile.LVIL]);
                 }
 
                 //next line
@@ -282,10 +288,10 @@ namespace Barrage
             wait--;
         }
 
-        public void CreateProj(string size, string startPos, string speed, string angle, List<string> tags, int duration)
+        public void CreateProj(string size, string startPos, string speed, string angle, string xyPos, string xyVel, List<string> tags, int duration)
         {
             //displays projectile
-            int r = Math.Abs((int)ReadString.Interpret(size, typeof(int), 0, new double[4]));
+            int r = Math.Abs((int)ReadString.Interpret(size, typeof(int), 0, new double[Projectile.LVIL]));
             Image projImage = new Image() { Height = r * 2, Width = r * 2 };
             if (tags.Contains("circle"))
                 projImage.Source = new BitmapImage(new Uri("files/Projectile1.png", UriKind.Relative));
@@ -294,16 +300,18 @@ namespace Barrage
             mainGrid.Children.Add(projImage);
 
             //creates projectile
-            double radians = (double)ReadString.Interpret(angle, typeof(double), 0, new double[4]) * Math.PI / 180;
+            double radians = (double)ReadString.Interpret(angle, typeof(double), 0, new double[Projectile.LVIL]) * Math.PI / 180;
             Projectile tempProjectile = new Projectile(size, this)
             {
                 Sprite = projImage,
                 Duration = duration,
-                Position = (Vector)ReadString.Interpret(startPos, typeof(Vector), 0, new double[4]),
+                Position = (Vector)ReadString.Interpret(startPos, typeof(Vector), 0, new double[Projectile.LVIL]),
                 Speed = speed,
                 Angle = angle,
+                XyPos = xyPos,
+                XyVel = xyVel,
                 Tags = tags,
-                Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * (double)ReadString.Interpret(speed, typeof(double), 0, new double[4])
+                Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * (double)ReadString.Interpret(speed, typeof(double), 0, new double[Projectile.LVIL])
             };
 
             projectiles.Add(tempProjectile);
@@ -325,7 +333,7 @@ namespace Barrage
                     if (line.Contains("repeat"))
                     {
                         string[] vals = line.Split('|');
-                        repeatVals.Add(readFile.Count - 1, repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.AddVals(vals[2], spwnInd, spwnVals), typeof(int), 0, new double[4]));
+                        repeatVals.Add(readFile.Count - 1, repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.AddVals(vals[2], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]));
                     }
                 }
             }
