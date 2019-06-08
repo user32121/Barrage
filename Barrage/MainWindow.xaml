@@ -21,10 +21,19 @@
                     </TransformGroup>
                 </Image.RenderTransform>
             </Image>
-            <CheckBox x:Name="checkBox" Content="useMouse" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent" FontSize="10" Opacity="0.5" Panel.ZIndex="100"/>
-            <Label x:Name="projCount" Content="projectiles" Margin="0"  VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" Opacity="0.5" Panel.ZIndex="100" FontSize="10"/>
-            <Image x:Name="TestProjectile" HorizontalAlignment="Center" VerticalAlignment="Center" Source="files/Projectile1.png" Width="15" Height="15" Visibility="Hidden"/>
+            <Image x:Name="TestProjectile" HorizontalAlignment="Center" VerticalAlignment="Center" Source="files/Laser1.png" Width="7" Height="700" Visibility="Hidden" RenderTransformOrigin="0.5,0.5" Stretch="Fill">
+                <Image.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform Angle="45"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Image.RenderTransform>
+            </Image>
         </Grid>
+        <CheckBox x:Name="checkBox" Content="useMouse" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent" FontSize="10" Opacity="0.5" Panel.ZIndex="100"/>
+        <Label x:Name="projCount" Content="projectiles" Margin="0"  VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" Opacity="0.5" Panel.ZIndex="100" FontSize="10"/>
         <Label x:Name="PauseText" Margin="0,0,0,100" Content="" VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="100" FontSize="36" BorderBrush="Transparent" Background="Transparent"/>
     </Grid>
 </Window>

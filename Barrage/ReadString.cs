@@ -9,7 +9,7 @@ namespace Barrage
 {
     class ReadString
     {
-        static Random rng = new Random();
+        static readonly Random rng = new Random();
 
         public static object Interpret(string input, Type Treturn, int t, double[] lastVals)
         {
@@ -49,19 +49,22 @@ namespace Barrage
             int i;
             for (i = 1; i < input.Length; i++)
             {
-                //if this character is a number and prev char is also number, connect them
-                if ((char.IsDigit(input[i]) || input[i] == '.') && (char.IsDigit(equation[equation.Count - 1][0]) || input[i] == '.'))
+                //if (prev char IsDigit)                                and (this char IsDigit                         or letter E)         or (prev char E        and (this char IsDigit      or +               or -))               or (this char IsDIgit     and notlow and prev prev char E)
+                if (((char.IsDigit(input[i - 1]) || input[i - 1] == '.') && (char.IsDigit(input[i]) || input[i] == '.' || input[i] == 'E')) || (input[i - 1] == 'E' && (char.IsDigit(input[i]) || input[i] == '+' || input[i] == '-')) || (char.IsDigit(input[i]) && i >= 2 && input[i - 2] == 'E'))
                 {
+                    //connect
                     equation[equation.Count - 1] += input[i];
                 }
                 //if(a series of letters)
-                else if (char.IsLetter(input[i]) && char.IsLetter(equation[equation.Count - 1][0]))
+                else if (char.IsLetter(input[i]) && char.IsLetter(input[i - 1]))
                 {
+                    //connect
                     equation[equation.Count - 1] += input[i];
                 }
-                //if cannot combine into a number
+                //if(cannot combine into a number)
                 else
                 {
+                    //separate
                     equation.Add(input[i].ToString());
                 }
             }

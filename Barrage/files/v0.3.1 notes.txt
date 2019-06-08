@@ -1,4 +1,0 @@
-added 
-functions:	SQRT,MOD,ATAN,SIN,COS,TAN
-values:		lSpd,lAng,lx,ly
-check SPInfo.txt for details

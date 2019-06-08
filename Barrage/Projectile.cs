@@ -13,7 +13,7 @@ namespace Barrage
         public Vector Position;
         public Vector Velocity;
         public Vector velDir = new Vector(1, 1);
-        private MainWindow m_parent;
+        private readonly MainWindow m_parent;
         public List<string> Tags;
         public string Speed;
         public string Angle;
@@ -22,10 +22,11 @@ namespace Barrage
         public string Radius;
         public int RadiusSqr;
         public int Duration;
+        public int activeDelay;
         public bool IsAlive;
         int Age;
 
-        readonly double[] lastVals = new double[6];
+        public readonly double[] lastVals = new double[6];
         public enum LVI /*Last Value Index*/ { x, y, xVel, yVel, spd, ang }
         public static int LVIL = 6; //Last Value Index Length
 
@@ -38,10 +39,21 @@ namespace Barrage
             IsAlive = true;
         }
 
-        public void SetPos(double x, double y)
+        public void SetPos(double x, double y, double r)
         {
+            int y1 = 0;
+            TransformGroup TG = new TransformGroup();
+            if (Tags.Contains("laser"))
+            {
+                y1 = 50;
+                TG.Children.Add(new ScaleTransform(1, 6));
+                //rotate laser
+                TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle, typeof(double), Age, lastVals) - 90, r / 2, 0));
+            }
+
             Position = new Vector(x, y);
-            Sprite.RenderTransform = new TranslateTransform(x, y);
+            TG.Children.Add(new TranslateTransform(x, y + y1));
+            Sprite.RenderTransform = TG;
         }
 
         public void Move()
@@ -49,55 +61,68 @@ namespace Barrage
             //increase age (for parameters with t)
             Age++;
 
+            //lasers have a limited lifespan
+            if (Tags.Contains("laser"))
+                Duration--;
+
+            //radius
+            int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int), Age, lastVals));
+
             //checks if offscreen (x)
             if (Math.Abs(Position.X) > m_parent.mainGrid.ActualWidth / 2)
             {
-                if (Tags.Contains("wallBounce") && Duration > 0)
+                if (Tags.Contains("wallBounce"))
                 {
-                    SetPos(Position.X - 2 * (Position.X - m_parent.mainGrid.ActualWidth / 2 * Math.Sign(Position.X)), Position.Y);
+                    SetPos(Position.X - 2 * (Position.X - m_parent.mainGrid.ActualWidth / 2 * Math.Sign(Position.X)), Position.Y, r);
                     velDir.X *= -1;
                     Duration--;
                 }
-                else if (Tags.Contains("screenWrap") && Duration > 0)
+                else if (Tags.Contains("screenWrap"))
                 {
-                    SetPos(Position.X - m_parent.mainGrid.ActualWidth * Math.Sign(Position.X), Position.Y);
+                    SetPos(Position.X - m_parent.mainGrid.ActualWidth * Math.Sign(Position.X), Position.Y, r);
                     Duration--;
                 }
                 else
-                {
                     IsAlive = false;
-                }
             }
             //checks if offscreen (y)
             else if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight / 2)
             {
-                if (Tags.Contains("wallBounce") && Duration > 0)
+                if (Tags.Contains("wallBounce"))
                 {
-                    SetPos(Position.X, Position.Y - 2 * (Position.Y - m_parent.mainGrid.ActualHeight / 2 * Math.Sign(Position.Y)));
+                    SetPos(Position.X, Position.Y - 2 * (Position.Y - m_parent.mainGrid.ActualHeight / 2 * Math.Sign(Position.Y)), r);
                     velDir.Y *= -1;
                     Duration--;
                 }
-                else if (Tags.Contains("screenWrap") && Duration > 0)
+                else if (Tags.Contains("screenWrap"))
                 {
-                    SetPos(Position.X, Position.Y - m_parent.mainGrid.ActualHeight * Math.Sign(Position.Y));
+                    SetPos(Position.X, Position.Y - m_parent.mainGrid.ActualHeight * Math.Sign(Position.Y), r);
                     Duration--;
                 }
                 else
-                {
                     IsAlive = false;
-                }
             }
 
+            //checks if duration is used up
+            if (Duration <= 0)
+                IsAlive = false;
+
             //radius
-            int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int), Age, lastVals));
             if (Sprite.Width / 2 != r)
             {
-                Sprite.Width = r * 2;
-                Sprite.Height = r * 2;
+                if (Tags.Contains("circle"))
+                {
+                    Sprite.Width = r * 2;
+                    Sprite.Height = r * 2;
+                }
+                else if (Tags.Contains("laser"))
+                {
+                    Sprite.Width = r * 2;
+                }
                 RadiusSqr = r * r;
             }
 
-            double ang = 0, spd = 0;
+            double ang, spd;
             //xyVel
             if (XyVel != "")
             {
@@ -122,7 +147,7 @@ namespace Barrage
             }
 
             //moves projectile by velocity
-            SetPos(Position.X + Velocity.X * velDir.X, Position.Y + Velocity.Y * velDir.Y);
+            SetPos(Position.X + Velocity.X * velDir.X, Position.Y + Velocity.Y * velDir.Y, r);
 
             //sets lastVals
             lastVals[(int)LVI.x] = Position.X;

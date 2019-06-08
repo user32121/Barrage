@@ -1,0 +1,4 @@
+added 
+projectile properties: xyPos,xyVel
+values:		lxVEL,lyVEL
+check SPInfo.txt for details

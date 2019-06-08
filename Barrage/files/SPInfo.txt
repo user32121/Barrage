@@ -5,15 +5,16 @@
 proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration
 -tags		
  +circle	standard circle projectile
+ +laser		laser (cannot have both laser and circle)
  +wallBounce	bounce off walls, requires duration
  +screenWrap	wraps screen edges
 -angle		angle of projectile movement (degrees)(counterclockwise from right)
 -speed 		speed of projectile (pixels/frame)
 -xyPos		position of projectile (overrides angle and speed)
 -xyVel		velocity of projectile (overrides xyPos, angle, and speed)
--size		radius of projectile
+-size		radius of projectile (or half of width of laser)
 -startPos	pos to spawn projectiles (x,y)
--duration	# times it will wallBounce(or similar)
+-duration	# times it will wallBounce(or similar), or # frames a laser will exist
 
 repeat|#1|#2	repeats from line #1 #2 times
 

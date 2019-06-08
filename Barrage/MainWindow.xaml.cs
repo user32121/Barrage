@@ -24,9 +24,9 @@ namespace Barrage
     /// </summary>
     public partial class MainWindow : Window
     {
-        int extraUI;
-        DispatcherTimer timer = new DispatcherTimer();
-        List<Projectile> projectiles = new List<Projectile>();
+        readonly int extraUI;
+        readonly DispatcherTimer timer = new DispatcherTimer();
+        readonly List<Projectile> projectiles = new List<Projectile>();
         bool paused;
         bool gameOver;
 
@@ -74,7 +74,7 @@ namespace Barrage
 
                 CheckPlayerHit();
 
-                //counts projectiles for lag monitoring
+                //counts projectiles for monitoring lag
                 projCount.Content = projectiles.Count.ToString();
             }
         }
@@ -187,9 +187,23 @@ namespace Barrage
 
             foreach (Projectile item in projectiles)
             {
+                //collision detection
                 if (item.Tags.Contains("circle"))
                 {
+                    //distance is less than radius
                     if (Math.Pow(plyrX - item.Position.X, 2) + Math.Pow(plyrY - item.Position.Y, 2) < item.RadiusSqr)
+                        hit = true;
+                }
+                else if (item.Tags.Contains("laser"))
+                {
+                    //dist to line is less than radius, also checks if plyr is behind laser
+                    double ang = item.lastVals[(int)Projectile.LVI.ang], radians = ang * Math.PI / 180,
+                        m1 = Math.Sin(radians) / Math.Cos(radians), m2 = -1 / m1;
+                    if (double.IsInfinity(m1)) m1 = 1; if (double.IsInfinity(m2)) m2 = 1;
+
+                    double b1 = item.Position.Y - m1 * item.Position.X, b2 = plyrY - m2 * plyrX,
+                        ix = (b2 - b1) / (m1 - m2), iy = m1 * ix + b1;
+                    if (Math.Pow(plyrX - ix, 2) + Math.Pow(plyrY - iy, 2) < item.RadiusSqr && (Math.Abs(ang) < 90 ? plyrX >= item.Position.X : plyrX <= item.Position.X))
                         hit = true;
                 }
             }
@@ -205,9 +219,9 @@ namespace Barrage
         string[] spawnPattern;
         int readIndex = 0;
         int wait;
-        Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
+        readonly Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
         int spwnInd;
-        List<double> spwnVals = new List<double>();
+        readonly List<double> spwnVals = new List<double>();
 
         void SpawnProjectiles()
         {
@@ -220,12 +234,12 @@ namespace Barrage
                     //finds parameters
                     List<string> tags = new List<string>();
                     string size = "7";
-                    string speed = "1";
+                    string speed = "0";
                     string angle = "0";
                     string xyPos = "";
                     string xyVel = "";
                     string startPos = "0,-100";
-                    int duration = 0;
+                    int duration = 1;
 
                     for (int i = 1; i < line.Length; i++)
                     {
@@ -292,9 +306,20 @@ namespace Barrage
         {
             //displays projectile
             int r = Math.Abs((int)ReadString.Interpret(size, typeof(int), 0, new double[Projectile.LVIL]));
-            Image projImage = new Image() { Height = r * 2, Width = r * 2 };
+            Image projImage = new Image();
             if (tags.Contains("circle"))
+            {
+                projImage.Width = r * 2;
+                projImage.Height = r * 2;
                 projImage.Source = new BitmapImage(new Uri("files/Projectile1.png", UriKind.Relative));
+            }
+            else if (tags.Contains("laser"))
+            {
+                projImage.Stretch = Stretch.Fill;
+                projImage.Width = r * 2;
+                projImage.Height = 100;
+                projImage.Source = new BitmapImage(new Uri("files/Laser1.png", UriKind.Relative));
+            }
             Grid.SetColumn(projImage, 0);
             Grid.SetRow(projImage, 0);
             mainGrid.Children.Add(projImage);
