@@ -52,3 +52,7 @@ repeat|0|1000
 proj|tags=circle|xyVel=1000/(POW:(plyrx-lxPOS):2+POW:(plyry-lyPOS):2)*COS:(ATAN:(plyry-lyPOS):(plyrx-lxPOS))+lxVEL,1000/(POW:(plyrx-lxPOS):2+POW:(plyry-lyPOS):2)*SIN:(ATAN:(plyry-lyPOS):(plyrx-lxPOS))+lyVEL
 wait|10
 repeat|0|10000
+
+proj|tags=circle|speed=SQRT:(SQRT:t)*2|angle=(n*10)+180|startPos=(COS:(n*10)+SIN:(n*10))*100,(SIN:(n*10)+SIN:(n*10))*100
+wait|1
+repeat|0|10000

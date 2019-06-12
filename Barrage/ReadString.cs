@@ -157,6 +157,22 @@ namespace Barrage
                         equation.RemoveRange(c1, 2);
                         p2 -= 2;
                     }
+                    //MAX (higher value)
+                    else if (equation[c1 - 1] == "MAX")
+                    {
+                        equation[c1 - 1] = Math.Max(double.Parse(equation[c1 + 1]), double.Parse(equation[c2 + 1])).ToString();
+
+                        equation.RemoveRange(c1, 4);
+                        p2 -= 4;
+                    }
+                    //MIN (lower value)
+                    else if (equation[c1 - 1] == "MIN")
+                    {
+                        equation[c1 - 1] = Math.Min(double.Parse(equation[c1 + 1]), double.Parse(equation[c1 + 2])).ToString();
+
+                        equation.RemoveRange(c1, 4);
+                        p2 -= 4;
+                    }
                     //trigonometric functions
                     //SIN (sine)
                     else if (equation[c1 - 1] == "SIN")

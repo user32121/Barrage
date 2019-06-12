@@ -22,9 +22,9 @@ namespace Barrage
         public string Radius;
         public int RadiusSqr;
         public int Duration;
-        public int activeDelay;
+        public int ActDelay;
         public bool IsAlive;
-        int Age;
+        public int Age;
 
         public readonly double[] lastVals = new double[6];
         public enum LVI /*Last Value Index*/ { x, y, xVel, yVel, spd, ang }
@@ -58,6 +58,14 @@ namespace Barrage
 
         public void Move()
         {
+            //ActDelay
+            if (ActDelay > 0)
+            {
+                ActDelay--;
+                if (ActDelay == 0)
+                    Sprite.Opacity = 1;
+            }
+
             //increase age (for parameters with t)
             Age++;
 

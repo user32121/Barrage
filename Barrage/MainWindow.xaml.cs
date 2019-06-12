@@ -52,6 +52,7 @@ namespace Barrage
                 if (!gameOver)
                 {
                     PlayerMove();
+                    CheckPlayerHit();
                     SpawnProjectiles();
                 }
 
@@ -72,8 +73,6 @@ namespace Barrage
                     mainGrid.Children.Remove(P.Sprite);
                 }
 
-                CheckPlayerHit();
-
                 //counts projectiles for monitoring lag
                 projCount.Content = projectiles.Count.ToString();
             }
@@ -87,6 +86,7 @@ namespace Barrage
                 spwnInd = 0;
                 spwnVals.Clear();
                 repeatVals.Clear();
+                wait = 0;
 
                 ReadSpawnTxt();
 
@@ -187,6 +187,9 @@ namespace Barrage
 
             foreach (Projectile item in projectiles)
             {
+                if (item.ActDelay > 0)
+                    continue;
+
                 //collision detection
                 if (item.Tags.Contains("circle"))
                 {
@@ -197,7 +200,7 @@ namespace Barrage
                 else if (item.Tags.Contains("laser"))
                 {
                     //dist to line is less than radius, also checks if plyr is behind laser
-                    double ang = item.lastVals[(int)Projectile.LVI.ang], radians = ang * Math.PI / 180,
+                    double ang = (double)ReadString.Interpret(item.Angle, typeof(double), item.Age, item.lastVals), radians = ang * Math.PI / 180,
                         m1 = Math.Sin(radians) / Math.Cos(radians), m2 = -1 / m1;
                     if (double.IsInfinity(m1)) m1 = 1; if (double.IsInfinity(m2)) m2 = 1;
 
@@ -240,6 +243,7 @@ namespace Barrage
                     string xyVel = "";
                     string startPos = "0,-100";
                     int duration = 1;
+                    int actDelay = 1;
 
                     for (int i = 1; i < line.Length; i++)
                     {
@@ -259,9 +263,11 @@ namespace Barrage
                             tags = line[i].Split('=')[1].Split(',').ToList();
                         else if (line[i].Contains("duration"))
                             duration = (int)ReadString.Interpret(ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
+                        else if (line[i].Contains("actDelay"))
+                            actDelay = (int)ReadString.Interpret(ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
                     }
 
-                    CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration);
+                    CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, actDelay);
                     spwnInd++;
                 }
                 else if (line[0] == "wait")
@@ -271,17 +277,18 @@ namespace Barrage
                 }
                 else if (line[0] == "repeat")
                 {
-                    //repeats
-                    if (repeatVals[readIndex] > 0)
+                    //sets repeats left
+                    if (repeatVals[readIndex] <= 0)
                     {
-                        repeatVals[readIndex]--;
+                        repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.AddVals(line[2], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
+                    }
+
+                    //repeats (stops at 1 since that will be the last repeat)
+                    repeatVals[readIndex]--;
+                    if (repeatVals[readIndex] >= 1)
+                    {
                         readIndex = (int)ReadString.Interpret(ReadString.AddVals(line[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]) - 1;
                         //(-1 because there is ++ later on)
-                    }
-                    //resets repeats left (and moves to next line)
-                    else
-                    {
-                        repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.AddVals(line[2], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]) - 1;
                     }
                 }
                 else if (line[0].Contains("val"))
@@ -302,7 +309,7 @@ namespace Barrage
             wait--;
         }
 
-        public void CreateProj(string size, string startPos, string speed, string angle, string xyPos, string xyVel, List<string> tags, int duration)
+        public void CreateProj(string size, string startPos, string speed, string angle, string xyPos, string xyVel, List<string> tags, int duration, int actDelay)
         {
             //displays projectile
             int r = Math.Abs((int)ReadString.Interpret(size, typeof(int), 0, new double[Projectile.LVIL]));
@@ -320,6 +327,8 @@ namespace Barrage
                 projImage.Height = 100;
                 projImage.Source = new BitmapImage(new Uri("files/Laser1.png", UriKind.Relative));
             }
+            if (actDelay > 0)
+                projImage.Opacity = 0.3;
             Grid.SetColumn(projImage, 0);
             Grid.SetRow(projImage, 0);
             mainGrid.Children.Add(projImage);
@@ -336,7 +345,8 @@ namespace Barrage
                 XyPos = xyPos,
                 XyVel = xyVel,
                 Tags = tags,
-                Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * (double)ReadString.Interpret(speed, typeof(double), 0, new double[Projectile.LVIL])
+                Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * (double)ReadString.Interpret(speed, typeof(double), 0, new double[Projectile.LVIL]),
+                ActDelay = actDelay
             };
 
             projectiles.Add(tempProjectile);
@@ -358,7 +368,7 @@ namespace Barrage
                     if (line.Contains("repeat"))
                     {
                         string[] vals = line.Split('|');
-                        repeatVals.Add(readFile.Count - 1, repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.AddVals(vals[2], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]));
+                        repeatVals.Add(readFile.Count - 1, 0);
                     }
                 }
             }
