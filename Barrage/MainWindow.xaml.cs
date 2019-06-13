@@ -206,7 +206,7 @@ namespace Barrage
 
                     double b1 = item.Position.Y - m1 * item.Position.X, b2 = plyrY - m2 * plyrX,
                         ix = (b2 - b1) / (m1 - m2), iy = m1 * ix + b1;
-                    if (Math.Pow(plyrX - ix, 2) + Math.Pow(plyrY - iy, 2) < item.RadiusSqr && (Math.Abs(ang) < 90 ? plyrX >= item.Position.X : plyrX <= item.Position.X))
+                    if (Math.Pow(plyrX - ix, 2) + Math.Pow(plyrY - iy, 2) < item.RadiusSqr && ((Math.Abs(ang % 360) < 90 || Math.Abs(ang % 360) > 270) ? plyrX >= item.Position.X : plyrX <= item.Position.X))
                         hit = true;
                 }
             }

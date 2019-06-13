@@ -56,3 +56,6 @@ repeat|0|10000
 proj|tags=circle|speed=SQRT:(SQRT:t)*2|angle=(n*10)+180|startPos=(COS:(n*10)+SIN:(n*10))*100,(SIN:(n*10)+SIN:(n*10))*100
 wait|1
 repeat|0|10000
+
+proj|tags=circle|speed=10|angle=t*13.2+n|startPos=0,0|size=n/10+1
+repeat|0|360

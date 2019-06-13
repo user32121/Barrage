@@ -79,41 +79,37 @@ namespace Barrage
             //checks if offscreen (x)
             if (Math.Abs(Position.X) > m_parent.mainGrid.ActualWidth / 2)
             {
-                if (Tags.Contains("wallBounce"))
+                if (Tags.Contains("wallBounce") && Duration > 0)
                 {
                     SetPos(Position.X - 2 * (Position.X - m_parent.mainGrid.ActualWidth / 2 * Math.Sign(Position.X)), Position.Y, r);
                     velDir.X *= -1;
                     Duration--;
                 }
-                else if (Tags.Contains("screenWrap"))
+                else if (Tags.Contains("screenWrap") && Duration > 0)
                 {
                     SetPos(Position.X - m_parent.mainGrid.ActualWidth * Math.Sign(Position.X), Position.Y, r);
                     Duration--;
                 }
-                else
+                else if (Math.Abs(Position.X) > m_parent.mainGrid.ActualWidth / 2 + r)
                     IsAlive = false;
             }
             //checks if offscreen (y)
-            else if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight / 2)
+            else if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight / 2 + r)
             {
-                if (Tags.Contains("wallBounce"))
+                if (Tags.Contains("wallBounce") && Duration > 0)
                 {
                     SetPos(Position.X, Position.Y - 2 * (Position.Y - m_parent.mainGrid.ActualHeight / 2 * Math.Sign(Position.Y)), r);
                     velDir.Y *= -1;
                     Duration--;
                 }
-                else if (Tags.Contains("screenWrap"))
+                else if (Tags.Contains("screenWrap") && Duration > 0)
                 {
                     SetPos(Position.X, Position.Y - m_parent.mainGrid.ActualHeight * Math.Sign(Position.Y), r);
                     Duration--;
                 }
-                else
+                else if (Math.Abs(Position.X) > m_parent.mainGrid.ActualWidth / 2 + r)
                     IsAlive = false;
             }
-
-            //checks if duration is used up
-            if (Duration <= 0)
-                IsAlive = false;
 
             //radius
             if (Sprite.Width / 2 != r)
