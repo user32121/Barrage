@@ -71,7 +71,11 @@ namespace Barrage
 
             //lasers have a limited lifespan
             if (Tags.Contains("laser"))
+            {
                 Duration--;
+                if (Duration <= 0)
+                    IsAlive = false;
+            }
 
             //radius
             int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int), Age, lastVals));
@@ -94,7 +98,7 @@ namespace Barrage
                     IsAlive = false;
             }
             //checks if offscreen (y)
-            else if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight / 2 + r)
+            else if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight / 2)
             {
                 if (Tags.Contains("wallBounce") && Duration > 0)
                 {
@@ -107,7 +111,7 @@ namespace Barrage
                     SetPos(Position.X, Position.Y - m_parent.mainGrid.ActualHeight * Math.Sign(Position.Y), r);
                     Duration--;
                 }
-                else if (Math.Abs(Position.X) > m_parent.mainGrid.ActualWidth / 2 + r)
+                else if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight/ 2 + r)
                     IsAlive = false;
             }
 
