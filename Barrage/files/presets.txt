@@ -59,3 +59,7 @@ repeat|0|10000
 
 proj|tags=circle|speed=10|angle=t*13.2+n|startPos=0,0|size=n/10+1
 repeat|0|360
+
+proj|tags=circle,screenWrap|angle=n*10.1|speed=3|duration=1
+wait|10/SQRT:(n/10)+1
+repeat|0|1000000

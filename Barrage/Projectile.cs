@@ -111,7 +111,7 @@ namespace Barrage
                     SetPos(Position.X, Position.Y - m_parent.mainGrid.ActualHeight * Math.Sign(Position.Y), r);
                     Duration--;
                 }
-                else if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight/ 2 + r)
+                else if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight / 2 + r)
                     IsAlive = false;
             }
 

@@ -71,7 +71,7 @@ namespace Barrage
 
             //calculation (negation)
             for (i = equation.Count - 1; i >= 0; i--)
-                if (equation[i] == "-" && (i == 0 || !char.IsDigit(equation[i - 1][0])))
+                if (equation[i] == "-" && (i == 0 || !char.IsDigit(equation[i - 1][0]) && equation[i - 1] != ")"))
                 {
                     equation.RemoveAt(i);
                     equation[i] = equation[i].Insert(0, "-");

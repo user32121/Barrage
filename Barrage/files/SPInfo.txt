@@ -18,6 +18,8 @@ proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration
 -duration	# times it will wallBounce(or similar), or # frames a laser will exist
 -actDelay	# frames before the projectile can collide with the player
 
+boss|#1|#2|#3|#4	moves the boss sprite to #1,#2 at #3 pixels/frame and rotates at #4 degrees/frame
+
 repeat|#1|#2	repeats from line #1 #2 times
 
 val#1|#2	sets val#1 to #2 (stored for later usage)
@@ -29,9 +31,9 @@ Available Values:
 t		the age of the projectile
 n		the number of projectiles spawned so far
 plyrx		the player's position
-plyry
-lxPOS		x position from last frame
-lyPOS		y position from last frame
+plyry		
+lxPOS		position from last frame
+lyPOS		
 lxVEL		velocity from last frame
 lyVEL		
 lSPD		the speed from the last frame

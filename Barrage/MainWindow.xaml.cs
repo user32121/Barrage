@@ -41,6 +41,8 @@ namespace Barrage
             timer.Start();
 
             plyrY = 100;
+            bossPos.X = Boss.RenderTransform.Value.OffsetX;
+            bossPos.Y = Boss.RenderTransform.Value.OffsetY;
 
             ReadSpawnTxt();
         }
@@ -52,29 +54,13 @@ namespace Barrage
                 if (!gameOver)
                 {
                     PlayerMove();
-                    CheckPlayerHit();
                     SpawnProjectiles();
                 }
 
-                //move projectiles
-                List<Projectile> toRemove = new List<Projectile>();
-                foreach (Projectile P in projectiles)
-                {
-                    P.Move();
-                    if (!P.IsAlive)
-                    {
-                        toRemove.Add(P);
-                    }
-                }
-                //remove projectiles
-                foreach (Projectile P in toRemove)
-                {
-                    projectiles.Remove(P);
-                    mainGrid.Children.Remove(P.Sprite);
-                }
+                MoveProjectiles();
 
-                //counts projectiles for monitoring lag
-                projCount.Content = projectiles.Count.ToString();
+                if (!gameOver)
+                    CheckPlayerHit();
             }
         }
 
@@ -226,6 +212,11 @@ namespace Barrage
         int spwnInd;
         readonly List<double> spwnVals = new List<double>();
 
+        Vector bossPos = new Vector();
+        Vector bossTarget = new Vector();
+        Vector bossSpeed = new Vector();    //not actually x and y speed, storing move and rotate speed
+        double bossAngle = 0;
+
         void SpawnProjectiles()
         {
             while (wait <= 0 && readIndex < spawnPattern.Length)
@@ -269,6 +260,14 @@ namespace Barrage
 
                     CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, actDelay);
                     spwnInd++;
+                }
+                else if (line[0] == "boss")
+                {
+                    //set movement and rotation of boss
+                    bossTarget.X = (double)ReadString.Interpret(ReadString.AddVals(line[1], spwnInd, new List<double>()), typeof(double), 0, new double[Projectile.LVIL]);
+                    bossTarget.Y = (double)ReadString.Interpret(ReadString.AddVals(line[2], spwnInd, new List<double>()), typeof(double), 0, new double[Projectile.LVIL]);
+                    bossSpeed.X = (double)ReadString.Interpret(ReadString.AddVals(line[3], spwnInd, new List<double>()), typeof(double), 0, new double[Projectile.LVIL]);
+                    bossSpeed.Y = (double)ReadString.Interpret(ReadString.AddVals(line[4], spwnInd, new List<double>()), typeof(double), 0, new double[Projectile.LVIL]);
                 }
                 else if (line[0] == "wait")
                 {
@@ -352,6 +351,44 @@ namespace Barrage
             projectiles.Add(tempProjectile);
         }
 
+        void MoveProjectiles()
+        {
+            //move projectiles
+            List<Projectile> toRemove = new List<Projectile>();
+            foreach (Projectile P in projectiles)
+            {
+                P.Move();
+                if (!P.IsAlive)
+                {
+                    toRemove.Add(P);
+                }
+            }
+            //remove projectiles
+            foreach (Projectile P in toRemove)
+            {
+                projectiles.Remove(P);
+                mainGrid.Children.Remove(P.Sprite);
+            }
+
+            //counts projectiles for monitoring lag
+            projCount.Content = projectiles.Count.ToString();
+
+            //move the boss
+            Vector offset = bossTarget - bossPos;
+            if (offset.LengthSquared > bossSpeed.X * bossSpeed.X)
+            {
+                offset.Normalize();
+                offset *= bossSpeed.X;
+            }
+            bossPos += offset;
+            bossAngle += bossSpeed.Y;
+
+            TransformGroup TG = new TransformGroup();
+            TG.Children.Add(new RotateTransform(bossAngle));
+            TG.Children.Add(new TranslateTransform(bossPos.X, bossPos.Y));
+            Boss.RenderTransform = TG;
+        }
+
         void ReadSpawnTxt()
         {
             StreamReader sr = new StreamReader("files/spawnPattern.txt");
@@ -366,10 +403,7 @@ namespace Barrage
                     readFile.Add(line);
 
                     if (line.Contains("repeat"))
-                    {
-                        string[] vals = line.Split('|');
                         repeatVals.Add(readFile.Count - 1, 0);
-                    }
                 }
             }
             sr.Dispose();
