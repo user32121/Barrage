@@ -391,7 +391,7 @@ namespace Barrage
 
         void ReadSpawnTxt()
         {
-            StreamReader sr = new StreamReader("files/spawnPattern.txt");
+            StreamReader sr = new StreamReader("files/SP.txt");
             List<string> readFile = new List<string>();
 
             //loads files into readFile and removes comments and empty spaces

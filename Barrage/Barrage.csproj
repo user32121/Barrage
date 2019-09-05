@@ -153,12 +153,13 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="files\spawnPattern.txt">
+    <Content Include="files\SP.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\SPInfo.txt">
+    <Content Include="files\spawnInfo.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="files\updateNotes.txt" />
     <Content Include="readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

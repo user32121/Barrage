@@ -1,0 +1,1 @@
+﻿added message box dialog for parsing errors
