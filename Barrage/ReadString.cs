@@ -169,7 +169,7 @@ namespace Barrage
                     //MIN (lower value)
                     else if (equation[c1 - 1] == "MIN")
                     {
-                        equation[c1 - 1] = Math.Min(DoubleParse(equation[c1 + 1], input), DoubleParse(equation[c1 + 2], input)).ToString();
+                        equation[c1 - 1] = Math.Min(DoubleParse(equation[c1 + 1], input), DoubleParse(equation[c2 + 1], input)).ToString();
 
                         equation.RemoveRange(c1, 4);
                         p2 -= 4;

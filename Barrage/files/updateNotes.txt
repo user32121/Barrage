@@ -1,3 +1,1 @@
-﻿added descriptions to each preset in preset.txt
-added different tests to preset.txt
-fixed resetting of boss position
+﻿fixed issue with boss not using an equation

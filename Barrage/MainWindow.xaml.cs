@@ -29,6 +29,7 @@ namespace Barrage
         readonly List<Projectile> projectiles = new List<Projectile>();
         bool paused;
         bool gameOver;
+        int time;
 
         public MainWindow()
         {
@@ -50,6 +51,8 @@ namespace Barrage
         {
             if (!paused)
             {
+                time++;
+
                 if (!gameOver)
                 {
                     PlayerMove();
@@ -72,6 +75,7 @@ namespace Barrage
                 spwnVals.Clear();
                 repeatVals.Clear();
                 wait = 0;
+                time = 0;
 
                 ReadSpawnTxt();
 
@@ -87,9 +91,10 @@ namespace Barrage
                 plyrY = 100;
                 Player.RenderTransform = new TranslateTransform(plyrX, plyrY);
 
-                bossPos = new Vector(300,-300);
-                bossTarget = new Vector();
-                bossSpeed = new Vector();
+                bossPos = new Vector(300, -300);
+                bossTarget = "";
+                bossMvSpd = "";
+                bossAngSpd = "";
                 bossAngle = 0;
             }
             if (e.Key == Key.Escape && !gameOver)
@@ -216,9 +221,10 @@ namespace Barrage
         int spwnInd;
         readonly List<double> spwnVals = new List<double>();
 
+        string bossTarget = "";
+        string bossMvSpd = "";
+        string bossAngSpd = "";
         Vector bossPos = new Vector();
-        Vector bossTarget = new Vector();
-        Vector bossSpeed = new Vector();    //not actually x and y speed, storing move and rotate speed
         double bossAngle = 0;
 
         void SpawnProjectiles()
@@ -268,10 +274,9 @@ namespace Barrage
                 else if (line[0] == "boss")
                 {
                     //set movement and rotation of boss
-                    bossTarget.X = (double)ReadString.Interpret(ReadString.AddVals(line[1], spwnInd, new List<double>()), typeof(double), 0, new double[Projectile.LVIL]);
-                    bossTarget.Y = (double)ReadString.Interpret(ReadString.AddVals(line[2], spwnInd, new List<double>()), typeof(double), 0, new double[Projectile.LVIL]);
-                    bossSpeed.X = (double)ReadString.Interpret(ReadString.AddVals(line[3], spwnInd, new List<double>()), typeof(double), 0, new double[Projectile.LVIL]);
-                    bossSpeed.Y = (double)ReadString.Interpret(ReadString.AddVals(line[4], spwnInd, new List<double>()), typeof(double), 0, new double[Projectile.LVIL]);
+                    bossTarget = ReadString.AddVals(line[1] + "," + line[2], spwnInd, spwnVals);
+                    bossMvSpd = ReadString.AddVals(line[3], spwnInd, spwnVals);
+                    bossAngSpd = ReadString.AddVals(line[4], spwnInd, spwnVals);
                 }
                 else if (line[0] == "wait")
                 {
@@ -378,14 +383,18 @@ namespace Barrage
             projCount.Content = projectiles.Count.ToString();
 
             //move the boss
-            Vector offset = bossTarget - bossPos;
-            if (offset.LengthSquared > bossSpeed.X * bossSpeed.X)
+            Vector target = (Vector)ReadString.Interpret(bossTarget, typeof(Vector), time, new double[Projectile.LVIL]);
+            Vector offset = target - bossPos;
+            double mvSpd = (double)ReadString.Interpret(bossMvSpd, typeof(double), time, new double[Projectile.LVIL]);
+            double angSpd = (double)ReadString.Interpret(bossAngSpd, typeof(double), time, new double[Projectile.LVIL]);
+
+            if (offset.LengthSquared > mvSpd * mvSpd)
             {
                 offset.Normalize();
-                offset *= bossSpeed.X;
+                offset *= mvSpd;
             }
             bossPos += offset;
-            bossAngle += bossSpeed.Y;
+            bossAngle += angSpd;
 
             TransformGroup TG = new TransformGroup();
             TG.Children.Add(new RotateTransform(bossAngle));
