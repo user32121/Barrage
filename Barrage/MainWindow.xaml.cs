@@ -41,8 +41,7 @@ namespace Barrage
             timer.Start();
 
             plyrY = 100;
-            bossPos.X = Boss.RenderTransform.Value.OffsetX;
-            bossPos.Y = Boss.RenderTransform.Value.OffsetY;
+            bossPos = new Vector(300, -300);
 
             ReadSpawnTxt();
         }
@@ -87,6 +86,11 @@ namespace Barrage
                 plyrX = 0;
                 plyrY = 100;
                 Player.RenderTransform = new TranslateTransform(plyrX, plyrY);
+
+                bossPos = new Vector(300,-300);
+                bossTarget = new Vector();
+                bossSpeed = new Vector();
+                bossAngle = 0;
             }
             if (e.Key == Key.Escape && !gameOver)
             {

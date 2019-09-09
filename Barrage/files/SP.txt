@@ -1,3 +1,7 @@
-﻿proj|tags=circle|speed=3|angle=n
-wait|1+box1
+﻿#boss test
+proj|startPos=10000,-10000
+boss|SIN:(n*21)*100|-100|5|-18
+wait|10
+boss|SIN:(n*21)*100|100|3|12
+wait|10
 repeat|0|10000

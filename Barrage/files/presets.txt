@@ -1,14 +1,17 @@
 ﻿List of saved spawn patterns
 
+#collapsing spiral
 proj|tags=circle|speed=t/10-5|angle=n*15.1|startPos=0,-50
 wait|1
 repeat|0|3600
 
+#collapsing circle
 proj|tags=circle|speed=t/10-5|angle=n*15.1|startPos=0,-50
 repeat|0|24
 wait|25
 repeat|0|3600
 
+#particle trail square
 val1|RNG:90:270
 proj|tags=circle|speed=3|angle=val1|startPos=(n-val2)*10-100,-150
 wait|1
@@ -28,6 +31,7 @@ repeat|12|20
 val2|val2+80
 repeat|0|100
 
+#chase spawner
 val1|val1+(plyrx-val1)*0.01
 val2|val2+(plyry-val2)*0.01
 val3|RNG:0:360
@@ -35,15 +39,17 @@ proj|tags=circle|speed=3|angle=val3|startPos=val1,val2
 wait|1
 repeat|0|10000
 
-#good luck
+#good luck 1: bouncing ball wall
 proj|tags=circle,wallBounce|speed=3|angle=SIN:(t/10)*75+n|duration=10
 wait|10
-repeat|1|1000
+repeat|0|1000
 
+#wave corner
 proj|tags=circle,wallBounce|speed=5|angle=15.1-t*5+n|duration=n|startPos=151,-195
 wait|10
 repeat|0|1000
 
+#spiral nonsense
 proj|tags=circle,screenWrap|speed=10|angle=t*t+val1|startPos=0,0|duration=1000
 wait|5
 repeat|0|1000
@@ -53,13 +59,33 @@ proj|tags=circle|xyVel=1000/(POW:(plyrx-lxPOS):2+POW:(plyry-lyPOS):2)*COS:(ATAN:
 wait|10
 repeat|0|10000
 
+#self rotate
 proj|tags=circle|speed=SQRT:(SQRT:t)*2|angle=(n*10)+180|startPos=(COS:(n*10)+SIN:(n*10))*100,(SIN:(n*10)+SIN:(n*10))*100
 wait|1
 repeat|0|10000
 
+#collapse pattern
 proj|tags=circle|speed=10|angle=t*13.2+n|startPos=0,0|size=n/10+1
 repeat|0|360
 
+#good luck 2: loop chaos
 proj|tags=circle,screenWrap|angle=n*10.1|speed=3|duration=1
 wait|10/SQRT:(n/10)+1
 repeat|0|1000000
+
+#stress test
+proj|tags=circle,wallBounce|angle=1|speed=((((((((((1))))))))))|duration=10000
+wait|1
+repeat|0|10000
+
+#laser test
+proj|tags=laser|duration=1000|angle=t
+proj|tags=laser|duration=1000|angle=t+180|actDelay=100
+
+#boss test
+proj|startPos=10000,-10000
+boss|SIN:(n*21)*100|-100|5|-18
+wait|10
+boss|SIN:(n*21)*100|100|3|12
+wait|10
+repeat|0|10000
