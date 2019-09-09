@@ -42,7 +42,6 @@ namespace Barrage
             timer.Start();
 
             plyrY = 100;
-            bossPos = new Vector(300, -300);
 
             ReadSpawnTxt();
         }
@@ -92,9 +91,9 @@ namespace Barrage
                 Player.RenderTransform = new TranslateTransform(plyrX, plyrY);
 
                 bossPos = new Vector(300, -300);
-                bossTarget = "";
-                bossMvSpd = "";
-                bossAngSpd = "";
+                bossTarget = "0,0";
+                bossMvSpd = "0";
+                bossAngSpd = "0";
                 bossAngle = 0;
             }
             if (e.Key == Key.Escape && !gameOver)
@@ -221,10 +220,10 @@ namespace Barrage
         int spwnInd;
         readonly List<double> spwnVals = new List<double>();
 
-        string bossTarget = "";
-        string bossMvSpd = "";
-        string bossAngSpd = "";
-        Vector bossPos = new Vector();
+        string bossTarget = "0,0";
+        string bossMvSpd = "0";
+        string bossAngSpd = "0";
+        Vector bossPos = new Vector(300,-300);
         double bossAngle = 0;
 
         void SpawnProjectiles()
