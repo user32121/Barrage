@@ -11,8 +11,88 @@ namespace Barrage
     {
         static readonly Random rng = new Random();
 
+        static Dictionary<string, double> opPrecedence = new Dictionary<string, double>() {
+            { "+", 0.1 }, { "-", 0.1 },
+            { "*", 1.1 }, { "/", 1.1 }, {"MOD", 1.1},
+            { "^", 2   },
+    /*1*/   {"SQRT", 10}, {"SIGN", 10}, {"SIN", 10}, {"COS", 10}, {"TAN", 10}, {"ASIN", 10}, {"ACOS", 10},
+            {"ABS", 10 }, {"FLR", 10 },
+    /*2*/   {"MIN", 10 }, {"MAX", 10 }, {"RNG", 10}, {"ATAN",10},
+        };
+
+        private static string ToPostfix(Queue<string> input)
+        {
+            Stack<string> opStack = new Stack<string>();
+            Queue<string> output = new Queue<string>();
+
+            while (input.Count > 0)
+            {
+                string token = input.Dequeue(); //get token            
+                if (opPrecedence.TryGetValue(token, out double op1))   //function or operator
+                {
+                    while (opStack.Count > 0 && opStack.Peek() != "(" &&    //not empty or left parentheses
+                        opPrecedence.TryGetValue(opStack.Peek(), out double op2) && (op2 > op1 ||    //compare precedence
+                        op2 == op1 && (int)op2 != op2))    //check left assosciative
+                        output.Enqueue(opStack.Pop());  //add to output queue
+                    opStack.Push(token);
+                }
+                else if (token == "(")  //left parentheses
+                    opStack.Push(token);
+                else if (token == ")")  //right parentheses
+                {
+                    while (opStack.Peek() != "(")   //move from operator stack to output until close parentheses
+                        output.Enqueue(opStack.Pop());
+                    opStack.Pop();
+                }
+                else    //token must be a number or a value
+                    output.Enqueue(token);
+            }
+            while (opStack.Count > 0)
+                output.Enqueue(opStack.Pop());  //move remaining operators to ouput
+
+            //convert to string
+            string result = "";
+            while (output.Count > 0)
+            {
+                result += output.Dequeue() + " ";
+            }
+            return result;
+        }
+
+        public static string ToEquation(string input, int n, List<double> vals)
+        {
+            //replaces n
+            input = input.Replace("n", n.ToString());
+
+            //replaces vals
+            int i = input.IndexOf("val");
+            while (i != -1)
+            {
+                //finds the val's index
+                int j = 1;
+                while (i + 3 + j < input.Length && char.IsDigit(input[i + 3 + j]))
+                    j++;
+
+                //substitutes the value
+                int.TryParse(input.Substring(i + 3, j), out int valId);
+                if (valId < vals.Count)
+                    input = input.Replace(input.Substring(i, j + 3), vals[valId].ToString());
+                else
+                    input = input.Replace(input.Substring(i, j + 3), "0");
+
+                //next val
+                i = input.IndexOf("val");
+            }
+
+            //convert to postfix notation
+            input = ToPostfix(new Queue<string>(input.Split(' ')));
+
+            return input;
+        }
+
         public static object Interpret(string input, Type Treturn, int t, double[] lastVals)
         {
+            //add values
             input = input.Replace("t", t.ToString()).
                 Replace("plyrx", MainWindow.plyrX.ToString()).
                 Replace("plyry", MainWindow.plyrY.ToString()).
@@ -42,295 +122,161 @@ namespace Barrage
             }
         }
 
-        private static double Solve(string input)
+        private static double Solve(string inp)
         {
-            //separates function into individual parts
-            List<string> equation = new List<string> { input[0].ToString() };
-            int i;
-            for (i = 1; i < input.Length; i++)
+            List<object> input = new List<object>(inp.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+
+            if (input.Count == 0)
+                return 0;
+
+            for (int i = 0; i < input.Count; i++)
             {
-                //if (prev char IsDigit)                                and (this char IsDigit                         or letter E)         or (prev char E        and (this char IsDigit      or +               or -))               or (this char IsDIgit     and notlow and prev prev char E)
-                if (((char.IsDigit(input[i - 1]) || input[i - 1] == '.') && (char.IsDigit(input[i]) || input[i] == '.' || input[i] == 'E')) || (input[i - 1] == 'E' && (char.IsDigit(input[i]) || input[i] == '+' || input[i] == '-')) || (char.IsDigit(input[i]) && i >= 2 && input[i - 2] == 'E'))
+                //1 value operators
+                if ((string)input[i] == "SQRT")
                 {
-                    //connect
-                    equation[equation.Count - 1] += input[i];
+                    double nums = GetVals(ref input, inp, i - 1, 1)[0];
+                    input[i] = Math.Sqrt(nums);
+                    input.RemoveAt(i - 1); i--;
                 }
-                //if(a series of letters)
-                else if (char.IsLetter(input[i]) && char.IsLetter(input[i - 1]))
+                else if ((string)input[i] == "SIGN")
                 {
-                    //connect
-                    equation[equation.Count - 1] += input[i];
+                    double nums = GetVals(ref input, inp, i - 1, 1)[0];
+                    input[i] = (double)Math.Sign(nums);
+                    input.RemoveAt(i - 1); i--;
                 }
-                //if(cannot combine into a number)
-                else
+                else if ((string)input[i] == "SIN")
                 {
-                    //separate
-                    equation.Add(input[i].ToString());
+                    double nums = GetVals(ref input, inp, i - 1, 1)[0];
+                    input[i] = Math.Sin(nums * Math.PI / 180);
+                    input.RemoveAt(i - 1); i--;
+                }
+                else if ((string)input[i] == "COS")
+                {
+                    double nums = GetVals(ref input, inp, i - 1, 1)[0];
+                    input[i] = Math.Cos(nums * Math.PI / 180);
+                    input.RemoveAt(i - 1); i--;
+                }
+                else if ((string)input[i] == "TAN")
+                {
+                    double nums = GetVals(ref input, inp, i - 1, 1)[0];
+                    input[i] = Math.Tan(nums * Math.PI / 180);
+                    input.RemoveAt(i - 1); i--;
+                }
+                else if ((string)input[i] == "ASIN")
+                {
+                    double nums = GetVals(ref input, inp, i - 1, 1)[0];
+                    input[i] = Math.Asin(nums * Math.PI / 180);
+                    input.RemoveAt(i - 1); i--;
+                }
+                else if ((string)input[i] == "ACOS")
+                {
+                    double nums = GetVals(ref input, inp, i - 1, 1)[0];
+                    input[i] = Math.Acos(nums * Math.PI / 180);
+                    input.RemoveAt(i - 1); i--;
+                }
+                else if ((string)input[i] == "ABS")
+                {
+                    double nums = GetVals(ref input, inp, i - 1, 1)[0];
+                    input[i] = Math.Abs(nums * Math.PI / 180);
+                    input.RemoveAt(i - 1); i--;
+                }
+                else if ((string)input[i] == "FLR")
+                {
+                    double nums = GetVals(ref input, inp, i - 1, 1)[0];
+                    input[i] = Math.Floor(nums * Math.PI / 180);
+                    input.RemoveAt(i - 1); i--;
+                }
+
+                //2 value operators
+                else if ((string)input[i] == "+")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = nums[0] + nums[1];
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
+                else if ((string)input[i] == "-")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = nums[0] - nums[1];
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
+                else if ((string)input[i] == "*")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = nums[0] * nums[1];
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
+                else if ((string)input[i] == "/")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = nums[0] / nums[1];
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
+                else if ((string)input[i] == "^")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = Math.Pow(nums[0], nums[1]);
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
+                else if ((string)input[i] == "MOD")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = nums[0] % nums[1];
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
+                else if ((string)input[i] == "MIN")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = Math.Min(nums[0], nums[1]);
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
+                else if ((string)input[i] == "MAX")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = Math.Max(nums[0], nums[1]);
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
+                else if ((string)input[i] == "RNG")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = nums[0] + rng.NextDouble() * (nums[1] - nums[0]);
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
+                else if ((string)input[i] == "ATAN")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = Math.Atan2(nums[0], nums[1]) / Math.PI * 180;
+                    input.RemoveRange(i - 2, 2); i -= 2;
                 }
             }
-
-            //calculation (negation)
-            for (i = equation.Count - 1; i >= 0; i--)
-                if (equation[i] == "-" && (i == 0 || !char.IsDigit(equation[i - 1][0]) && equation[i - 1] != ")"))
-                {
-                    equation.RemoveAt(i);
-                    equation[i] = equation[i].Insert(0, "-");
-                }
-
-            //parentheses
-            int p1, p2 = 0, c1, c2 = 0;
-            bool oneMore = true;    //loops through one more time for base calculation
-            do
-            {
-                //next parentheses iteration
-                p1 = equation.LastIndexOf("("); //right-most opening parentheses
-                if (p1 != -1)
-                    p2 = equation.IndexOf(")", p1); //its matching closing parentheses
-
-                //loops through one last time
-                if (p1 == -1)
-                {
-                    p1 = 0;
-                    p2 = equation.Count - 1;
-                    oneMore = false;
-                }
-
-                //mathematic functions
-                c1 = equation.IndexOf(":", p1, p2 - p1);
-                if (c1 != -1)
-                    c2 = equation.IndexOf(":", c1 + 1, p2 - c1);
-                while (c1 != -1)
-                {
-                    //ABS (absolute value)
-                    if (equation[c1 - 1] == "ABS")
-                    {
-                        equation[c1 - 1] = Math.Abs(DoubleParse(equation[c1 + 1], input)).ToString();
-
-                        equation.RemoveRange(c1, 2);
-                        p2 -= 2;
-                    }
-                    //FLR (floor)
-                    else if (equation[c1 - 1] == "FLR")
-                    {
-                        equation[c1 - 1] = Math.Floor(DoubleParse(equation[c1 + 1], input)).ToString();
-
-                        equation.RemoveRange(c1, 2);
-                        p2 -= 2;
-                    }
-                    //MOD (modulo)
-                    else if (equation[c1 - 1] == "MOD")
-                    {
-                        equation[c1 - 1] = (DoubleParse(equation[c1 + 1], input) % DoubleParse(equation[c2 + 1], input)).ToString();
-
-                        equation.RemoveRange(c1, 4);
-                        p2 -= 4;
-                    }
-                    //POW (power or exponent)
-                    else if (equation[c1 - 1] == "POW")
-                    {
-                        equation[c1 - 1] = Math.Pow(DoubleParse(equation[c1 + 1], input), DoubleParse(equation[c2 + 1], input)).ToString();
-
-                        equation.RemoveRange(c1, 4);
-                        p2 -= 4;
-                    }
-                    //RNG (random number generator)
-                    else if (equation[c1 - 1] == "RNG")
-                    {
-                        //                 random           * (b                              - a                            )  + a
-                        equation[c1 - 1] = (rng.NextDouble() * (DoubleParse(equation[c2 + 1], input) - DoubleParse(equation[c1 + 1], input)) + DoubleParse(equation[c1 + 1], input)).ToString();
-
-                        equation.RemoveRange(c1, 4);
-                        p2 -= 4;
-                    }
-                    //SIGN (sign)
-                    else if (equation[c1 - 1] == "SIGN")
-                    {
-                        equation[c1 - 1] = Math.Sign(DoubleParse(equation[c1 + 1], input)).ToString();
-
-                        equation.RemoveRange(c1, 2);
-                        p2 -= 2;
-                    }
-                    //SQRT (square root)
-                    else if (equation[c1 - 1] == "SQRT")
-                    {
-                        equation[c1 - 1] = Math.Sqrt(DoubleParse(equation[c1 + 1], input)).ToString();
-
-                        equation.RemoveRange(c1, 2);
-                        p2 -= 2;
-                    }
-                    //MAX (higher value)
-                    else if (equation[c1 - 1] == "MAX")
-                    {
-                        equation[c1 - 1] = Math.Max(DoubleParse(equation[c1 + 1], input), DoubleParse(equation[c2 + 1], input)).ToString();
-
-                        equation.RemoveRange(c1, 4);
-                        p2 -= 4;
-                    }
-                    //MIN (lower value)
-                    else if (equation[c1 - 1] == "MIN")
-                    {
-                        equation[c1 - 1] = Math.Min(DoubleParse(equation[c1 + 1], input), DoubleParse(equation[c2 + 1], input)).ToString();
-
-                        equation.RemoveRange(c1, 4);
-                        p2 -= 4;
-                    }
-                    //trigonometric functions
-                    //SIN (sine)
-                    else if (equation[c1 - 1] == "SIN")
-                    {
-                        //                 sin      number                         * pi      / 180 (change to radians)
-                        equation[c1 - 1] = Math.Sin(DoubleParse(equation[c1 + 1], input) * Math.PI / 180).ToString();
-
-                        equation.RemoveRange(c1, 2);
-                        p2 -= 2;
-                    }
-                    //COS (cosine)
-                    else if (equation[c1 - 1] == "COS")
-                    {
-                        equation[c1 - 1] = Math.Cos(DoubleParse(equation[c1 + 1], input) * Math.PI / 180).ToString();
-
-                        equation.RemoveRange(c1, 2);
-                        p2 -= 2;
-                    }
-                    //TAN (tangent)
-                    else if (equation[c1 - 1] == "TAN")
-                    {
-                        equation[c1 - 1] = Math.Tan(DoubleParse(equation[c1 + 1], input) * Math.PI / 180).ToString();
-
-                        equation.RemoveRange(c1, 2);
-                        p2 -= 2;
-                    }
-                    //ASIN (tangent)
-                    else if (equation[c1 - 1] == "ASIN")
-                    {
-                        equation[c1 - 1] = Math.Asin(DoubleParse(equation[c1 + 1], input) * Math.PI / 180).ToString();
-
-                        equation.RemoveRange(c1, 2);
-                        p2 -= 2;
-                    }
-                    //ACOS (tangent)
-                    else if (equation[c1 - 1] == "ACOS")
-                    {
-                        equation[c1 - 1] = Math.Acos(DoubleParse(equation[c1 + 1], input) * Math.PI / 180).ToString();
-
-                        equation.RemoveRange(c1, 2);
-                        p2 -= 2;
-                    }
-                    //ATAN (inverse tangent)
-                    else if (equation[c1 - 1] == "ATAN")
-                    {
-                        if (c2 == -1)
-                        {
-                            equation[c1 - 1] = (Math.Atan(DoubleParse(equation[c1 + 1], input)) / Math.PI * 180).ToString();
-                            equation.RemoveRange(c1, 2);
-                            p2 -= 2;
-                        }
-                        else
-                        {
-                            equation[c1 - 1] = (Math.Atan2(DoubleParse(equation[c1 + 1], input), DoubleParse(equation[c2 + 1], input)) / Math.PI * 180).ToString();
-                            equation.RemoveRange(c1, 4);
-                            p2 -= 4;
-                        }
-                    }
-                    else
-                    {
-                        //not implemented or empty colon
-                        equation.RemoveAt(c1);
-                    }
-
-                    c1 = equation.IndexOf(":", p1, p2 - p1);
-                    if (c1 != -1)
-                        c2 = equation.IndexOf(":", c1 + 1, p2 - c1);
-                }
-
-                //arithmetic
-                i = equation.IndexOf("/", p1, p2 - p1);
-                while (i != -1)
-                {
-                    equation[i - 1] = (DoubleParse(equation[i - 1], input) / DoubleParse(equation[i + 1], input)).ToString();//sets value
-                    equation.RemoveRange(i, 2);//removes extra charaters
-                    p2 -= 2;
-                    i = equation.IndexOf("/", p1, p2 - p1);//next division symbol
-                }
-                i = equation.IndexOf("*", p1, p2 - p1);
-                while (i != -1)
-                {
-                    equation[i - 1] = (DoubleParse(equation[i - 1], input) * DoubleParse(equation[i + 1], input)).ToString();
-                    equation.RemoveRange(i, 2);
-                    p2 -= 2;
-                    i = equation.IndexOf("*", p1, p2 - p1);
-                }
-                i = equation.IndexOf("-", p1, p2 - p1);
-                while (i != -1)
-                {
-                    equation[i - 1] = (DoubleParse(equation[i - 1], input) - DoubleParse(equation[i + 1], input)).ToString();
-                    equation.RemoveRange(i, 2);
-                    p2 -= 2;
-                    i = equation.IndexOf("-", p1, p2 - p1);
-                }
-                i = equation.IndexOf("+", p1, p2 - p1);
-                while (i != -1)
-                {
-                    equation[i - 1] = (DoubleParse(equation[i - 1], input) + DoubleParse(equation[i + 1], input)).ToString();
-                    equation.RemoveRange(i, 2);
-                    p2 -= 2;
-                    i = equation.IndexOf("+", p1, p2 - p1);
-                }
-
-                //removes parentheses
-                if (oneMore)
-                {
-                    equation.RemoveAt(p1);
-                    equation.RemoveAt(p2 - 1);
-                }
-            }
-            while (p1 != -1 && oneMore);
-
-            return DoubleParse(equation[0], input);
+            if (input[0] is double) //number
+                return (double)input[0];
+            else if (double.TryParse((string)input[0], out double num))    //string
+                return num;
+            else if (MessageBox.Show("There was an issue with \"" + inp + "\"\n Continue?", "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                Application.Current.Shutdown();
+            return 0;
         }
 
-        public static string AddVals(string input, int n, List<double> vals)
+        private static double[] GetVals(ref List<object> input, string text, int start, int count)
         {
-            //replaces n
-            input = input.Replace("n", n.ToString());
+            double[] output = new double[count];
 
-            //replaces vals
-            int i = input.IndexOf("val");
-            while (i != -1)
+            if (start < 0)
+                if (MessageBox.Show("There was an issue with \"" + text + "\"\n Continue?", "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                    Application.Current.Shutdown();
+
+            for (int i = 0; i < count; i++)
             {
-                //finds the val's index
-                int j = 1;
-                while (i + 3 + j < input.Length && char.IsDigit(input[i + 3 + j]))
-                    j++;
-
-                //substitutes the value
-                int.TryParse(input.Substring(i + 3, j), out int valId);
-                if (valId < vals.Count)
-                    input = input.Replace(input.Substring(i, j + 3), vals[valId].ToString());
-                else
-                    input = input.Replace(input.Substring(i, j + 3), "0");
-
-                //next val
-                i = input.IndexOf("val");
+                if (input[i + start] is double) //double
+                    output[i] = (double)input[i + start];
+                else if (double.TryParse((string)input[i + start], out double num))    //string
+                    output[i] = num;
+                else if (MessageBox.Show("There was an issue with \"" + text + "\"\n Continue?", "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                    Application.Current.Shutdown();
             }
 
-            return input;
-        }
-
-        static List<string> failedParses = new List<string>();
-        private static double DoubleParse(string input, string equation)
-        {
-            if (!double.TryParse(input, out double result) && !failedParses.Contains(input))
-            {
-                failedParses.Add(input);
-
-                MessageBoxResult answer = MessageBox.Show(String.Format("there was an issue with \"{0}\" when parsing \"{1}\"\nDo you want to continue?",
-                    equation, input, result), "Parsing error", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-
-                if (answer == MessageBoxResult.No)
-                    Application.Current.MainWindow.Close();
-            }
-            return result;
+            return output;
         }
     }
 }

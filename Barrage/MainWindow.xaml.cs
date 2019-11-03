@@ -200,7 +200,7 @@ namespace Barrage
 
                     double b1 = item.Position.Y - m1 * item.Position.X, b2 = plyrY - m2 * plyrX,
                         ix = (b2 - b1) / (m1 - m2), iy = m1 * ix + b1;
-                    if (Math.Pow(plyrX - ix, 2) + Math.Pow(plyrY - iy, 2) < item.RadiusSqr && ((Math.Abs(ang % 360) < 90 || Math.Abs(ang % 360) > 270) ? plyrX >= item.Position.X : plyrX <= item.Position.X))
+                    if (Math.Pow(plyrX - ix, 2) + Math.Pow(plyrY - iy, 2) < item.RadiusSqr && ((Math.Abs(ang % 360) <= 90 || Math.Abs(ang % 360) > 270) ? ix >= item.Position.X : ix <= item.Position.X))
                         hit = true;
                 }
             }
@@ -223,7 +223,7 @@ namespace Barrage
         string bossTarget = "0,0";
         string bossMvSpd = "0";
         string bossAngSpd = "0";
-        Vector bossPos = new Vector(300,-300);
+        Vector bossPos = new Vector(300, -300);
         double bossAngle = 0;
 
         void SpawnProjectiles()
@@ -242,29 +242,38 @@ namespace Barrage
                     string xyPos = "";
                     string xyVel = "";
                     string startPos = "0,-100";
-                    int duration = 1;
+                    int duration = -1;
                     int actDelay = 1;
 
                     for (int i = 1; i < line.Length; i++)
                     {
                         if (line[i].Contains("size"))
-                            size = ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals);
+                            size = ReadString.ToEquation(line[i].Split('=')[1], spwnInd, spwnVals);
                         else if (line[i].Contains("startPos"))
-                            startPos = ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals);
+                        {
+                            string[] str = line[i].Split('=')[1].Split(',');
+                            startPos = ReadString.ToEquation(str[0], spwnInd, spwnVals) + "," + ReadString.ToEquation(str[1], spwnInd, spwnVals);
+                        }
                         else if (line[i].Contains("speed"))
-                            speed = ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals);
+                            speed = ReadString.ToEquation(line[i].Split('=')[1], spwnInd, spwnVals);
                         else if (line[i].Contains("angle"))
-                            angle = ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals);
+                            angle = ReadString.ToEquation(line[i].Split('=')[1], spwnInd, spwnVals);
                         else if (line[i].Contains("xyPos"))
-                            xyPos = ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals);
+                        {
+                            string[] str = line[i].Split('=')[1].Split(',');
+                            xyPos = ReadString.ToEquation(str[0], spwnInd, spwnVals) + "," + ReadString.ToEquation(str[1], spwnInd, spwnVals);
+                        }
                         else if (line[i].Contains("xyVel"))
-                            xyVel = ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals);
+                        {
+                            string[] str = line[i].Split('=')[1].Split(',');
+                            xyVel = ReadString.ToEquation(str[0], spwnInd, spwnVals) + "," + ReadString.ToEquation(str[1], spwnInd, spwnVals);
+                        }
                         else if (line[i].Contains("tags"))
                             tags = line[i].Split('=')[1].Split(',').ToList();
                         else if (line[i].Contains("duration"))
-                            duration = (int)ReadString.Interpret(ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
+                            duration = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Split('=')[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
                         else if (line[i].Contains("actDelay"))
-                            actDelay = (int)ReadString.Interpret(ReadString.AddVals(line[i].Split('=')[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
+                            actDelay = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Split('=')[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
                     }
 
                     CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, actDelay);
@@ -273,28 +282,28 @@ namespace Barrage
                 else if (line[0] == "boss")
                 {
                     //set movement and rotation of boss
-                    bossTarget = ReadString.AddVals(line[1] + "," + line[2], spwnInd, spwnVals);
-                    bossMvSpd = ReadString.AddVals(line[3], spwnInd, spwnVals);
-                    bossAngSpd = ReadString.AddVals(line[4], spwnInd, spwnVals);
+                    bossTarget = ReadString.ToEquation(line[1], spwnInd, spwnVals) + "," + ReadString.ToEquation(line[2], spwnInd, spwnVals);
+                    bossMvSpd = ReadString.ToEquation(line[3], spwnInd, spwnVals);
+                    bossAngSpd = ReadString.ToEquation(line[4], spwnInd, spwnVals);
                 }
                 else if (line[0] == "wait")
                 {
                     //waits # of frames untill spawns again
-                    wait = (int)ReadString.Interpret(ReadString.AddVals(line[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
+                    wait = (int)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
                 }
                 else if (line[0] == "repeat")
                 {
                     //sets repeats left
                     if (repeatVals[readIndex] <= 0)
                     {
-                        repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.AddVals(line[2], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
+                        repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.ToEquation(line[2], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
                     }
 
                     //repeats (stops at 1 since that will be the last repeat)
                     repeatVals[readIndex]--;
                     if (repeatVals[readIndex] >= 1)
                     {
-                        readIndex = (int)ReadString.Interpret(ReadString.AddVals(line[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]) - 1;
+                        readIndex = (int)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]) - 1;
                         //(-1 because there is ++ later on)
                     }
                 }
@@ -306,7 +315,7 @@ namespace Barrage
                     while (ind >= spwnVals.Count)
                         spwnVals.Add(0);
 
-                    spwnVals[ind] = (double)ReadString.Interpret(ReadString.AddVals(line[1], spwnInd, spwnVals), typeof(double), 0, new double[Projectile.LVIL]);
+                    spwnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(double), 0, new double[Projectile.LVIL]);
                 }
 
                 //next line
@@ -333,6 +342,7 @@ namespace Barrage
                 projImage.Width = r * 2;
                 projImage.Height = 100;
                 projImage.Source = new BitmapImage(new Uri("files/Laser1.png", UriKind.Relative));
+                projImage.RenderTransformOrigin = new Point(0.5, 0);
             }
             if (actDelay > 0)
                 projImage.Opacity = 0.3;

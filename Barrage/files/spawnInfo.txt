@@ -15,7 +15,7 @@ proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration
 -xyVel		velocity of projectile (overrides xyPos, angle, and speed)
 -size		radius of projectile (or half of width of laser)
 -startPos	pos to spawn projectiles (x,y)
--duration	# times it will wallBounce(or similar), or # frames a laser will exist
+-duration	# times it will wallBounce(or similar), or # frames a proj will exist, -1 is infinity
 -actDelay	# frames before the projectile can collide with the player
 
 boss|#1|#2|#3|#4	moves the boss sprite to #1,#2 at #3 pixels/frame and rotates at #4 degrees/frame
@@ -41,20 +41,18 @@ lANG		the angle from the last frame
 
 
 Available Functions:
-ABS:#1		returns the absolute value of #1
-FLR:#1		the integer part of #1
-MOD:#1:#2	returns the modulus of #1 / #2
-POW:#1:#2	#1 to the power of #2
-RNG:#1:#2	picks a random number between #1 and #2
-SIGN:#1		sign of #1
-SQRT:#1		square root of #1
-MAX:#1:#2	the higher of the two values
-MIN:#1:#2	the lower of the two values
+ABS #1		returns the absolute value of #1
+FLR #1		the integer part of #1
+MOD #1 #2	returns the modulus of #1 / #2
+RNG #1 #2	picks a random number between #1 and #2
+SIGN #1		sign of #1
+SQRT #1		square root of #1
+MAX #1 #2	the higher of the two values
+MIN #1 #2	the lower of the two values
 
-SIN:#1		sine of #1
-COS:#1		cosine of #1
-TAN:#1		tangent of #1
-ASIN:#1		inverse sine of #1
-ACOS:#1		inverse cosine of #1
-ATAN:#1		inverse tangent of #1
-ATAN:#1:#2	inverse tangent of #1,#2 (usual format is y,x)
+SIN #1		sine of #1
+COS #1		cosine of #1
+TAN #1		tangent of #1
+ASIN #1		inverse sine of #1
+ACOS #1		inverse cosine of #1
+ATAN #1 #2	inverse tangent of #1/#2

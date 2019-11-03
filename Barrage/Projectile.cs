@@ -45,10 +45,10 @@ namespace Barrage
             TransformGroup TG = new TransformGroup();
             if (Tags.Contains("laser"))
             {
-                y1 = 50;
+                y1 = 50;    //add 50 to y because ...
                 TG.Children.Add(new ScaleTransform(1, 6));
                 //rotate laser
-                TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle, typeof(double), Age, lastVals) - 90, r / 2, 0));
+                TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle, typeof(double), Age, lastVals) - 90, /*r / 2*/0, 0));
             }
 
             Position = new Vector(x, y);
@@ -69,8 +69,8 @@ namespace Barrage
             //increase age (for parameters with t)
             Age++;
 
-            //lasers have a limited lifespan
-            if (Tags.Contains("laser"))
+            //projectiles that have duration have a limited lifespan
+            if (!Tags.Contains("wallBounce") && !Tags.Contains("screenWrap") && Duration != -1)
             {
                 Duration--;
                 if (Duration <= 0)
@@ -83,13 +83,13 @@ namespace Barrage
             //checks if offscreen (x)
             if (Math.Abs(Position.X) > m_parent.mainGrid.ActualWidth / 2)
             {
-                if (Tags.Contains("wallBounce") && Duration > 0)
+                if (Tags.Contains("wallBounce") && Duration != 0)
                 {
                     SetPos(Position.X - 2 * (Position.X - m_parent.mainGrid.ActualWidth / 2 * Math.Sign(Position.X)), Position.Y, r);
                     velDir.X *= -1;
                     Duration--;
                 }
-                else if (Tags.Contains("screenWrap") && Duration > 0)
+                else if (Tags.Contains("screenWrap") && Duration != 0)
                 {
                     SetPos(Position.X - m_parent.mainGrid.ActualWidth * Math.Sign(Position.X), Position.Y, r);
                     Duration--;
@@ -100,13 +100,13 @@ namespace Barrage
             //checks if offscreen (y)
             else if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight / 2)
             {
-                if (Tags.Contains("wallBounce") && Duration > 0)
+                if (Tags.Contains("wallBounce") && Duration != 0)
                 {
                     SetPos(Position.X, Position.Y - 2 * (Position.Y - m_parent.mainGrid.ActualHeight / 2 * Math.Sign(Position.Y)), r);
                     velDir.Y *= -1;
                     Duration--;
                 }
-                else if (Tags.Contains("screenWrap") && Duration > 0)
+                else if (Tags.Contains("screenWrap") && Duration != 0)
                 {
                     SetPos(Position.X, Position.Y - m_parent.mainGrid.ActualHeight * Math.Sign(Position.Y), r);
                     Duration--;

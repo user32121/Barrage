@@ -1,1 +1,60 @@
-﻿fixed issue with boss not using an equation
+﻿v0.1.0
+started versions
+
+v0.2.0
+added "special numbers" that perform functions: random,target player
+
+v0.3.0
+completely redid text reader system
+system is now based on values that are functions over time
+renamed spawnPatInfo.txt to SPInfo.txt
+
+v0.3.1
+added to text reader:
+MOD,SQRT,SIGN,SIN,COS,TAN,ATAN
+lSpd,lAng,lx,ly
+xyPos,xyVel
+
+v0.3.2
+added lasers
+laser fixes
+repeat fixes
+projectiles despawn after fully offscreen
+
+v0.3.3
+added a boss sprite (used to indicate where the projectiles spawn, no collision with player)
+
+v0.3.4
+added message box if there is an error in SP.txt rather than crashing
+renamed spawnPatterns to SP.txt
+renamed SPInfo.txt to spawnInfo.txt
+
+v0.3.5
+added descriptions to each preset in preset.txt
+added proj, laser, boss, and stress tests to preset.txt
+fixed resetting of boss position
+
+v0.3.6
+fixed issue with boss not using an equation
+fixed crash related to boss values not being set
+
+v0.3.7
+changed color of projectile
+added "basic spiral" to presets.txt
+
+v0.3.8
+removed unnecessary files
+
+v0.4.0
+redid text reader system again, it now uses the shunting yard algorith
+-text reader now requires spaces between operators and numbers (check presets.txt for examples)
+-note: POW was changed to ^
+adjusted presets.txt
+
+v0.4.1
+fixed render position of laser
+fixed collision detection issue with laser where the wrong direction is tested for a vertical laser
+changed duration behavior
+-any projectile will be removed after it uses up its duration
+-the default value is -1, which means infinite
+-if there is wallBounce or screenWrap, that is used instead of a frame timer

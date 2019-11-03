@@ -1,4 +1,3 @@
-﻿#stress test
-proj|tags=circle,wallBounce|angle=1|speed=((((((((((1))))))))))|duration=10000
+﻿proj|tags=circle,screenWrap|speed=3|angle=-90|startPos=100 * SIN ( 3 * n ),-100
 wait|1
 repeat|0|10000
