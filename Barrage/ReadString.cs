@@ -12,12 +12,17 @@ namespace Barrage
         static readonly Random rng = new Random();
 
         static Dictionary<string, double> opPrecedence = new Dictionary<string, double>() {
-            { "+", 0.1 }, { "-", 0.1 },
-            { "*", 1.1 }, { "/", 1.1 }, {"MOD", 1.1},
-            { "^", 2   },
-    /*1*/   {"SQRT", 10}, {"SIGN", 10}, {"SIN", 10}, {"COS", 10}, {"TAN", 10}, {"ASIN", 10}, {"ACOS", 10},
+            //lower number means lower precedence
+            //.1 means it is left assosciative (calculation is read left to right)
+            { "=", 0.1 }, { ">", 0.1 }, { ">=", 0.1 }, { "<", 0.1 }, { "<=", 0.1 },
+            { "+", 1.1 }, { "-", 1.1 },
+            { "*", 2.1 }, { "/", 2.1 }, {"MOD", 2.1},
+            { "^", 3   },
+            //1 parameter functions
+            {"SQRT", 10}, {"SIGN", 10}, {"SIN", 10}, {"COS", 10}, {"TAN", 10}, {"ASIN", 10}, {"ACOS", 10},
             {"ABS", 10 }, {"FLR", 10 },
-    /*2*/   {"MIN", 10 }, {"MAX", 10 }, {"RNG", 10}, {"ATAN",10},
+            //2 parameter functions
+            {"MIN", 10 }, {"MAX", 10 }, {"RNG", 10}, {"ATAN",10},
         };
 
         private static string ToPostfix(Queue<string> input)
@@ -188,6 +193,36 @@ namespace Barrage
                 }
 
                 //2 value operators
+                else if ((string)input[i] == "=")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = nums[0] == nums[1] ? 1 : 0;
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
+                else if ((string)input[i] == ">")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = nums[0] > nums[1] ? 1 : 0;
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
+                else if ((string)input[i] == ">=")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = nums[0] >= nums[1] ? 1 : 0;
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
+                else if ((string)input[i] == "<")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = nums[0] < nums[1] ? 1 : 0;
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
+                else if ((string)input[i] == "<=")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = nums[0] <= nums[1] ? 1 : 0;
+                    input.RemoveRange(i - 2, 2); i -= 2;
+                }
                 else if ((string)input[i] == "+")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
@@ -249,8 +284,10 @@ namespace Barrage
                     input.RemoveRange(i - 2, 2); i -= 2;
                 }
             }
-            if (input[0] is double) //number
+            if (input[0] is double) //double
                 return (double)input[0];
+            else if (input[0] is int) //integer
+                return (int)input[0];
             else if (double.TryParse((string)input[0], out double num))    //string
                 return num;
             else if (MessageBox.Show("There was an issue with \"" + inp + "\"\n Continue?", "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
@@ -270,6 +307,8 @@ namespace Barrage
             {
                 if (input[i + start] is double) //double
                     output[i] = (double)input[i + start];
+                else if (input[i + start] is int) //integer
+                    output[i] = (int)input[i + start];
                 else if (double.TryParse((string)input[i + start], out double num))    //string
                     output[i] = num;
                 else if (MessageBox.Show("There was an issue with \"" + text + "\"\n Continue?", "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)

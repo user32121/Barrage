@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Barrage"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="400" ResizeMode="CanMinimize">
+        Title="MainWindow" Height="450" Width="400" ResizeMode="CanMinimize" Icon="files/Icon.png">
     <Grid RenderTransformOrigin="0.5,0.5" x:Name="grid">
         <Grid RenderTransformOrigin="0.5,0.5" x:Name="mainGrid">
             <Grid.Effect>

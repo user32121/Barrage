@@ -5,31 +5,35 @@ note: an unrecognised command will still be counted as a line, but will not have
 
 proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration
 -tags		
- +circle	standard circle projectile
- +laser		laser (cannot have both laser and circle)
+ +circle	    standard circle projectile
+ +laser		    laser (cannot have both laser and circle)
  +wallBounce	bounce off walls, requires duration
  +screenWrap	wraps screen edges
--angle		angle of projectile movement (degrees)(counterclockwise from right)
--speed 		speed of projectile (pixels/frame)
--xyPos		position of projectile (overrides angle and speed)
--xyVel		velocity of projectile (overrides xyPos, angle, and speed)
--size		radius of projectile (or half of width of laser)
--startPos	pos to spawn projectiles (x,y)
--duration	# times it will wallBounce(or similar), or # frames a proj will exist, -1 is infinity
--actDelay	# frames before the projectile can collide with the player
+-angle		    angle of projectile movement (degrees)(counterclockwise from right)
+-speed 		    speed of projectile (pixels/frame)
+-xyPos		    position of projectile (overrides angle and speed)
+-xyVel		    velocity of projectile (overrides xyPos, angle, and speed)
+-size		    radius of projectile (or half of width of laser)
+-startPos	    pos to spawn projectiles (x,y)
+-duration	    # times it will wallBounce(or similar), or # frames a proj will exist, -1 is infinity
+-actDelay	    # frames before the projectile can collide with the player
 
 boss|#1|#2|#3|#4	moves the boss sprite to #1,#2 at #3 pixels/frame and rotates at #4 degrees/frame
 
-repeat|#1|#2	repeats from line #1 #2 times
+repeat|#1|#2	    repeats from line #1, #2 times
 
-val#1|#2	sets val#1 to #2 (stored for later usage)
+ifGoto|#1|#2        if #1 is equal to 1, go to line #2
 
-wait|#1		waits #1 of frames before spawning projectiles again (including this frame)
+val#1|#2    	    sets val#1 to #2 (stored for later usage)
+
+wait|#1		        waits #1 of frames before spawning projectiles again (including this frame)
+
+:name              creates a label "name" that indicates the line it is on
 
 
 Available Values:
-t		the age of the projectile
-n		the number of projectiles spawned so far
+t		    the age of the projectile (or game)
+n		    the number of projectiles spawned so far
 plyrx		the player's position
 plyry		
 lxPOS		position from last frame

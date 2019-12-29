@@ -39,7 +39,7 @@ namespace Barrage
             IsAlive = true;
         }
 
-        public void SetPos(double x, double y, double r)
+        public void SetPos(double x, double y)
         {
             int y1 = 0;
             TransformGroup TG = new TransformGroup();
@@ -85,13 +85,13 @@ namespace Barrage
             {
                 if (Tags.Contains("wallBounce") && Duration != 0)
                 {
-                    SetPos(Position.X - 2 * (Position.X - m_parent.mainGrid.ActualWidth / 2 * Math.Sign(Position.X)), Position.Y, r);
+                    SetPos(Position.X - 2 * (Position.X - m_parent.mainGrid.ActualWidth / 2 * Math.Sign(Position.X)), Position.Y);
                     velDir.X *= -1;
                     Duration--;
                 }
                 else if (Tags.Contains("screenWrap") && Duration != 0)
                 {
-                    SetPos(Position.X - m_parent.mainGrid.ActualWidth * Math.Sign(Position.X), Position.Y, r);
+                    SetPos(Position.X - m_parent.mainGrid.ActualWidth * Math.Sign(Position.X), Position.Y);
                     Duration--;
                 }
                 else if (Math.Abs(Position.X) > m_parent.mainGrid.ActualWidth / 2 + r)
@@ -102,13 +102,13 @@ namespace Barrage
             {
                 if (Tags.Contains("wallBounce") && Duration != 0)
                 {
-                    SetPos(Position.X, Position.Y - 2 * (Position.Y - m_parent.mainGrid.ActualHeight / 2 * Math.Sign(Position.Y)), r);
+                    SetPos(Position.X, Position.Y - 2 * (Position.Y - m_parent.mainGrid.ActualHeight / 2 * Math.Sign(Position.Y)));
                     velDir.Y *= -1;
                     Duration--;
                 }
                 else if (Tags.Contains("screenWrap") && Duration != 0)
                 {
-                    SetPos(Position.X, Position.Y - m_parent.mainGrid.ActualHeight * Math.Sign(Position.Y), r);
+                    SetPos(Position.X, Position.Y - m_parent.mainGrid.ActualHeight * Math.Sign(Position.Y));
                     Duration--;
                 }
                 else if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight / 2 + r)
@@ -155,7 +155,7 @@ namespace Barrage
             }
 
             //moves projectile by velocity
-            SetPos(Position.X + Velocity.X * velDir.X, Position.Y + Velocity.Y * velDir.Y, r);
+            SetPos(Position.X + Velocity.X * velDir.X, Position.Y + Velocity.Y * velDir.Y);
 
             //sets lastVals
             lastVals[(int)LVI.x] = Position.X;

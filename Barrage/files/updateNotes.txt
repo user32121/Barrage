@@ -57,4 +57,13 @@ fixed collision detection issue with laser where the wrong direction is tested f
 changed duration behavior
 -any projectile will be removed after it uses up its duration
 -the default value is -1, which means infinite
--if there is wallBounce or screenWrap, that is used instead of a frame timer
+-if there is wallBounce or screenWrap flag, that is used instead of a frame timer
+
+v0.4.2
+added =, >, >=, <, <= operators, which return 0 or 1
+changed the formatting of spawnInfo.txt
+implemented ifGoto statement
+added labels which work as line number indicators
+
+v0.4.3
+added check for duplicate labels

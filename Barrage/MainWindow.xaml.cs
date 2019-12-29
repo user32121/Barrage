@@ -73,6 +73,7 @@ namespace Barrage
                 spwnInd = 0;
                 spwnVals.Clear();
                 repeatVals.Clear();
+                labels.Clear();
                 wait = 0;
                 time = 0;
 
@@ -217,6 +218,7 @@ namespace Barrage
         int readIndex = 0;
         int wait;
         readonly Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
+        readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
         int spwnInd;
         readonly List<double> spwnVals = new List<double>();
 
@@ -248,32 +250,32 @@ namespace Barrage
                     for (int i = 1; i < line.Length; i++)
                     {
                         if (line[i].Contains("size"))
-                            size = ReadString.ToEquation(line[i].Split('=')[1], spwnInd, spwnVals);
+                            size = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1), spwnInd, spwnVals);
                         else if (line[i].Contains("startPos"))
                         {
-                            string[] str = line[i].Split('=')[1].Split(',');
+                            string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
                             startPos = ReadString.ToEquation(str[0], spwnInd, spwnVals) + "," + ReadString.ToEquation(str[1], spwnInd, spwnVals);
                         }
                         else if (line[i].Contains("speed"))
-                            speed = ReadString.ToEquation(line[i].Split('=')[1], spwnInd, spwnVals);
+                            speed = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1), spwnInd, spwnVals);
                         else if (line[i].Contains("angle"))
-                            angle = ReadString.ToEquation(line[i].Split('=')[1], spwnInd, spwnVals);
+                            angle = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1), spwnInd, spwnVals);
                         else if (line[i].Contains("xyPos"))
                         {
-                            string[] str = line[i].Split('=')[1].Split(',');
+                            string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
                             xyPos = ReadString.ToEquation(str[0], spwnInd, spwnVals) + "," + ReadString.ToEquation(str[1], spwnInd, spwnVals);
                         }
                         else if (line[i].Contains("xyVel"))
                         {
-                            string[] str = line[i].Split('=')[1].Split(',');
+                            string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
                             xyVel = ReadString.ToEquation(str[0], spwnInd, spwnVals) + "," + ReadString.ToEquation(str[1], spwnInd, spwnVals);
                         }
                         else if (line[i].Contains("tags"))
-                            tags = line[i].Split('=')[1].Split(',').ToList();
+                            tags = line[i].Substring(line[i].IndexOf('=') + 1).Split(',').ToList();
                         else if (line[i].Contains("duration"))
-                            duration = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Split('=')[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
+                            duration = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1), spwnInd, spwnVals), typeof(int), time, new double[Projectile.LVIL]);
                         else if (line[i].Contains("actDelay"))
-                            actDelay = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Split('=')[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
+                            actDelay = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1), spwnInd, spwnVals), typeof(int), time, new double[Projectile.LVIL]);
                     }
 
                     CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, actDelay);
@@ -289,21 +291,29 @@ namespace Barrage
                 else if (line[0] == "wait")
                 {
                     //waits # of frames untill spawns again
-                    wait = (int)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
+                    wait = (int)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(int), time, new double[Projectile.LVIL]);
                 }
                 else if (line[0] == "repeat")
                 {
                     //sets repeats left
                     if (repeatVals[readIndex] <= 0)
                     {
-                        repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.ToEquation(line[2], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]);
+                        repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.ToEquation(line[2], spwnInd, spwnVals), typeof(int), time, new double[Projectile.LVIL]);
                     }
 
                     //repeats (stops at 1 since that will be the last repeat)
                     repeatVals[readIndex]--;
                     if (repeatVals[readIndex] >= 1)
                     {
-                        readIndex = (int)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(int), 0, new double[Projectile.LVIL]) - 1;
+                        readIndex = (int)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(int), time, new double[Projectile.LVIL]) - 1;
+                        //(-1 because there is ++ later on)
+                    }
+                }
+                else if (line[0] == "ifGoto")
+                {
+                    if ((double)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(double), time, new double[Projectile.LVIL]) == 1)
+                    {
+                        readIndex = (int)ReadString.Interpret(ReadString.ToEquation(line[2], spwnInd, spwnVals), typeof(int), time, new double[Projectile.LVIL]) - 1;
                         //(-1 because there is ++ later on)
                     }
                 }
@@ -315,7 +325,7 @@ namespace Barrage
                     while (ind >= spwnVals.Count)
                         spwnVals.Add(0);
 
-                    spwnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(double), 0, new double[Projectile.LVIL]);
+                    spwnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(double), time, new double[Projectile.LVIL]);
                 }
 
                 //next line
@@ -424,11 +434,29 @@ namespace Barrage
                 {
                     readFile.Add(line);
 
+                    //repeat
                     if (line.Contains("repeat"))
                         repeatVals.Add(readFile.Count - 1, 0);
+
+                    //label
+                    if (line[0] == ':')
+                        if (labels.ContainsKey(line))
+                        {
+                            timer.Stop();
+                            MessageBox.Show("\"" + line + "\" is already a label", "", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            timer.Start();
+                        }
+                        else
+                            labels.Add(line, readFile.Count - 1);
                 }
             }
             sr.Dispose();
+
+            //insert labels
+            string[] keys = labels.Keys.ToArray();
+            for (int i = 0; i < readFile.Count; i++)
+                for (int j = 0; j < labels.Count; j++)
+                    readFile[i] = readFile[i].Replace(keys[j], labels[keys[j]].ToString());
 
             //transfers lines into spawnPattern
             spawnPattern = readFile.ToArray<string>();
