@@ -20,7 +20,7 @@ proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration
 
 boss|#1|#2|#3|#4	moves the boss sprite to #1,#2 at #3 pixels/frame and rotates at #4 degrees/frame
 
-repeat|#1|#2	    repeats from line #1, #2 times
+repeat|#1|#2	    repeats from line #1, #2 - 1 times
 
 ifGoto|#1|#2        if #1 is equal to 1, go to line #2
 
