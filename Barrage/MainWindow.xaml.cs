@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using System.Diagnostics;
 using System.Windows.Threading;
 using System.Windows.Media.Effects;
+using System.Threading;
 
 namespace Barrage
 {
@@ -25,11 +26,19 @@ namespace Barrage
     public partial class MainWindow : Window
     {
         readonly int extraUI;
-        readonly DispatcherTimer timer = new DispatcherTimer();
         readonly List<Projectile> projectiles = new List<Projectile>();
         bool paused;
         bool gameOver;
         int time;
+
+        readonly Stopwatch stopwatch = new Stopwatch();
+        readonly long frameLength;
+        long nextFrame;
+        long nextSecond;
+        int[] fps = new int[10];
+        int fpsIndex;
+        const int fpsMeasureRate = 5;
+        bool stopRequested;
 
         public MainWindow()
         {
@@ -37,31 +46,43 @@ namespace Barrage
 
             this.KeyDown += new KeyEventHandler(MainWindow_KeyDown);
             extraUI = mainGrid.Children.Count;
-            timer.Tick += new EventHandler(Timer_Tick);
-            timer.Interval = new TimeSpan(0, 0, 0, 0, 17);
-            timer.Start();
+
+            frameLength = Stopwatch.Frequency / 60;  //framerate
 
             plyrY = 100;
 
             ReadSpawnTxt();
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (!paused)
+            this.Refresh(DispatcherPriority.Render);
+
+            Start();
+        }
+
+        private void Start()
+        {
+            stopwatch.Start();
+            while (!stopRequested)
             {
-                time++;
-
-                if (!gameOver)
+                if (!paused)
                 {
-                    PlayerMove();
-                    SpawnProjectiles();
+                    time++;
+
+                    if (!gameOver)
+                    {
+                        PlayerMove();
+                        SpawnProjectiles();
+                    }
+
+                    MoveProjectiles();
+
+                    if (!gameOver)
+                        CheckPlayerHit();
                 }
-
-                MoveProjectiles();
-
-                if (!gameOver)
-                    CheckPlayerHit();
+                this.Refresh(DispatcherPriority.Input);
+                ModerateFrames();
             }
         }
 
@@ -116,7 +137,9 @@ namespace Barrage
 
         public static double plyrX;
         public static double plyrY;
-        double plyrSpeed = 10;
+        double plyrSpeed = 5;
+        const double plyrFast = 5;
+        const double plyrSlow = 2;
 
         void PlayerMove()
         {
@@ -151,13 +174,13 @@ namespace Barrage
                     plyrY += plyrSpeed;
                     moved = true;
                 }
-                if (Keyboard.IsKeyDown(Key.LeftShift) && plyrSpeed == 10)
+                if (Keyboard.IsKeyDown(Key.LeftShift) && plyrSpeed == plyrFast)
                 {
-                    plyrSpeed = 4;
+                    plyrSpeed = plyrSlow;
                 }
-                if (Keyboard.IsKeyUp(Key.LeftShift) && plyrSpeed == 4)
+                if (Keyboard.IsKeyUp(Key.LeftShift) && plyrSpeed == plyrSlow)
                 {
-                    plyrSpeed = 10;
+                    plyrSpeed = plyrFast;
                 }
             }
 
@@ -441,11 +464,7 @@ namespace Barrage
                     //label
                     if (line[0] == ':')
                         if (labels.ContainsKey(line))
-                        {
-                            timer.Stop();
                             MessageBox.Show("\"" + line + "\" is already a label", "", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            timer.Start();
-                        }
                         else
                             labels.Add(line, readFile.Count - 1);
                 }
@@ -460,6 +479,49 @@ namespace Barrage
 
             //transfers lines into spawnPattern
             spawnPattern = readFile.ToArray<string>();
+        }
+
+        void ModerateFrames()
+        {
+            //moderate
+            long ticksPassed = stopwatch.ElapsedTicks;
+            if (ticksPassed > nextFrame)
+                Thread.Sleep(0);
+            else
+                Thread.Sleep((int)((nextFrame - ticksPassed) * 1000 / Stopwatch.Frequency));
+            nextFrame += frameLength;
+
+            //display fps
+            ticksPassed = stopwatch.ElapsedTicks;
+            if (ticksPassed > nextSecond)
+            {
+                nextSecond += Stopwatch.Frequency / fpsMeasureRate;
+                fpsIndex = (fpsIndex + 1) % fps.Length;
+                fps[fpsIndex] = 0;
+            }
+            fps[fpsIndex]++;
+            double avg = 0;
+            for (int i = 0; i < fps.Length; i++)
+                if (i != fpsIndex)
+                    avg += fps[i];
+            avg /= fps.Length - 1;
+            avg *= fpsMeasureRate;
+            avg = Math.Round(avg, 1);
+            labelFps.Content = (int)avg == avg ? avg + ".0" : avg.ToString();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            stopRequested = true;
+        }
+    }
+    public static class ExtensionMethods
+    {
+        private static Action EmptyDelegate = delegate () { };
+
+        public static void Refresh(this UIElement uiElement, DispatcherPriority priority)
+        {
+            uiElement.Dispatcher.Invoke(priority, EmptyDelegate);
         }
     }
 }
