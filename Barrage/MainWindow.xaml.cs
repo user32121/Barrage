@@ -31,6 +31,7 @@ namespace Barrage
         bool gameOver;
         int time;
 
+        DispatcherTimer kickStart;
         readonly Stopwatch stopwatch = new Stopwatch();
         readonly long frameLength;
         long nextFrame;
@@ -56,8 +57,14 @@ namespace Barrage
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            this.Refresh(DispatcherPriority.Render);
+            kickStart = new DispatcherTimer();
+            kickStart.Tick += KickStart_Tick;
+            kickStart.Start();
+        }
 
+        private void KickStart_Tick(object sender, EventArgs e)
+        {
+            kickStart.Stop();
             Start();
         }
 
