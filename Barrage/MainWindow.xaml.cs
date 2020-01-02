@@ -225,7 +225,7 @@ namespace Barrage
                 else if (item.Tags.Contains("laser"))
                 {
                     //dist to line is less than radius, also checks if plyr is behind laser
-                    ReadString.t = item.Age;ReadString.lastVals = item.lastVals;
+                    ReadString.t = item.Age; ReadString.lastVals = item.lastVals;
                     double ang = (double)ReadString.Interpret(item.Angle, typeof(double)),
                         radians = ang * Math.PI / 180,
                         m1 = Math.Sin(radians) / Math.Cos(radians), m2 = -1 / m1;
@@ -317,6 +317,7 @@ namespace Barrage
 
                     CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, actDelay);
                     spwnInd++;
+                    ReadString.n = spwnInd;
                 }
                 else if (line[0] == "boss")
                 {
