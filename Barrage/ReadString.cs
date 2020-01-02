@@ -10,7 +10,6 @@ namespace Barrage
     class ReadString
     {
         static readonly Random rng = new Random();
-
         static Dictionary<string, double> opPrecedence = new Dictionary<string, double>() {
             //lower number means lower precedence
             //.1 means it is left assosciative (calculation is read left to right)
@@ -24,6 +23,12 @@ namespace Barrage
             //2 parameter functions
             {"MIN", 10 }, {"MAX", 10 }, {"RNG", 10}, {"ATAN",10},
         };
+
+        public static int n;
+        public static List<double> numVals;
+
+        public static int t;
+        public static double[] lastVals;
 
         private static string ToPostfix(Queue<string> input)
         {
@@ -64,7 +69,7 @@ namespace Barrage
             return result;
         }
 
-        public static string ToEquation(string input, int n, List<double> vals)
+        public static string ToEquation(string input)
         {
             //replaces n
             input = input.Replace("n", n.ToString());
@@ -80,8 +85,8 @@ namespace Barrage
 
                 //substitutes the value
                 int.TryParse(input.Substring(i + 3, j), out int valId);
-                if (valId < vals.Count)
-                    input = input.Replace(input.Substring(i, j + 3), vals[valId].ToString());
+                if (valId < numVals.Count)
+                    input = input.Replace(input.Substring(i, j + 3), numVals[valId].ToString());
                 else
                     input = input.Replace(input.Substring(i, j + 3), "0");
 
@@ -95,18 +100,29 @@ namespace Barrage
             return input;
         }
 
-        public static object Interpret(string input, Type Treturn, int t, double[] lastVals)
+        public static object Interpret(string input, Type Treturn)
         {
             //add values
-            input = input.Replace("t", t.ToString()).
-                Replace("plyrx", MainWindow.plyrX.ToString()).
-                Replace("plyry", MainWindow.plyrY.ToString()).
-                Replace("lxPOS", lastVals[(int)Projectile.LVI.x].ToString()).
-                Replace("lyPOS", lastVals[(int)Projectile.LVI.y].ToString()).
-                Replace("lxVEL", lastVals[(int)Projectile.LVI.xVel].ToString()).
-                Replace("lyVEL", lastVals[(int)Projectile.LVI.yVel].ToString()).
-                Replace("lSPD", lastVals[(int)Projectile.LVI.spd].ToString()).
-                Replace("lANG", lastVals[(int)Projectile.LVI.ang].ToString());
+            if (lastVals == null)
+                input = input.Replace("t", t.ToString()).
+                    Replace("plyrx", MainWindow.plyrX.ToString()).
+                    Replace("plyry", MainWindow.plyrY.ToString()).
+                    Replace("lxPOS", "0").
+                    Replace("lyPOS", "0").
+                    Replace("lxVEL", "0").
+                    Replace("lyVEL", "0").
+                    Replace("lSPD", "0").
+                    Replace("lANG", "0");
+            else
+                input = input.Replace("t", t.ToString()).
+                    Replace("plyrx", MainWindow.plyrX.ToString()).
+                    Replace("plyry", MainWindow.plyrY.ToString()).
+                    Replace("lxPOS", lastVals[(int)Projectile.LVI.x].ToString()).
+                    Replace("lyPOS", lastVals[(int)Projectile.LVI.y].ToString()).
+                    Replace("lxVEL", lastVals[(int)Projectile.LVI.xVel].ToString()).
+                    Replace("lyVEL", lastVals[(int)Projectile.LVI.yVel].ToString()).
+                    Replace("lSPD", lastVals[(int)Projectile.LVI.spd].ToString()).
+                    Replace("lANG", lastVals[(int)Projectile.LVI.ang].ToString());
 
             if (Treturn == typeof(int))
             {

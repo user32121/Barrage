@@ -33,7 +33,9 @@ namespace Barrage
         public Projectile(string radius, MainWindow parent)
         {
             Radius = radius;
-            int r = (int)ReadString.Interpret(radius, typeof(int), 0, lastVals);
+            ReadString.t = 0;
+            ReadString.lastVals = lastVals;
+            int r = (int)ReadString.Interpret(radius, typeof(int));
             RadiusSqr = r * r;
             m_parent = parent;
             IsAlive = true;
@@ -48,7 +50,9 @@ namespace Barrage
                 y1 = 50;    //add 50 to y because ...
                 TG.Children.Add(new ScaleTransform(1, 6));
                 //rotate laser
-                TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle, typeof(double), Age, lastVals) - 90, /*r / 2*/0, 0));
+                ReadString.t = Age;
+                ReadString.lastVals = lastVals;
+                TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle, typeof(double)) - 90));
             }
 
             Position = new Vector(x, y);
@@ -78,7 +82,9 @@ namespace Barrage
             }
 
             //radius
-            int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int), Age, lastVals));
+            ReadString.t = Age;
+            ReadString.lastVals = lastVals;
+            int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int)));
 
             //checks if offscreen (x)
             if (Math.Abs(Position.X) > m_parent.mainGrid.ActualWidth / 2)
@@ -134,22 +140,22 @@ namespace Barrage
             //xyVel
             if (XyVel != "")
             {
-                Velocity = (Vector)ReadString.Interpret(XyVel, typeof(Vector), Age, lastVals);
+                Velocity = (Vector)ReadString.Interpret(XyVel, typeof(Vector));
                 spd = Velocity.Length;
                 ang = Math.Atan2(Velocity.Y, Velocity.X);
             }
             //xyPos
             else if (XyPos != "")
             {
-                Velocity = (Vector)ReadString.Interpret(XyPos, typeof(Vector), Age, lastVals) - Position;
+                Velocity = (Vector)ReadString.Interpret(XyPos, typeof(Vector)) - Position;
                 spd = Velocity.Length;
                 ang = Math.Atan2(Velocity.Y, Velocity.X);
             }
             //speed and angle
             else
             {
-                ang = (double)ReadString.Interpret(Angle, typeof(double), Age, lastVals);
-                spd = (double)ReadString.Interpret(Speed, typeof(double), Age, lastVals);
+                ang = (double)ReadString.Interpret(Angle, typeof(double));
+                spd = (double)ReadString.Interpret(Speed, typeof(double));
                 double radians = ang * Math.PI / 180;
                 Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * spd;
             }

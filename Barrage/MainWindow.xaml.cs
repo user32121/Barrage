@@ -36,7 +36,7 @@ namespace Barrage
         readonly long frameLength;
         long nextFrame;
         long nextSecond;
-        int[] fps = new int[10];
+        readonly int[] fps = new int[10];
         int fpsIndex;
         const int fpsMeasureRate = 5;
         bool stopRequested;
@@ -225,7 +225,9 @@ namespace Barrage
                 else if (item.Tags.Contains("laser"))
                 {
                     //dist to line is less than radius, also checks if plyr is behind laser
-                    double ang = (double)ReadString.Interpret(item.Angle, typeof(double), item.Age, item.lastVals), radians = ang * Math.PI / 180,
+                    ReadString.t = item.Age;ReadString.lastVals = item.lastVals;
+                    double ang = (double)ReadString.Interpret(item.Angle, typeof(double)),
+                        radians = ang * Math.PI / 180,
                         m1 = Math.Sin(radians) / Math.Cos(radians), m2 = -1 / m1;
                     if (double.IsInfinity(m1)) m1 = 1; if (double.IsInfinity(m2)) m2 = 1;
 
@@ -260,6 +262,11 @@ namespace Barrage
 
         void SpawnProjectiles()
         {
+            ReadString.n = spwnInd;
+            ReadString.numVals = spwnVals;
+            ReadString.t = time;
+            ReadString.lastVals = null;
+
             while (wait <= 0 && readIndex < spawnPattern.Length)
             {
                 //keeps reading lines untill text says to wait
@@ -280,32 +287,32 @@ namespace Barrage
                     for (int i = 1; i < line.Length; i++)
                     {
                         if (line[i].Contains("size"))
-                            size = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1), spwnInd, spwnVals);
+                            size = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
                         else if (line[i].Contains("startPos"))
                         {
                             string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
-                            startPos = ReadString.ToEquation(str[0], spwnInd, spwnVals) + "," + ReadString.ToEquation(str[1], spwnInd, spwnVals);
+                            startPos = ReadString.ToEquation(str[0]) + "," + ReadString.ToEquation(str[1]);
                         }
                         else if (line[i].Contains("speed"))
-                            speed = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1), spwnInd, spwnVals);
+                            speed = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
                         else if (line[i].Contains("angle"))
-                            angle = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1), spwnInd, spwnVals);
+                            angle = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
                         else if (line[i].Contains("xyPos"))
                         {
                             string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
-                            xyPos = ReadString.ToEquation(str[0], spwnInd, spwnVals) + "," + ReadString.ToEquation(str[1], spwnInd, spwnVals);
+                            xyPos = ReadString.ToEquation(str[0]) + "," + ReadString.ToEquation(str[1]);
                         }
                         else if (line[i].Contains("xyVel"))
                         {
                             string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
-                            xyVel = ReadString.ToEquation(str[0], spwnInd, spwnVals) + "," + ReadString.ToEquation(str[1], spwnInd, spwnVals);
+                            xyVel = ReadString.ToEquation(str[0]) + "," + ReadString.ToEquation(str[1]);
                         }
                         else if (line[i].Contains("tags"))
                             tags = line[i].Substring(line[i].IndexOf('=') + 1).Split(',').ToList();
                         else if (line[i].Contains("duration"))
-                            duration = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1), spwnInd, spwnVals), typeof(int), time, new double[Projectile.LVIL]);
+                            duration = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
                         else if (line[i].Contains("actDelay"))
-                            actDelay = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1), spwnInd, spwnVals), typeof(int), time, new double[Projectile.LVIL]);
+                            actDelay = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
                     }
 
                     CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, actDelay);
@@ -314,36 +321,36 @@ namespace Barrage
                 else if (line[0] == "boss")
                 {
                     //set movement and rotation of boss
-                    bossTarget = ReadString.ToEquation(line[1], spwnInd, spwnVals) + "," + ReadString.ToEquation(line[2], spwnInd, spwnVals);
-                    bossMvSpd = ReadString.ToEquation(line[3], spwnInd, spwnVals);
-                    bossAngSpd = ReadString.ToEquation(line[4], spwnInd, spwnVals);
+                    bossTarget = ReadString.ToEquation(line[1]) + "," + ReadString.ToEquation(line[2]);
+                    bossMvSpd = ReadString.ToEquation(line[3]);
+                    bossAngSpd = ReadString.ToEquation(line[4]);
                 }
                 else if (line[0] == "wait")
                 {
                     //waits # of frames untill spawns again
-                    wait = (int)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(int), time, new double[Projectile.LVIL]);
+                    wait = (int)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(int));
                 }
                 else if (line[0] == "repeat")
                 {
                     //sets repeats left
                     if (repeatVals[readIndex] <= 0)
                     {
-                        repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.ToEquation(line[2], spwnInd, spwnVals), typeof(int), time, new double[Projectile.LVIL]);
+                        repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.ToEquation(line[2]), typeof(int));
                     }
 
                     //repeats (stops at 1 since that will be the last repeat)
                     repeatVals[readIndex]--;
                     if (repeatVals[readIndex] >= 1)
                     {
-                        readIndex = (int)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(int), time, new double[Projectile.LVIL]) - 1;
+                        readIndex = (int)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(int)) - 1;
                         //(-1 because there is ++ later on)
                     }
                 }
                 else if (line[0] == "ifGoto")
                 {
-                    if ((double)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(double), time, new double[Projectile.LVIL]) == 1)
+                    if ((double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double)) == 1)
                     {
-                        readIndex = (int)ReadString.Interpret(ReadString.ToEquation(line[2], spwnInd, spwnVals), typeof(int), time, new double[Projectile.LVIL]) - 1;
+                        readIndex = (int)ReadString.Interpret(ReadString.ToEquation(line[2]), typeof(int)) - 1;
                         //(-1 because there is ++ later on)
                     }
                 }
@@ -355,7 +362,7 @@ namespace Barrage
                     while (ind >= spwnVals.Count)
                         spwnVals.Add(0);
 
-                    spwnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1], spwnInd, spwnVals), typeof(double), time, new double[Projectile.LVIL]);
+                    spwnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double));
                 }
 
                 //next line
@@ -367,8 +374,11 @@ namespace Barrage
 
         public void CreateProj(string size, string startPos, string speed, string angle, string xyPos, string xyVel, List<string> tags, int duration, int actDelay)
         {
+            ReadString.t = 0;
+            ReadString.lastVals = null;
+
             //displays projectile
-            int r = Math.Abs((int)ReadString.Interpret(size, typeof(int), 0, new double[Projectile.LVIL]));
+            int r = Math.Abs((int)ReadString.Interpret(size, typeof(int)));
             Image projImage = new Image();
             if (tags.Contains("circle"))
             {
@@ -391,18 +401,18 @@ namespace Barrage
             mainGrid.Children.Add(projImage);
 
             //creates projectile
-            double radians = (double)ReadString.Interpret(angle, typeof(double), 0, new double[Projectile.LVIL]) * Math.PI / 180;
+            double radians = (double)ReadString.Interpret(angle, typeof(double)) * Math.PI / 180;
             Projectile tempProjectile = new Projectile(size, this)
             {
                 Sprite = projImage,
                 Duration = duration,
-                Position = (Vector)ReadString.Interpret(startPos, typeof(Vector), 0, new double[Projectile.LVIL]),
+                Position = (Vector)ReadString.Interpret(startPos, typeof(Vector)),
                 Speed = speed,
                 Angle = angle,
                 XyPos = xyPos,
                 XyVel = xyVel,
                 Tags = tags,
-                Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * (double)ReadString.Interpret(speed, typeof(double), 0, new double[Projectile.LVIL]),
+                Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * (double)ReadString.Interpret(speed, typeof(double)),
                 ActDelay = actDelay
             };
 
@@ -432,10 +442,12 @@ namespace Barrage
             projCount.Content = projectiles.Count.ToString();
 
             //move the boss
-            Vector target = (Vector)ReadString.Interpret(bossTarget, typeof(Vector), time, new double[Projectile.LVIL]);
+            ReadString.t = time;
+            ReadString.lastVals = null;
+            Vector target = (Vector)ReadString.Interpret(bossTarget, typeof(Vector));
             Vector offset = target - bossPos;
-            double mvSpd = (double)ReadString.Interpret(bossMvSpd, typeof(double), time, new double[Projectile.LVIL]);
-            double angSpd = (double)ReadString.Interpret(bossAngSpd, typeof(double), time, new double[Projectile.LVIL]);
+            double mvSpd = (double)ReadString.Interpret(bossMvSpd, typeof(double));
+            double angSpd = (double)ReadString.Interpret(bossAngSpd, typeof(double));
 
             if (offset.LengthSquared > mvSpd * mvSpd)
             {
