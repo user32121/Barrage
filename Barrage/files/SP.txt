@@ -1,37 +1,4 @@
-﻿val0|100
-val1|100
-:START
-ifGoto|val0 >= 130|:lasers
-:lasersEnd
-ifGoto|val1 >= 100|:projectiles
-:projectilesEnd
-val0|val0 + 1
-val1|val1 + 1
-wait|1
-repeat|:START|10000
-
-:lasers
-val0|val0 - 120
-val2|ATAN ( plyry + 50 ) ( plyrx + 100 )
-proj|tags=laser|angle=val2|startPos=-100,-50|duration=100|size=3|actDelay=30
-val2|ATAN ( plyry + 100 ) ( plyrx + 50 )
-proj|tags=laser|angle=val2|startPos=-50,-100|duration=100|size=3|actDelay=30
-val2|ATAN ( plyry + 100 ) ( plyrx - 50 )
-proj|tags=laser|angle=val2|startPos=50,-100|duration=100|size=3|actDelay=30
-val2|ATAN ( plyry + 50 ) ( plyrx - 100 )
-proj|tags=laser|angle=val2|startPos=100,-50|duration=100|size=3|actDelay=30
-ifGoto|1|:lasersEnd
-
-:projectiles
-val1|val1 - 90
-val3|ATAN ( plyry + 100 ) plyrx
-proj|tags=circle|speed=2 + 10 / t|angle=-90 + val4 + val3|startPos=COS ( val3 - 90 ) * 13,SIN ( val3 - 90 ) * 13 - 100
-proj|tags=circle|speed=2 + 10 / t|angle=90 - val4 + val3|startPos=COS ( val3 + 90 ) * 13,SIN ( val3 + 90 ) * 13 - 100
-val4|val4 + 10
-val0|val0 + 2
-val1|val1 + 2
-wait|2
-repeat|:projectiles + 3|15
-val4|0
-repeat|:projectiles + 3|2
-ifGoto|1|:projectilesEnd
+﻿#stress test
+proj|tags=circle,wallBounce|angle=1|speed=( ( ( ( ( ( ( ( ( ( 1 ) ) ) ) ) ) ) ) ) )|duration=10000
+wait|10
+repeat|0|10000

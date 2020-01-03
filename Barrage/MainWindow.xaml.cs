@@ -36,7 +36,7 @@ namespace Barrage
         readonly long frameLength;
         long nextFrame;
         long nextSecond;
-        readonly int[] fps = new int[10];
+        readonly int[] fps = new int[5];
         int fpsIndex;
         const int fpsMeasureRate = 5;
         bool stopRequested;
@@ -509,7 +509,7 @@ namespace Barrage
                 Thread.Sleep(0);
             else
                 Thread.Sleep((int)((nextFrame - ticksPassed) * 1000 / Stopwatch.Frequency));
-            nextFrame += frameLength;
+            nextFrame = ticksPassed / frameLength * frameLength + frameLength * 2;
 
             //display fps
             ticksPassed = stopwatch.ElapsedTicks;
