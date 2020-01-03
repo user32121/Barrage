@@ -67,3 +67,10 @@ added labels which work as line number indicators
 
 v0.4.3
 added check for duplicate labels
+
+v0.4.4
+added constant framerate
+fixed issue with game running too quickly after a period of running slowly
+allowed whitespace between parameters of proj
+fixed issue with program crashing after interpreter message box is displayed
+added line number to interpreter error messages

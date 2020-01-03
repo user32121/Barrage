@@ -39,7 +39,7 @@ namespace Barrage
         readonly int[] fps = new int[5];
         int fpsIndex;
         const int fpsMeasureRate = 5;
-        bool stopRequested;
+        public static bool stopRequested;
 
         public MainWindow()
         {
@@ -267,10 +267,15 @@ namespace Barrage
             ReadString.t = time;
             ReadString.lastVals = null;
 
-            while (wait <= 0 && readIndex < spawnPattern.Length)
+            while (wait <= 0 && readIndex < spawnPattern.Length && !stopRequested)
             {
+                ReadString.line = readIndex;
+
                 //keeps reading lines untill text says to wait
                 string[] line = spawnPattern[readIndex].Split('|');
+                for (int i = 0; i < line.Length; i++)
+                    line[i] = line[i].Trim();
+
                 if (line[0] == "proj")
                 {
                     //finds parameters
@@ -291,6 +296,11 @@ namespace Barrage
                         else if (line[i].Contains("startPos"))
                         {
                             string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
+                            if (str.Length < 2)
+                            {
+                                MessageIssue(line[i]);
+                                str = new string[2] { "", "" };
+                            }
                             startPos = ReadString.ToEquation(str[0]) + "," + ReadString.ToEquation(str[1]);
                         }
                         else if (line[i].Contains("speed"))
@@ -308,7 +318,11 @@ namespace Barrage
                             xyVel = ReadString.ToEquation(str[0]) + "," + ReadString.ToEquation(str[1]);
                         }
                         else if (line[i].Contains("tags"))
+                        {
                             tags = line[i].Substring(line[i].IndexOf('=') + 1).Split(',').ToList();
+                            for (int t = 0; t < tags.Count; t++)
+                                tags[t] = tags[t].Trim();
+                        }
                         else if (line[i].Contains("duration"))
                             duration = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
                         else if (line[i].Contains("actDelay"))
@@ -343,16 +357,32 @@ namespace Barrage
                     repeatVals[readIndex]--;
                     if (repeatVals[readIndex] >= 1)
                     {
-                        readIndex = (int)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(int)) - 1;
+                        int lineNum = (int)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(int)) - 1;
                         //(-1 because there is ++ later on)
+
+                        if (lineNum < -1)
+                        {
+                            MessageIssue(line[1], "line number cannot be negative");
+                            readIndex = -1;
+                        }
+                        else
+                            readIndex = lineNum;
                     }
                 }
                 else if (line[0] == "ifGoto")
                 {
                     if ((double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double)) == 1)
                     {
-                        readIndex = (int)ReadString.Interpret(ReadString.ToEquation(line[2]), typeof(int)) - 1;
+                        int lineNum = (int)ReadString.Interpret(ReadString.ToEquation(line[2]), typeof(int)) - 1;
                         //(-1 because there is ++ later on)
+
+                        if (lineNum < -1)
+                        {
+                            MessageIssue(line[2], "line number cannot be negative");
+                            readIndex = -1;
+                        }
+                        else
+                            readIndex = lineNum;
                     }
                 }
                 else if (line[0].Contains("val"))
@@ -418,6 +448,25 @@ namespace Barrage
             };
 
             projectiles.Add(tempProjectile);
+        }
+
+        void MessageIssue(string text)
+        {
+            if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, readIndex),
+                "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            {
+                Application.Current.Shutdown();
+                stopRequested = true;
+            }
+        }
+        void MessageIssue(string text, string issue)
+        {
+            if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1} because {2}\n Continue?", text, readIndex, issue),
+                "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            {
+                Application.Current.Shutdown();
+                stopRequested = true;
+            }
         }
 
         void MoveProjectiles()

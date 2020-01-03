@@ -30,6 +30,8 @@ namespace Barrage
         public static int t;
         public static double[] lastVals;
 
+        public static int line;
+
         private static string ToPostfix(Queue<string> input)
         {
             Stack<string> opStack = new Stack<string>();
@@ -306,8 +308,12 @@ namespace Barrage
                 return (int)input[0];
             else if (double.TryParse((string)input[0], out double num))    //string
                 return num;
-            else if (MessageBox.Show("There was an issue with \"" + inp + "\"\n Continue?", "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            else if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", inp, line),
+                "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No && Application.Current != null)
+            {
                 Application.Current.Shutdown();
+                MainWindow.stopRequested = true;
+            }
             return 0;
         }
 
@@ -316,8 +322,12 @@ namespace Barrage
             double[] output = new double[count];
 
             if (start < 0)
-                if (MessageBox.Show("There was an issue with \"" + text + "\"\n Continue?", "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, line),
+                    "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No && Application.Current != null)
+                {
                     Application.Current.Shutdown();
+                    MainWindow.stopRequested = true;
+                }
 
             for (int i = 0; i < count; i++)
             {
@@ -327,8 +337,12 @@ namespace Barrage
                     output[i] = (int)input[i + start];
                 else if (double.TryParse((string)input[i + start], out double num))    //string
                     output[i] = num;
-                else if (MessageBox.Show("There was an issue with \"" + text + "\"\n Continue?", "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                else if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, line),
+                    "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No && Application.Current != null)
+                {
                     Application.Current.Shutdown();
+                    MainWindow.stopRequested = true;
+                }
             }
 
             return output;
