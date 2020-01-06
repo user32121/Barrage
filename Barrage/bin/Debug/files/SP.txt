@@ -1,1 +1,48 @@
-﻿proj|tags=laser|actDelay=60|size=50 - ABS ( t - 60 )|duration=150|startPos=-200,-150
+﻿ifGoto|1|:dev
+#loading
+proj|tags=laser|speed=2|startPos=-195,-200
+wait|200
+
+#bottom
+proj|tags=laser|actDelay=40|size=100|duration=120|startPos=-200,110
+
+#sideways sine wave
+wait|100
+:p001
+val0|SIN ( t * 5 ) * 50 - 0
+proj|tags=laser|angle=-91|xyPos=5 * t - 195,val0 - 50
+proj|tags=laser|angle=89|xyPos=5 * t - 195,val0 + 50
+wait|5
+repeat|:p001|36
+
+#blasters
+wait|30
+proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-200,-150
+proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-200,150
+proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-150,-200|angle=90
+proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=150,-200|angle=90
+
+wait|100
+proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-200,-200|angle=45
+proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-200,200|angle=-45
+
+wait|100
+proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-200,-150
+proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-200,150
+proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-150,-200|angle=90
+proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=150,-200|angle=90
+
+wait|100
+proj|tags=laser|actDelay=45|size=150 - ABS ( t - 45 ) / 0.75|duration=135|startPos=-200,0
+
+:dev
+#horizontal walls
+wait|100
+val0|100
+:p002
+proj|tags=laser|angle=89|xyPos=5 * t - 195,val0 + 25
+proj|tags=laser|angle=89|xyPos=5 * t - 195,val0 - 25
+proj|tags=laser|angle=89|xyPos=195 - 5 * t,val0 + 25
+proj|tags=laser|angle=89|xyPos=195 - 5 * t,val0 - 25
+val0|val0 * -1
+repeat|:p002

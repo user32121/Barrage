@@ -350,7 +350,10 @@ namespace Barrage
                     //sets repeats left
                     if (repeatVals[readIndex] <= 0)
                     {
-                        repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.ToEquation(line[2]), typeof(int));
+                        if (line.Length < 3)
+                            MessageIssue(spawnPattern[readIndex], "repeat requires 3 inputs");
+                        else
+                            repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.ToEquation(line[2]), typeof(int));
                     }
 
                     //repeats (stops at 1 since that will be the last repeat)
@@ -361,10 +364,7 @@ namespace Barrage
                         //(-1 because there is ++ later on)
 
                         if (lineNum < -1)
-                        {
                             MessageIssue(line[1], "line number cannot be negative");
-                            readIndex = -1;
-                        }
                         else
                             readIndex = lineNum;
                     }
