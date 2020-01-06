@@ -1,3 +1,1 @@
-﻿proj | tags = circle | angle = 90 | speed = 3 | startPos = n MOD 380 - 190 , 
-wait|10wdwd
-repeat|-1|10000
+﻿proj|tags=laser|actDelay=60|size=50 - ABS ( t - 60 )|duration=150|startPos=-200,-150

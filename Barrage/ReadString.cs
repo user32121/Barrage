@@ -200,13 +200,13 @@ namespace Barrage
                 else if ((string)input[i] == "ABS")
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
-                    input[i] = Math.Abs(nums * Math.PI / 180);
+                    input[i] = Math.Abs(nums);
                     input.RemoveAt(i - 1); i--;
                 }
                 else if ((string)input[i] == "FLR")
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
-                    input[i] = Math.Floor(nums * Math.PI / 180);
+                    input[i] = Math.Floor(nums);
                     input.RemoveAt(i - 1); i--;
                 }
 
