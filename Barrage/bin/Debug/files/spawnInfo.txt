@@ -1,0 +1,62 @@
+# is comment (text reader ignores this line)
+note: an unrecognised command will still be counted as a line, but will not have any effect
+| to separate primary parameters
+
+
+proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration
+-tags		
+ +circle	    standard circle projectile
+ +laser		    laser (cannot have both laser and circle)
+ +wallBounce	bounce off walls, requires duration
+ +screenWrap	wraps screen edges
+-angle		    angle of projectile movement (degrees)(counterclockwise from right)
+-speed 		    speed of projectile (pixels/frame)
+-xyPos		    position of projectile (overrides angle and speed)
+-xyVel		    velocity of projectile (overrides xyPos, angle, and speed)
+-size		    radius of projectile (or half of width of laser)
+-startPos	    pos to spawn projectiles (x,y)
+-duration	    # times it will wallBounce(or similar), or # frames a proj will exist, -1 is infinity
+-actDelay	    # frames before the projectile can collide with the player
+
+boss|#1|#2|#3|#4	moves the boss sprite to #1,#2 at #3 pixels/frame and rotates at #4 degrees/frame
+
+repeat|#1|#2	    repeats from line #1, #2 - 1 times
+
+ifGoto|#1|#2        if #1 is equal to 1, go to line #2
+
+val#1|#2    	    sets val#1 to #2 (stored for later usage)
+
+wait|#1		        waits #1 of frames before spawning projectiles again (including this frame)
+
+:name              creates a label "name" that indicates the line it is on
+
+
+Available Values:
+t		    the age of the projectile (or game)
+n		    the number of projectiles spawned so far
+plyrx		the player's position
+plyry		
+lxPOS		position from last frame
+lyPOS		
+lxVEL		velocity from last frame
+lyVEL		
+lSPD		the speed from the last frame
+lANG		the angle from the last frame
+
+
+Available Functions:
+ABS #1		returns the absolute value of #1
+FLR #1		the integer part of #1
+MOD #1 #2	returns the modulus of #1 / #2
+RNG #1 #2	picks a random number between #1 and #2
+SIGN #1		sign of #1
+SQRT #1		square root of #1
+MAX #1 #2	the higher of the two values
+MIN #1 #2	the lower of the two values
+
+SIN #1		sine of #1
+COS #1		cosine of #1
+TAN #1		tangent of #1
+ASIN #1		inverse sine of #1
+ACOS #1		inverse cosine of #1
+ATAN #1 #2	inverse tangent of #1/#2

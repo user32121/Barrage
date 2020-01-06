@@ -1,0 +1,3 @@
+﻿proj | tags = circle | angle = 90 | speed = 3 | startPos = n MOD 380 - 190 , 
+wait|10
+repeat | 0 | 10000

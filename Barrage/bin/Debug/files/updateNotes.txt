@@ -73,4 +73,4 @@ added constant framerate
 fixed issue with game running too quickly after a period of running slowly
 allowed whitespace between parameters of proj
 fixed issue with program crashing after interpreter message box is displayed
-added line number to interpreter error messages
+added line number to interpreter messages
