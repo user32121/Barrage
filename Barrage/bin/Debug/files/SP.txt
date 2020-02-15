@@ -1,4 +1,6 @@
-﻿ifGoto|1|:dev
+﻿wait|10000
+
+ifGoto|1|:dev
 #loading
 proj|tags=laser|speed=2|startPos=-195,-200
 wait|200
@@ -45,4 +47,4 @@ proj|tags=laser|angle=89|xyPos=5 * t - 195,val0 - 25
 proj|tags=laser|angle=89|xyPos=195 - 5 * t,val0 + 25
 proj|tags=laser|angle=89|xyPos=195 - 5 * t,val0 - 25
 val0|val0 * -1
-repeat|:p002
+repeat|:p002|1

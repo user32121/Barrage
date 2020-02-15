@@ -553,18 +553,16 @@ namespace Barrage
         void ModerateFrames()
         {
             //moderate
+            while (stopwatch.ElapsedTicks < nextFrame) ;
             long ticksPassed = stopwatch.ElapsedTicks;
-            if (ticksPassed > nextFrame)
-                Thread.Sleep(0);
-            else
-                Thread.Sleep((int)((nextFrame - ticksPassed) * 1000 / Stopwatch.Frequency));
-            nextFrame = ticksPassed / frameLength * frameLength + frameLength * 2;
+            nextFrame = ticksPassed / frameLength * frameLength + frameLength;
 
             //display fps
             ticksPassed = stopwatch.ElapsedTicks;
             if (ticksPassed > nextSecond)
             {
-                nextSecond += Stopwatch.Frequency / fpsMeasureRate;
+                while (nextSecond < ticksPassed)
+                    nextSecond += Stopwatch.Frequency / fpsMeasureRate;
                 fpsIndex = (fpsIndex + 1) % fps.Length;
                 fps[fpsIndex] = 0;
             }
