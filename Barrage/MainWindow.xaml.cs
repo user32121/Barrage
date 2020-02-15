@@ -229,7 +229,8 @@ namespace Barrage
                     double ang = (double)ReadString.Interpret(item.Angle, typeof(double)),
                         radians = ang * Math.PI / 180,
                         m1 = Math.Sin(radians) / Math.Cos(radians), m2 = -1 / m1;
-                    if (double.IsInfinity(m1)) m1 = 1; if (double.IsInfinity(m2)) m2 = 1;
+                    if (m1 > 1000) m1 = 1000; else if (m1 < -1000) m1 = -1000;
+                    if (m2 > 1000) m2 = 1000; else if (m2 < -1000) m2 = -1000;
 
                     double b1 = item.Position.Y - m1 * item.Position.X, b2 = plyrY - m2 * plyrX,
                         ix = (b2 - b1) / (m1 - m2), iy = m1 * ix + b1;
