@@ -28,7 +28,9 @@ val#1|#2    	    sets val#1 to #2 (stored for later usage)
 
 wait|#1		        waits #1 of frames before spawning projectiles again (including this frame)
 
-:name              creates a label "name" that indicates the line it is on
+:name               creates a label "name" that indicates the line it is on
+
+visual              indicates a visual map (one that is not meant to be played) (player cannot lose)
 
 
 Available Values:
@@ -48,7 +50,7 @@ Available Functions:
 ABS #1		returns the absolute value of #1
 FLR #1		the integer part of #1
 MOD #1 #2	returns the modulus of #1 / #2
-RNG #1 #2	picks a random number between #1 and #2
+RNG #1 #2	picks a random number between #1 (inclusive) and #2 (exclusive)
 SIGN #1		sign of #1
 SQRT #1		square root of #1
 MAX #1 #2	the higher of the two values

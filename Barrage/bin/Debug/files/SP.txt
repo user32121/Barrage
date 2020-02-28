@@ -1,58 +1,8 @@
-﻿ifGoto|1|:dev
-#loading
-proj|tags=laser|speed=2|startPos=-195,-200
-wait|200
-
-#bottom
-proj|tags=laser|actDelay=40|size=100|duration=120|startPos=-200,110
-
-#sideways sine wave
-wait|100
-:p001
-val0|SIN ( t * 5 ) * 50 - 0
-proj|tags=laser|angle=-90|xyPos=5 * t - 195,val0 - 50
-proj|tags=laser|angle=90|xyPos=5 * t - 195,val0 + 50
-wait|5
-repeat|:p001|36
-
-#blasters
-wait|30
-proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-200,-150
-proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-200,150
-proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-150,-200|angle=90
-proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=150,-200|angle=90
-
-wait|100
-proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-200,-200|angle=45
-proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-200,200|angle=-45
-
-wait|100
-proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-200,-150
-proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-200,150
-proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=-150,-200|angle=90
-proj|tags=laser|actDelay=45|size=60 - ABS ( t - 45 ) / 1.5|duration=135|startPos=150,-200|angle=90
-
-wait|100
-proj|tags=laser|actDelay=45|size=150 - ABS ( t - 45 ) / 0.75|duration=135|startPos=-200,0
-
-#horizontal walls
-wait|100
-val0|80
-:p002
-proj|tags=laser|angle=90|xyPos=3 * t - 195,val0 + 35
-proj|tags=laser|angle=-90|xyPos=3 * t - 195,val0 - 35
-proj|tags=laser|angle=90|xyPos=195 - 3 * t,val0 + 35
-proj|tags=laser|angle=-90|xyPos=195 - 3 * t,val0 - 35
-val0|val0 * -1
-wait|60
-repeat|:p002|10
-
-:dev
-#right walls
-wait|120
-:p003
-proj|tags=laser|angle=90|xyPos=4 * t - 195,80
-wait|20
-proj|tags=laser|angle=-90|xyPos=4 * t - 195,90
-wait|40
-repeat|:p003|10
+﻿visual
+val0|1
+:start
+val0|val0 + 0.1
+val1|ATAN ( plyry - 100 ) plyrx
+proj|tags=circle|angle=val1|speed=t / 20 * val0
+wait|2
+ifGoto|1|:start

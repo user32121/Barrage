@@ -159,55 +159,55 @@ namespace Barrage
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
                     input[i] = Math.Sqrt(nums);
-                    input.RemoveAt(i - 1); i--;
+                    input.RemoveAt(Math.Max(i - 1, 0)); i--;
                 }
                 else if ((string)input[i] == "SIGN")
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
                     input[i] = (double)Math.Sign(nums);
-                    input.RemoveAt(i - 1); i--;
+                    input.RemoveAt(Math.Max(i - 1, 0)); i--;
                 }
                 else if ((string)input[i] == "SIN")
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
                     input[i] = Math.Sin(nums * Math.PI / 180);
-                    input.RemoveAt(i - 1); i--;
+                    input.RemoveAt(Math.Max(i - 1, 0)); i--;
                 }
                 else if ((string)input[i] == "COS")
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
                     input[i] = Math.Cos(nums * Math.PI / 180);
-                    input.RemoveAt(i - 1); i--;
+                    input.RemoveAt(Math.Max(i - 1, 0)); i--;
                 }
                 else if ((string)input[i] == "TAN")
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
                     input[i] = Math.Tan(nums * Math.PI / 180);
-                    input.RemoveAt(i - 1); i--;
+                    input.RemoveAt(Math.Max(i - 1, 0)); i--;
                 }
                 else if ((string)input[i] == "ASIN")
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
                     input[i] = Math.Asin(nums * Math.PI / 180);
-                    input.RemoveAt(i - 1); i--;
+                    input.RemoveAt(Math.Max(i - 1, 0)); i--;
                 }
                 else if ((string)input[i] == "ACOS")
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
                     input[i] = Math.Acos(nums * Math.PI / 180);
-                    input.RemoveAt(i - 1); i--;
+                    input.RemoveAt(Math.Max(i - 1, 0)); i--;
                 }
                 else if ((string)input[i] == "ABS")
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
                     input[i] = Math.Abs(nums);
-                    input.RemoveAt(i - 1); i--;
+                    input.RemoveAt(Math.Max(i - 1, 0)); i--;
                 }
                 else if ((string)input[i] == "FLR")
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
                     input[i] = Math.Floor(nums);
-                    input.RemoveAt(i - 1); i--;
+                    input.RemoveAt(Math.Max(i - 1, 0)); i--;
                 }
 
                 //2 value operators
@@ -215,91 +215,91 @@ namespace Barrage
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] == nums[1] ? 1 : 0;
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == ">")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] > nums[1] ? 1 : 0;
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == ">=")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] >= nums[1] ? 1 : 0;
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == "<")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] < nums[1] ? 1 : 0;
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == "<=")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] <= nums[1] ? 1 : 0;
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == "+")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] + nums[1];
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == "-")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] - nums[1];
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == "*")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] * nums[1];
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == "/")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] / nums[1];
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == "^")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = Math.Pow(nums[0], nums[1]);
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == "MOD")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] % nums[1];
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == "MIN")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = Math.Min(nums[0], nums[1]);
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == "MAX")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = Math.Max(nums[0], nums[1]);
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == "RNG")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] + rng.NextDouble() * (nums[1] - nums[0]);
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == "ATAN")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = Math.Atan2(nums[0], nums[1]) / Math.PI * 180;
-                    input.RemoveRange(i - 2, 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
             }
             if (input[0] is double) //double
@@ -331,7 +331,9 @@ namespace Barrage
 
             for (int i = 0; i < count; i++)
             {
-                if (input[i + start] is double) //double
+                if (i + start < 0)
+                    output[i] = 0;
+                else if (input[i + start] is double) //double
                     output[i] = (double)input[i + start];
                 else if (input[i + start] is int) //integer
                     output[i] = (int)input[i + start];

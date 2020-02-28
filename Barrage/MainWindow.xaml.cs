@@ -29,6 +29,7 @@ namespace Barrage
         readonly List<Projectile> projectiles = new List<Projectile>();
         bool paused;
         bool gameOver;
+        bool isVisual;
         int time;
 
         DispatcherTimer kickStart;
@@ -85,7 +86,7 @@ namespace Barrage
 
                     MoveProjectiles();
 
-                    if (!gameOver)
+                    if (!(gameOver || isVisual))
                         CheckPlayerHit();
                 }
                 this.Refresh(DispatcherPriority.Input);
@@ -152,7 +153,7 @@ namespace Barrage
         {
             bool moved = false;
 
-            if (checkBox.IsChecked == true && IsMouseOver)
+            if (checkMouse.IsChecked == true && IsMouseOver)
             {
                 Point mousePos = Mouse.GetPosition(this);
                 plyrX = mousePos.X - 191;
@@ -523,7 +524,13 @@ namespace Barrage
             while (!sr.EndOfStream)
             {
                 string line = sr.ReadLine();
-                if (line != "" && line.Substring(0, 1) != "#")
+                if (line == "visual")
+                {
+                    isVisual = true;
+                    labelVisual.Visibility = Visibility.Visible;
+
+                }
+                else if (line != "" && line.Substring(0, 1) != "#")
                 {
                     readFile.Add(line);
 
