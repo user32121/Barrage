@@ -13,7 +13,7 @@ namespace Barrage
         static Dictionary<string, double> opPrecedence = new Dictionary<string, double>() {
             //lower number means lower precedence
             //.1 means it is left assosciative (calculation is read left to right)
-            { "=", 0.1 }, { ">", 0.1 }, { ">=", 0.1 }, { "<", 0.1 }, { "<=", 0.1 },
+            { "==", 0.1 }, { "!=", 0.1 }, { ">", 0.1 }, { ">=", 0.1 }, { "<", 0.1 }, { "<=", 0.1 },
             { "+", 1.1 }, { "-", 1.1 },
             { "*", 2.1 }, { "/", 2.1 }, {"MOD", 2.1},
             { "^", 3   },
@@ -211,10 +211,16 @@ namespace Barrage
                 }
 
                 //2 value operators
-                else if ((string)input[i] == "=")
+                else if ((string)input[i] == "==")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] == nums[1] ? 1 : 0;
+                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                }
+                else if ((string)input[i] == "!=")
+                {
+                    double[] nums = GetVals(ref input, inp, i - 2, 2);
+                    input[i] = nums[0] != nums[1] ? 1 : 0;
                     input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
                 else if ((string)input[i] == ">")
