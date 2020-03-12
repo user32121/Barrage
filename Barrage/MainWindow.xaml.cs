@@ -1,4 +1,6 @@
-﻿using System;
+﻿#undef song
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -42,6 +44,10 @@ namespace Barrage
         const int fpsMeasureRate = 5;
         public static bool stopRequested;
 
+#if song
+        MediaPlayer song = new MediaPlayer();
+#endif
+
         public MainWindow()
         {
             InitializeComponent();
@@ -52,6 +58,10 @@ namespace Barrage
             frameLength = Stopwatch.Frequency / 60;  //framerate
 
             plyrY = 100;
+
+#if song
+            song.Open(new Uri("files/song.mp3", UriKind.Relative));
+#endif
 
             ReadSpawnTxt();
         }
@@ -250,7 +260,7 @@ namespace Barrage
 
         string[] spawnPattern;
         int readIndex = 0;
-        int wait;
+        double wait;
         readonly Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
         readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
         int spwnInd;
@@ -345,7 +355,7 @@ namespace Barrage
                 else if (line[0] == "wait")
                 {
                     //waits # of frames untill spawns again
-                    wait = (int)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(int));
+                    wait += (double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double));
                 }
                 else if (line[0] == "repeat")
                 {
@@ -397,6 +407,13 @@ namespace Barrage
 
                     spwnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double));
                 }
+#if song
+                else if (line[0] == "music")
+                {
+                    song.Stop();
+                    song.Play();
+                }
+#endif
 
                 //next line
                 readIndex++;
