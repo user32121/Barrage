@@ -116,12 +116,13 @@ namespace Barrage
                 wait = 0;
                 time = 0;
 
+                isVisual = false;
+                labelVisual.Visibility = Visibility.Hidden;
+
                 ReadSpawnTxt();
 
                 gameOver = false;
                 paused = false;
-                isVisual = false;
-                labelVisual.Visibility = Visibility.Hidden;
                 mainGrid.Effect = new BlurEffect { Radius = 0 };
                 PauseText.Content = "";
 
