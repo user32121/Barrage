@@ -1,8 +1,6 @@
-﻿visual
-val0|1
-:start
-val0|val0 + 0.1
-val1|ATAN ( plyry - 100 ) plyrx
-proj|tags=circle|angle=val1|speed=t / 20 * val0
-wait|2
-ifGoto|1|:start
+﻿#collapsing spiral
+proj|tags=circle|speed=t / 10 - 5|angle=n * 15.1|startPos=0,-50
+wait|1
+
+
+repeat|0|3600

@@ -1,4 +1,4 @@
-﻿#undef song
+﻿#define song
 
 using System;
 using System.Collections.Generic;
@@ -120,6 +120,7 @@ namespace Barrage
 
                 gameOver = false;
                 paused = false;
+                isVisual = false;
                 mainGrid.Effect = new BlurEffect { Radius = 0 };
                 PauseText.Content = "";
 
@@ -547,7 +548,11 @@ namespace Barrage
                     labelVisual.Visibility = Visibility.Visible;
 
                 }
-                else if (line != "" && line.Substring(0, 1) != "#")
+                else if (line == "" || line.Substring(0, 1) == "#")
+                {
+                    readFile.Add("");
+                }
+                else
                 {
                     readFile.Add(line);
 
