@@ -104,7 +104,7 @@ namespace Barrage
                     IsAlive = false;
             }
             //checks if offscreen (y)
-            else if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight / 2)
+            if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight / 2)
             {
                 if (Tags.Contains("wallBounce") && Duration != 0)
                 {

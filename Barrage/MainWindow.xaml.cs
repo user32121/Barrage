@@ -46,6 +46,7 @@ namespace Barrage
 
 #if song
         MediaPlayer song = new MediaPlayer();
+        bool songPlaying;
 #endif
 
         public MainWindow()
@@ -119,6 +120,11 @@ namespace Barrage
                 isVisual = false;
                 labelVisual.Visibility = Visibility.Hidden;
 
+#if song
+                song.Stop();
+                songPlaying = false;
+#endif
+
                 ReadSpawnTxt();
 
                 gameOver = false;
@@ -145,12 +151,20 @@ namespace Barrage
                 {
                     mainGrid.Effect = new BlurEffect { Radius = 10 };
                     PauseText.Content = "Paused";
+#if song
+                    song.Pause();
+                    song.Position -= TimeSpan.FromSeconds(0.1);
+#endif
                     paused = true;
                 }
                 else
                 {
                     mainGrid.Effect = new BlurEffect { Radius = 0 };
                     PauseText.Content = "";
+#if song
+                    if (songPlaying)
+                        song.Play();
+#endif
                     paused = false;
                 }
             }
@@ -366,7 +380,7 @@ namespace Barrage
                     if (repeatVals[readIndex] <= 0)
                     {
                         if (line.Length < 3)
-                            MessageIssue(spawnPattern[readIndex], "repeat requires 3 inputs");
+                            MessageIssue(spawnPattern[readIndex], "repeat requires 2 inputs");
                         else
                             repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.ToEquation(line[2]), typeof(int));
                     }
@@ -415,6 +429,7 @@ namespace Barrage
                 {
                     song.Stop();
                     song.Play();
+                    songPlaying = true;
                 }
 #endif
 
