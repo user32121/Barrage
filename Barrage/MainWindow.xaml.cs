@@ -92,7 +92,7 @@ namespace Barrage
                     if (!gameOver)
                     {
                         PlayerMove();
-                        SpawnProjectiles();
+                        ReadNextLine();
                     }
 
                     MoveProjectiles();
@@ -145,7 +145,7 @@ namespace Barrage
                 bossAngSpd = "0";
                 bossAngle = 0;
             }
-            if (e.Key == Key.Escape && !gameOver)
+            else if (e.Key == Key.Escape && !gameOver)
             {
                 if (!paused)
                 {
@@ -153,7 +153,6 @@ namespace Barrage
                     PauseText.Content = "Paused";
 #if song
                     song.Pause();
-                    song.Position -= TimeSpan.FromSeconds(0.1);
 #endif
                     paused = true;
                 }
@@ -168,6 +167,16 @@ namespace Barrage
                     paused = false;
                 }
             }
+#if song
+            else if (e.Key == Key.Q)
+            {
+                song.Position -= TimeSpan.FromSeconds(0.1);
+            }
+            else if (e.Key == Key.W)
+            {
+                song.Position += TimeSpan.FromSeconds(0.1);
+            }
+#endif
         }
 
         public static double plyrX;
@@ -289,7 +298,7 @@ namespace Barrage
         Vector bossPos = new Vector(300, -300);
         double bossAngle = 0;
 
-        void SpawnProjectiles()
+        void ReadNextLine()
         {
             ReadString.n = spwnInd;
             ReadString.numVals = spwnVals;
@@ -414,20 +423,29 @@ namespace Barrage
                             readIndex = lineNum;
                     }
                 }
-                else if (line[0].Contains("val"))
+                else if (line[0].Length >= 3 && line[0].Substring(0, 3) == "val")
                 {
                     //sets a value to spwnVals
-                    int ind = int.Parse(line[0].Substring(3));
+                    if (int.TryParse(line[0].Substring(3), out int ind))
+                    {
+                        while (ind >= spwnVals.Count)
+                            spwnVals.Add(0);
 
-                    while (ind >= spwnVals.Count)
-                        spwnVals.Add(0);
-
-                    spwnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double));
+                        spwnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double));
+                    }
+                    else
+                        MessageIssue(line[0]);
                 }
 #if song
                 else if (line[0] == "music")
                 {
-                    song.Stop();
+                    if (line.Length > 1)
+                    {
+                        if (double.TryParse(line[1], out double result) && result >= 0)
+                            song.Position = TimeSpan.FromMilliseconds(result);
+                    }
+                    else
+                        song.Stop();
                     song.Play();
                     songPlaying = true;
                 }

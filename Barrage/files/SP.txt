@@ -1,1 +1,4 @@
-﻿proj|tags=laser|xyPos=-200,t * 10 - 400 + plyry
+﻿#collapsing spiral
+proj|tags=circle|speed=t / 10 - 5|angle=n * 15.1|startPos=0,-50
+wait|1
+repeat|0|3600
