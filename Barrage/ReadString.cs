@@ -78,7 +78,7 @@ namespace Barrage
 
             //replaces vals
             int i = input.IndexOf("val");
-            while (i != -1)
+            while (i != -1 && !MainWindow.stopRequested)
             {
                 //finds the val's index
                 int j = 1;
@@ -86,11 +86,16 @@ namespace Barrage
                     j++;
 
                 //substitutes the value
-                int.TryParse(input.Substring(i + 3, j), out int valId);
-                if (valId < numVals.Count)
-                    input = input.Replace(input.Substring(i, j + 3), numVals[valId].ToString());
+                if (i + 3 + j > input.Length)
+                    MainWindow.MessageIssue(input, line);
                 else
-                    input = input.Replace(input.Substring(i, j + 3), "0");
+                {
+                    int.TryParse(input.Substring(i + 3, j), out int valId);
+                    if (valId < numVals.Count)
+                        input = input.Replace(input.Substring(i, j + 3), numVals[valId].ToString());
+                    else
+                        input = input.Replace(input.Substring(i, j + 3), "0");
+                }
 
                 //next val
                 i = input.IndexOf("val");
@@ -314,12 +319,8 @@ namespace Barrage
                 return (int)input[0];
             else if (double.TryParse((string)input[0], out double num))    //string
                 return num;
-            else if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", inp, line),
-                "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No && Application.Current != null)
-            {
-                Application.Current.Shutdown();
-                MainWindow.stopRequested = true;
-            }
+            else
+                MainWindow.MessageIssue(inp, line);
             return 0;
         }
 

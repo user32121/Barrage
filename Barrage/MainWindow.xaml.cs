@@ -348,11 +348,21 @@ namespace Barrage
                         else if (line[i].Contains("xyPos"))
                         {
                             string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
+                            if (str.Length < 2)
+                            {
+                                MessageIssue(line[i]);
+                                str = new string[2] { "", "" };
+                            }
                             xyPos = ReadString.ToEquation(str[0]) + "," + ReadString.ToEquation(str[1]);
                         }
                         else if (line[i].Contains("xyVel"))
                         {
                             string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
+                            if (str.Length < 2)
+                            {
+                                MessageIssue(line[i]);
+                                str = new string[2] { "", "" };
+                            }
                             xyVel = ReadString.ToEquation(str[0]) + "," + ReadString.ToEquation(str[1]);
                         }
                         else if (line[i].Contains("tags"))
@@ -431,7 +441,10 @@ namespace Barrage
                         while (ind >= spwnVals.Count)
                             spwnVals.Add(0);
 
-                        spwnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double));
+                        if (line.Length < 2)
+                            MessageIssue(spawnPattern[readIndex], "val requires an input");
+                        else
+                            spwnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double));
                     }
                     else
                         MessageIssue(line[0]);
@@ -510,7 +523,18 @@ namespace Barrage
             if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, readIndex),
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
-                Application.Current.Shutdown();
+                if (Application.Current != null)
+                    Application.Current.Shutdown();
+                stopRequested = true;
+            }
+        }
+        public static void MessageIssue(string text, int line)
+        {
+            if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, line),
+                "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            {
+                if (Application.Current != null)
+                    Application.Current.Shutdown();
                 stopRequested = true;
             }
         }
@@ -519,7 +543,8 @@ namespace Barrage
             if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1} because {2}\n Continue?", text, readIndex, issue),
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
-                Application.Current.Shutdown();
+                if (Application.Current != null)
+                    Application.Current.Shutdown();
                 stopRequested = true;
             }
         }

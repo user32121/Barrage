@@ -1,4 +1,8 @@
-﻿#collapsing spiral
-proj|tags=circle|speed=t / 10 - 5|angle=n * 15.1|startPos=0,-50
+﻿:p109
+val0|RNG -10 10
+val1|RNG -10 10
+val2|ATAN ( plyry - 150 - val0 ) ( plyrx - 150 - val1 )
+proj|tags=circle|angle=val2|speed=5|startPos=150 + val0,150 + val1
+
 wait|1
-repeat|0|3600
+repeat|:p109|100
