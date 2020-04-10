@@ -188,13 +188,13 @@ namespace Barrage
                 else if ((string)input[i] == "ASIN")
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
-                    input[i] = Math.Asin(nums * Math.PI / 180);
+                    input[i] = Math.Asin(nums) / Math.PI * 180;
                     input.RemoveAt(Math.Max(i - 1, 0)); i--;
                 }
                 else if ((string)input[i] == "ACOS")
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
-                    input[i] = Math.Acos(nums * Math.PI / 180);
+                    input[i] = Math.Acos(nums) / Math.PI * 180;
                     input.RemoveAt(Math.Max(i - 1, 0)); i--;
                 }
                 else if ((string)input[i] == "ABS")
