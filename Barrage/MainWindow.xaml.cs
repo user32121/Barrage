@@ -288,7 +288,7 @@ namespace Barrage
 
             foreach (Projectile item in projectiles)
             {
-                if (item.ActDelay > 0)
+                if (item.ActDelay > 0 || item.ActDelay == -1)
                     continue;
 
                 //collision detection
@@ -532,7 +532,7 @@ namespace Barrage
                 projImage.Source = new BitmapImage(new Uri("files/Laser1.png", UriKind.Relative));
                 projImage.RenderTransformOrigin = new Point(0.5, 0);
             }
-            if (actDelay > 0)
+            if (actDelay > 0 || actDelay == -1)
                 projImage.Opacity = 0.3;
             Grid.SetColumn(projImage, 0);
             Grid.SetRow(projImage, 0);
