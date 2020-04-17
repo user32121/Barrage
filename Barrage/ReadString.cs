@@ -110,26 +110,28 @@ namespace Barrage
         public static object Interpret(string input, Type Treturn)
         {
             //add values
+            input = input.
+                Replace("t", t.ToString()).
+                Replace("PLYRX", MainWindow.plyrX.ToString()).
+                Replace("PLYRY", MainWindow.plyrY.ToString()).
+                Replace("BOSSX", MainWindow.bossPos.X.ToString()).
+                Replace("BOSSY", MainWindow.bossPos.Y.ToString());
             if (lastVals == null)
-                input = input.Replace("t", t.ToString()).
-                    Replace("plyrx", MainWindow.plyrX.ToString()).
-                    Replace("plyry", MainWindow.plyrY.ToString()).
-                    Replace("lxPOS", "0").
-                    Replace("lyPOS", "0").
-                    Replace("lxVEL", "0").
-                    Replace("lyVEL", "0").
-                    Replace("lSPD", "0").
-                    Replace("lANG", "0");
+                input = input.
+                    Replace("LXPOS", "0").
+                    Replace("LYPOS", "0").
+                    Replace("LXVEL", "0").
+                    Replace("LYVEL", "0").
+                    Replace("LSPD", "0").
+                    Replace("LANG", "0");
             else
-                input = input.Replace("t", t.ToString()).
-                    Replace("plyrx", MainWindow.plyrX.ToString()).
-                    Replace("plyry", MainWindow.plyrY.ToString()).
-                    Replace("lxPOS", lastVals[(int)Projectile.LVI.x].ToString()).
-                    Replace("lyPOS", lastVals[(int)Projectile.LVI.y].ToString()).
-                    Replace("lxVEL", lastVals[(int)Projectile.LVI.xVel].ToString()).
-                    Replace("lyVEL", lastVals[(int)Projectile.LVI.yVel].ToString()).
-                    Replace("lSPD", lastVals[(int)Projectile.LVI.spd].ToString()).
-                    Replace("lANG", lastVals[(int)Projectile.LVI.ang].ToString());
+                input = input.
+                    Replace("LXPOS", lastVals[(int)Projectile.LVI.x].ToString()).
+                    Replace("LYPOS", lastVals[(int)Projectile.LVI.y].ToString()).
+                    Replace("LXVEL", lastVals[(int)Projectile.LVI.xVel].ToString()).
+                    Replace("LYVEL", lastVals[(int)Projectile.LVI.yVel].ToString()).
+                    Replace("LSPD", lastVals[(int)Projectile.LVI.spd].ToString()).
+                    Replace("LANG", lastVals[(int)Projectile.LVI.ang].ToString());
 
             if (Treturn == typeof(int))
             {

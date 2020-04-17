@@ -1,8 +1,9 @@
 ﻿:p109
 val0|RNG -10 10
 val1|RNG -10 10
-val2|ATAN ( plyry - 150 - val0 ) ( plyrx - 150 - val1 )
-proj|tags=circle|angle=val2|speed=5|startPos=150 + val0,150 + val1
+boss|SIN ( t * 2 ) * 150|-100|3|10
+val2|ATAN ( PLYRY - BOSSY - val0 ) ( PLYRX - BOSSX - val1 )
+proj|tags=circle|angle=val2|speed=5|startPos=BOSSX + val0,BOSSY + val1|size=2
 
 wait|1
-repeat|:p109|100
+ifGoto|1|:p109

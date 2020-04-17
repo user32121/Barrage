@@ -207,15 +207,15 @@ namespace Barrage
             {
 
 #if TAS
-                if (TASIndex < TASInputs.Length - 1)
-                    if (TASInputs[TASIndex].Item4 > 0)
-                        TASInputs[TASIndex].Item4--;
+                if (TASIndex < TASInputs.GetLength(0) - 1)
+                    if (TASInputs[TASIndex, 3] > 0)
+                        TASInputs[TASIndex, 3]--;
                     else
                         TASIndex += 1;
 #endif
                 if (Keyboard.IsKeyDown(Key.Left)
 #if TAS
-                    || TASInputs[TASIndex].Item1 == -1
+                    || TASInputs[TASIndex, 0] == -1
 #endif 
                     )
                 {
@@ -224,7 +224,7 @@ namespace Barrage
                 }
                 if (Keyboard.IsKeyDown(Key.Right)
 #if TAS
-                    || TASInputs[TASIndex].Item1 == 1
+                    || TASInputs[TASIndex, 0] == 1
 #endif 
                     )
                 {
@@ -233,7 +233,7 @@ namespace Barrage
                 }
                 if (Keyboard.IsKeyDown(Key.Up)
 #if TAS
-                    || TASInputs[TASIndex].Item2 == -1
+                    || TASInputs[TASIndex, 1] == -1
 #endif
                     )
                 {
@@ -242,7 +242,7 @@ namespace Barrage
                 }
                 if (Keyboard.IsKeyDown(Key.Down)
 #if TAS
-                    || TASInputs[TASIndex].Item2 == 1
+                    || TASInputs[TASIndex, 1] == 1
 #endif
                     )
                 {
@@ -251,7 +251,7 @@ namespace Barrage
                 }
                 if ((Keyboard.IsKeyDown(Key.LeftShift)
 #if TAS
-                    || TASInputs[TASIndex].Item3 == 1
+                    || TASInputs[TASIndex, 2] == 1
 #endif
                     ) && plyrSpeed == plyrFast)
                 {
@@ -259,7 +259,7 @@ namespace Barrage
                 }
                 if (Keyboard.IsKeyUp(Key.LeftShift)
 #if TAS
-                    && TASInputs[TASIndex].Item3 != 1
+                    && TASInputs[TASIndex, 2] != 1
 #endif
                      && plyrSpeed == plyrSlow)
                 {
@@ -334,7 +334,7 @@ namespace Barrage
         string bossTarget = "0,0";
         string bossMvSpd = "0";
         string bossAngSpd = "0";
-        Vector bossPos = new Vector(300, -300);
+        public static Vector bossPos = new Vector(300, -300);
         double bossAngle = 0;
 
         void ReadNextLine()

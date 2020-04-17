@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2035
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Barrage", "Barrage\Barrage.csproj", "{DFE5D3E8-19C7-46AB-AB97-B68D24CBC5E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPUpdater", "SPUpdater\SPUpdater.csproj", "{753585FF-4B60-4AE6-AF1D-10D1C582ADDF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{DFE5D3E8-19C7-46AB-AB97-B68D24CBC5E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFE5D3E8-19C7-46AB-AB97-B68D24CBC5E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFE5D3E8-19C7-46AB-AB97-B68D24CBC5E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{753585FF-4B60-4AE6-AF1D-10D1C582ADDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{753585FF-4B60-4AE6-AF1D-10D1C582ADDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{753585FF-4B60-4AE6-AF1D-10D1C582ADDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{753585FF-4B60-4AE6-AF1D-10D1C582ADDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
