@@ -1,4 +1,5 @@
-﻿#define song
+﻿#define SONG
+#undef TAS
 
 using System;
 using System.Collections.Generic;
@@ -44,9 +45,12 @@ namespace Barrage
         const int fpsMeasureRate = 5;
         public static bool stopRequested;
 
-#if song
+#if SONG
         MediaPlayer song = new MediaPlayer();
         bool songPlaying;
+#endif
+#if TAS
+        int TASIndex;
 #endif
 
         public MainWindow()
@@ -60,7 +64,7 @@ namespace Barrage
 
             plyrY = 100;
 
-#if song
+#if SONG
             song.Open(new Uri("files/song.mp3", UriKind.Relative));
 #endif
 
@@ -120,9 +124,12 @@ namespace Barrage
                 isVisual = false;
                 labelVisual.Visibility = Visibility.Hidden;
 
-#if song
+#if SONG
                 song.Stop();
                 songPlaying = false;
+#endif
+#if TAS
+                TASIndex = 0;
 #endif
 
                 ReadSpawnTxt();
@@ -151,7 +158,7 @@ namespace Barrage
                 {
                     mainGrid.Effect = new BlurEffect { Radius = 10 };
                     PauseText.Content = "Paused";
-#if song
+#if SONG
                     song.Pause();
 #endif
                     paused = true;
@@ -160,14 +167,14 @@ namespace Barrage
                 {
                     mainGrid.Effect = new BlurEffect { Radius = 0 };
                     PauseText.Content = "";
-#if song
+#if SONG
                     if (songPlaying)
                         song.Play();
 #endif
                     paused = false;
                 }
             }
-#if song
+#if SONG
             else if (e.Key == Key.Q)
             {
                 song.Position -= TimeSpan.FromSeconds(0.1);
@@ -198,31 +205,63 @@ namespace Barrage
             }
             else
             {
-                if (Keyboard.IsKeyDown(Key.Left))
+
+#if TAS
+                if (TASIndex < TASInputs.Length - 1)
+                    if (TASInputs[TASIndex].Item4 > 0)
+                        TASInputs[TASIndex].Item4--;
+                    else
+                        TASIndex += 1;
+#endif
+                if (Keyboard.IsKeyDown(Key.Left)
+#if TAS
+                    || TASInputs[TASIndex].Item1 == -1
+#endif 
+                    )
                 {
                     plyrX -= plyrSpeed;
                     moved = true;
                 }
-                if (Keyboard.IsKeyDown(Key.Right))
+                if (Keyboard.IsKeyDown(Key.Right)
+#if TAS
+                    || TASInputs[TASIndex].Item1 == 1
+#endif 
+                    )
                 {
                     plyrX += plyrSpeed;
                     moved = true;
                 }
-                if (Keyboard.IsKeyDown(Key.Up))
+                if (Keyboard.IsKeyDown(Key.Up)
+#if TAS
+                    || TASInputs[TASIndex].Item2 == -1
+#endif
+                    )
                 {
                     plyrY -= plyrSpeed;
                     moved = true;
                 }
-                if (Keyboard.IsKeyDown(Key.Down))
+                if (Keyboard.IsKeyDown(Key.Down)
+#if TAS
+                    || TASInputs[TASIndex].Item2 == 1
+#endif
+                    )
                 {
                     plyrY += plyrSpeed;
                     moved = true;
                 }
-                if (Keyboard.IsKeyDown(Key.LeftShift) && plyrSpeed == plyrFast)
+                if ((Keyboard.IsKeyDown(Key.LeftShift)
+#if TAS
+                    || TASInputs[TASIndex].Item3 == 1
+#endif
+                    ) && plyrSpeed == plyrFast)
                 {
                     plyrSpeed = plyrSlow;
                 }
-                if (Keyboard.IsKeyUp(Key.LeftShift) && plyrSpeed == plyrSlow)
+                if (Keyboard.IsKeyUp(Key.LeftShift)
+#if TAS
+                    && TASInputs[TASIndex].Item3 != 1
+#endif
+                     && plyrSpeed == plyrSlow)
                 {
                     plyrSpeed = plyrFast;
                 }
@@ -449,7 +488,7 @@ namespace Barrage
                     else
                         MessageIssue(line[0]);
                 }
-#if song
+#if SONG
                 else if (line[0] == "music")
                 {
                     if (line.Length > 1)

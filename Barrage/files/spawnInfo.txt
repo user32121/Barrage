@@ -1,6 +1,7 @@
 # is comment (text reader ignores this line)
 note: an unrecognised command will still be counted as a line, but will not have any effect
 | to separate primary parameters
+note2: equations will be in postfix notation when a messagebox displays an error
 
 
 proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration
