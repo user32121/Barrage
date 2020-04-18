@@ -73,6 +73,9 @@ namespace Barrage
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            Width += 400 - grid.ActualWidth;
+            Height += 400 - grid.ActualHeight;
+
             kickStart = new DispatcherTimer();
             kickStart.Tick += KickStart_Tick;
             kickStart.Start();
@@ -269,14 +272,14 @@ namespace Barrage
 
             if (moved)
             {
-                if (plyrX < mainGrid.ActualWidth / -2)
-                    plyrX = mainGrid.ActualWidth / -2;
-                else if (plyrX > mainGrid.ActualWidth / 2)
-                    plyrX = mainGrid.ActualWidth / 2;
-                if (plyrY < mainGrid.ActualHeight / -2)
-                    plyrY = mainGrid.ActualHeight / -2;
-                else if (plyrY > mainGrid.ActualHeight / 2)
-                    plyrY = mainGrid.ActualHeight / 2;
+                if (plyrX < -200)
+                    plyrX = -200;
+                else if (plyrX > 200)
+                    plyrX = 200;
+                if (plyrY < -200)
+                    plyrY = -200;
+                else if (plyrY > 200)
+                    plyrY = 200;
 
                 Player.RenderTransform = new TranslateTransform(plyrX, plyrY);
             }
@@ -364,6 +367,7 @@ namespace Barrage
                     string xyVel = "";
                     string startPos = "0,-100";
                     int duration = -1;
+                    int tagCount = -1;
                     int actDelay = 1;
 
                     for (int i = 1; i < line.Length; i++)
@@ -412,11 +416,13 @@ namespace Barrage
                         }
                         else if (line[i].Contains("duration"))
                             duration = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
+                        else if (line[i].Contains("tagCount"))
+                            tagCount = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
                         else if (line[i].Contains("actDelay"))
                             actDelay = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
                     }
 
-                    CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, actDelay);
+                    CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, tagCount, actDelay);
                     spwnInd++;
                     ReadString.n = spwnInd;
                 }
@@ -510,7 +516,7 @@ namespace Barrage
             wait--;
         }
 
-        public void CreateProj(string size, string startPos, string speed, string angle, string xyPos, string xyVel, List<string> tags, int duration, int actDelay)
+        public void CreateProj(string size, string startPos, string speed, string angle, string xyPos, string xyVel, List<string> tags, int duration, int tagCount, int actDelay)
         {
             ReadString.t = 0;
             ReadString.lastVals = null;
@@ -540,7 +546,7 @@ namespace Barrage
 
             //creates projectile
             double radians = (double)ReadString.Interpret(angle, typeof(double)) * Math.PI / 180;
-            Projectile tempProjectile = new Projectile(size, this)
+            Projectile tempProjectile = new Projectile(size)
             {
                 Sprite = projImage,
                 Duration = duration,
@@ -550,6 +556,7 @@ namespace Barrage
                 XyPos = xyPos,
                 XyVel = xyVel,
                 Tags = tags,
+                TagCount = tagCount,
                 Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * (double)ReadString.Interpret(speed, typeof(double)),
                 ActDelay = actDelay
             };

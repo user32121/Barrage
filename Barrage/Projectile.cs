@@ -13,7 +13,6 @@ namespace Barrage
         public Vector Position;
         public Vector Velocity;
         public Vector velDir = new Vector(1, 1);
-        private readonly MainWindow m_parent;
         public List<string> Tags;
         public string Speed;
         public string Angle;
@@ -22,6 +21,7 @@ namespace Barrage
         public string Radius;
         public int RadiusSqr;
         public int Duration;
+        public int TagCount;
         public int ActDelay;
         public bool IsAlive;
         public int Age;
@@ -30,14 +30,13 @@ namespace Barrage
         public enum LVI /*Last Value Index*/ { x, y, xVel, yVel, spd, ang }
         public static int LVIL = 6; //Last Value Index Length
 
-        public Projectile(string radius, MainWindow parent)
+        public Projectile(string radius)
         {
             Radius = radius;
             ReadString.t = 0;
             ReadString.lastVals = lastVals;
             int r = (int)ReadString.Interpret(radius, typeof(int));
             RadiusSqr = r * r;
-            m_parent = parent;
             IsAlive = true;
         }
 
@@ -74,7 +73,7 @@ namespace Barrage
             Age++;
 
             //projectiles that have duration have a limited lifespan
-            if (!Tags.Contains("wallBounce") && !Tags.Contains("screenWrap") && Duration != -1)
+            if (Duration != -1)
             {
                 Duration--;
                 if (Duration <= 0)
@@ -87,37 +86,37 @@ namespace Barrage
             int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int)));
 
             //checks if offscreen (x)
-            if (Math.Abs(Position.X) > m_parent.mainGrid.ActualWidth / 2)
+            if (Math.Abs(Position.X) > 200)
             {
-                if (Tags.Contains("wallBounce") && Duration != 0)
+                if (Tags.Contains("wallBounce") && TagCount != 0)
                 {
-                    SetPos(Position.X - 2 * (Position.X - m_parent.mainGrid.ActualWidth / 2 * Math.Sign(Position.X)), Position.Y);
+                    SetPos(Position.X - 2 * (Position.X - 200 * Math.Sign(Position.X)), Position.Y);
                     velDir.X *= -1;
-                    Duration--;
+                    TagCount--;
                 }
-                else if (Tags.Contains("screenWrap") && Duration != 0)
+                else if (Tags.Contains("screenWrap") && TagCount != 0)
                 {
-                    SetPos(Position.X - m_parent.mainGrid.ActualWidth * Math.Sign(Position.X), Position.Y);
-                    Duration--;
+                    SetPos(Position.X - 400 * Math.Sign(Position.X), Position.Y);
+                    TagCount--;
                 }
-                else if (Math.Abs(Position.X) > m_parent.mainGrid.ActualWidth / 2 + r)
+                else if (!Tags.Contains("outside") && Math.Abs(Position.X) > 400 + r)
                     IsAlive = false;
             }
             //checks if offscreen (y)
-            if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight / 2)
+            if (Math.Abs(Position.Y) > 200)
             {
-                if (Tags.Contains("wallBounce") && Duration != 0)
+                if (Tags.Contains("wallBounce") && TagCount != 0)
                 {
-                    SetPos(Position.X, Position.Y - 2 * (Position.Y - m_parent.mainGrid.ActualHeight / 2 * Math.Sign(Position.Y)));
+                    SetPos(Position.X, Position.Y - 2 * (Position.Y - 200 * Math.Sign(Position.Y)));
                     velDir.Y *= -1;
-                    Duration--;
+                    TagCount--;
                 }
-                else if (Tags.Contains("screenWrap") && Duration != 0)
+                else if (Tags.Contains("screenWrap") && TagCount != 0)
                 {
-                    SetPos(Position.X, Position.Y - m_parent.mainGrid.ActualHeight * Math.Sign(Position.Y));
-                    Duration--;
+                    SetPos(Position.X, Position.Y - 400 * Math.Sign(Position.Y));
+                    TagCount--;
                 }
-                else if (Math.Abs(Position.Y) > m_parent.mainGrid.ActualHeight / 2 + r)
+                else if (!Tags.Contains("outside") && Math.Abs(Position.Y) > 200 + r)
                     IsAlive = false;
             }
 

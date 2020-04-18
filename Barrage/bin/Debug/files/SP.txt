@@ -1,9 +1,4 @@
-﻿:p109
-#boss|SIN ( t * 2 ) * 150|-100|3|10
-boss|0|-100|3|10
-#val0|RNG -10 10
-#val1|RNG -10 10
-val2|ATAN ( PLYRY - BOSSY - val0 ) ( PLYRX - BOSSX - val1 )
-proj|tags=circle|angle=val2|speed=5|startPos=BOSSX + val0,BOSSY + val1|actDelay=-1
+﻿:START
+proj|tags=circle,wallBounce,outside|angle=val2|speed=5|xyVel=LXVEL * 0.99 + ( PLYRX - LXPOS ) * RNG -0.001 0.002,LYVEL * 0.99 + ( PLYRY - LYPOS ) * RNG -0.001 0.002|actDelay=-1|tagCount=10
 wait|1
-ifGoto|1|:p109
+repeat|:START|100

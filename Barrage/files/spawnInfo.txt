@@ -10,14 +10,16 @@ proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration
  +laser		    laser (cannot have both laser and circle)
  +wallBounce	bounce off walls, requires duration
  +screenWrap	wraps screen edges
+ +outside   	projectile won't despawn when it goes offscreen
 -angle		    angle of projectile movement (degrees)(counterclockwise from right)
 -speed 		    speed of projectile (pixels/frame)
 -xyPos		    position of projectile (overrides angle and speed)
 -xyVel		    velocity of projectile (overrides xyPos, angle, and speed)
 -size		    radius of projectile (or half of width of laser)
 -startPos	    pos to spawn projectiles (x,y)
--duration	    # times it will wallBounce(or similar), or # frames a proj will exist, -1 is infinity
--actDelay	    # frames before the projectile can collide with the player
+-duration	    # frames a proj will exist, -1 is infinity
+-tagCount       # times a proj will wallBounce (or similar), -1 is infinity
+-actDelay	    # frames before the projectile can collide with the player, -1 is infinity
 
 boss|#1|#2|#3|#4	moves the boss sprite to #1,#2 at #3 pixels/frame and rotates at #4 degrees/frame
 
