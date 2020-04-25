@@ -20,6 +20,7 @@ proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration
 -duration	    # frames a proj will exist, -1 is infinity
 -tagCount       # times a proj will wallBounce (or similar), -1 is infinity
 -actDelay	    # frames before the projectile can collide with the player, -1 is infinity
+-file   	    a number indicating which image file to use (e.g. 0 will get Projectile0.png)
 
 boss|#1|#2|#3|#4	moves the boss sprite to #1,#2 at #3 pixels/frame and rotates at #4 degrees/frame
 

@@ -533,6 +533,7 @@ namespace Barrage
                 projImage.Width = r * 2;
                 projImage.Height = r * 2;
                 projImage.Source = new BitmapImage(new Uri("files/Projectile" + file + ".png", UriKind.Relative));
+                projImage.RenderTransformOrigin = new Point(0.5, 0.5);
             }
             else if (tags.Contains("laser"))
             {
