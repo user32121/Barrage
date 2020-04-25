@@ -44,6 +44,7 @@ namespace Barrage
         {
             int y1 = 0;
             TransformGroup TG = new TransformGroup();
+            TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle, typeof(double)) - 90));
             if (Tags.Contains("laser"))
             {
                 y1 = 50;    //add 50 to y because ...
@@ -51,7 +52,6 @@ namespace Barrage
                 //rotate laser
                 ReadString.t = Age;
                 ReadString.lastVals = lastVals;
-                TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle, typeof(double)) - 90));
             }
 
             Position = new Vector(x, y);

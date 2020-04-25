@@ -1,4 +1,4 @@
-﻿:START
-proj|tags=circle,wallBounce,outside|angle=val2|speed=5|xyVel=LXVEL * 0.99 + ( PLYRX - LXPOS ) * RNG -0.001 0.002,LYVEL * 0.99 + ( PLYRY - LYPOS ) * RNG -0.001 0.002|actDelay=-1|tagCount=10
+﻿#collapsing spiral
+proj|tags=circle|speed=5 - t / 10|angle=n * 15|startPos=0,-50|file=MOD n 3
 wait|1
-repeat|:START|100
+repeat|0|3600

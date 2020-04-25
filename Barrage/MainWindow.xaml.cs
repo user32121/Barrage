@@ -369,6 +369,7 @@ namespace Barrage
                     int duration = -1;
                     int tagCount = -1;
                     int actDelay = 1;
+                    int file = 0;
 
                     for (int i = 1; i < line.Length; i++)
                     {
@@ -420,9 +421,11 @@ namespace Barrage
                             tagCount = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
                         else if (line[i].Contains("actDelay"))
                             actDelay = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
+                        else if (line[i].Contains("file"))
+                            file = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
                     }
 
-                    CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, tagCount, actDelay);
+                    CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, tagCount, actDelay, file);
                     spwnInd++;
                     ReadString.n = spwnInd;
                 }
@@ -516,7 +519,8 @@ namespace Barrage
             wait--;
         }
 
-        public void CreateProj(string size, string startPos, string speed, string angle, string xyPos, string xyVel, List<string> tags, int duration, int tagCount, int actDelay)
+        public void CreateProj(string size, string startPos, string speed, string angle, string xyPos,
+            string xyVel, List<string> tags, int duration, int tagCount, int actDelay, int file)
         {
             ReadString.t = 0;
             ReadString.lastVals = null;
@@ -528,14 +532,14 @@ namespace Barrage
             {
                 projImage.Width = r * 2;
                 projImage.Height = r * 2;
-                projImage.Source = new BitmapImage(new Uri("files/Projectile1.png", UriKind.Relative));
+                projImage.Source = new BitmapImage(new Uri("files/Projectile" + file + ".png", UriKind.Relative));
             }
             else if (tags.Contains("laser"))
             {
                 projImage.Stretch = Stretch.Fill;
                 projImage.Width = r * 2;
                 projImage.Height = 100;
-                projImage.Source = new BitmapImage(new Uri("files/Laser1.png", UriKind.Relative));
+                projImage.Source = new BitmapImage(new Uri("files/Laser" + file + ".png", UriKind.Relative));
                 projImage.RenderTransformOrigin = new Point(0.5, 0);
             }
             if (actDelay > 0 || actDelay == -1)

@@ -21,7 +21,7 @@
                     </TransformGroup>
                 </Image.RenderTransform>
             </Image>
-            <Image x:Name="TestProjectile" HorizontalAlignment="Center" VerticalAlignment="Center" Source="files/Laser1.png" Width="7" Height="700" Visibility="Hidden" RenderTransformOrigin="0.5,0.5" Stretch="Fill">
+            <Image x:Name="TestProjectile" HorizontalAlignment="Center" VerticalAlignment="Center" Source="files/Laser1.png" Width="7" Height="700" RenderTransformOrigin="0.5,0.5" Stretch="Fill" Visibility="Hidden">
                 <Image.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform/>
