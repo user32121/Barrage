@@ -58,7 +58,7 @@ namespace Barrage
             InitializeComponent();
 
             this.KeyDown += new KeyEventHandler(MainWindow_KeyDown);
-            extraUI = mainGrid.Children.Count;
+            extraUI = gridGame.Children.Count;
 
             frameLength = Stopwatch.Frequency / 60;  //framerate
 
@@ -73,8 +73,8 @@ namespace Barrage
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Width += 400 - grid.ActualWidth;
-            Height += 400 - grid.ActualHeight;
+            Width += 400 - gridMain.ActualWidth;
+            Height += 400 - gridMain.ActualHeight;
 
             kickStart = new DispatcherTimer();
             kickStart.Tick += KickStart_Tick;
@@ -139,11 +139,11 @@ namespace Barrage
 
                 gameOver = false;
                 paused = false;
-                mainGrid.Effect = new BlurEffect { Radius = 0 };
+                gridGame.Effect = new BlurEffect { Radius = 0 };
                 PauseText.Content = "";
 
                 projectiles.Clear();
-                mainGrid.Children.RemoveRange(extraUI, mainGrid.Children.Count);
+                gridGame.Children.RemoveRange(extraUI, gridGame.Children.Count);
 
                 plyrX = 0;
                 plyrY = 100;
@@ -159,7 +159,7 @@ namespace Barrage
             {
                 if (!paused)
                 {
-                    mainGrid.Effect = new BlurEffect { Radius = 10 };
+                    gridGame.Effect = new BlurEffect { Radius = 10 };
                     PauseText.Content = "Paused";
 #if SONG
                     song.Pause();
@@ -168,7 +168,7 @@ namespace Barrage
                 }
                 else
                 {
-                    mainGrid.Effect = new BlurEffect { Radius = 0 };
+                    gridGame.Effect = new BlurEffect { Radius = 0 };
                     PauseText.Content = "";
 #if SONG
                     if (songPlaying)
@@ -321,7 +321,7 @@ namespace Barrage
             if (hit)
             {
                 gameOver = true;
-                mainGrid.Effect = new BlurEffect { Radius = 10 };
+                gridGame.Effect = new BlurEffect { Radius = 10 };
                 PauseText.Content = "Game Over";
             }
         }
@@ -532,7 +532,10 @@ namespace Barrage
             {
                 projImage.Width = r * 2;
                 projImage.Height = r * 2;
-                projImage.Source = new BitmapImage(new Uri("files/Projectile" + file + ".png", UriKind.Relative));
+                if (File.Exists("files/Projectile" + file + ".png"))
+                    projImage.Source = new BitmapImage(new Uri("files/Projectile" + file + ".png", UriKind.Relative));
+                else
+                    projImage.Source = new BitmapImage(new Uri("files/ProjectileD.png", UriKind.Relative));
                 projImage.RenderTransformOrigin = new Point(0.5, 0.5);
             }
             else if (tags.Contains("laser"))
@@ -540,14 +543,17 @@ namespace Barrage
                 projImage.Stretch = Stretch.Fill;
                 projImage.Width = r * 2;
                 projImage.Height = 100;
-                projImage.Source = new BitmapImage(new Uri("files/Laser" + file + ".png", UriKind.Relative));
+                if (File.Exists("files/Projectile" + file + ".png"))
+                    projImage.Source = new BitmapImage(new Uri("files/Laser" + file + ".png", UriKind.Relative));
+                else
+                    projImage.Source = new BitmapImage(new Uri("files/LaserD.png", UriKind.Relative));
                 projImage.RenderTransformOrigin = new Point(0.5, 0);
             }
             if (actDelay > 0 || actDelay == -1)
                 projImage.Opacity = 0.3;
             Grid.SetColumn(projImage, 0);
             Grid.SetRow(projImage, 0);
-            mainGrid.Children.Add(projImage);
+            gridGame.Children.Add(projImage);
 
             //creates projectile
             double radians = (double)ReadString.Interpret(angle, typeof(double)) * Math.PI / 180;
@@ -616,7 +622,7 @@ namespace Barrage
             foreach (Projectile P in toRemove)
             {
                 projectiles.Remove(P);
-                mainGrid.Children.Remove(P.Sprite);
+                gridGame.Children.Remove(P.Sprite);
             }
 
             //counts projectiles for monitoring lag

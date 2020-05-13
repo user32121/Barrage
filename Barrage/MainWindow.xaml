@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:Barrage"
         mc:Ignorable="d"
         Title="Barrage" Height="420" Width="405" ResizeMode="CanMinimize" Icon="files/Icon.ico" Loaded="Window_Loaded" Closing="Window_Closing">
-    <Grid RenderTransformOrigin="0.5,0.5" x:Name="grid">
-        <Grid RenderTransformOrigin="0.5,0.5" x:Name="mainGrid">
+    <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridMain">
+        <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridGame">
             <Grid.Effect>
                 <BlurEffect Radius="0"/>
             </Grid.Effect>
@@ -18,16 +18,6 @@
                         <SkewTransform/>
                         <RotateTransform/>
                         <TranslateTransform Y="100"/>
-                    </TransformGroup>
-                </Image.RenderTransform>
-            </Image>
-            <Image x:Name="TestProjectile" HorizontalAlignment="Center" VerticalAlignment="Center" Source="files/Laser1.png" Width="7" Height="700" RenderTransformOrigin="0.5,0.5" Stretch="Fill" Visibility="Hidden">
-                <Image.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform/>
-                        <SkewTransform/>
-                        <RotateTransform Angle="45"/>
-                        <TranslateTransform/>
                     </TransformGroup>
                 </Image.RenderTransform>
             </Image>
