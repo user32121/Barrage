@@ -99,7 +99,7 @@ namespace Barrage
                     SetPos(Position.X - 400 * Math.Sign(Position.X), Position.Y);
                     TagCount--;
                 }
-                else if (!Tags.Contains("outside") && Math.Abs(Position.X) > 400 + r)
+                else if (!Tags.Contains("outside") && Math.Abs(Position.X) > 200 + r)
                     IsAlive = false;
             }
             //checks if offscreen (y)

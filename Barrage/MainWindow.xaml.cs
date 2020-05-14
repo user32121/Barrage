@@ -803,7 +803,8 @@ namespace Barrage
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            gridMain.RenderTransform = new ScaleTransform(gridSize.ActualWidth / 400, gridSize.ActualHeight / 400);
+            double min = Math.Min(gridSize.ActualWidth / 400, gridSize.ActualHeight / 400);
+            gridMain.RenderTransform = new ScaleTransform(min, min);
         }
     }
     public static class ExtensionMethods

@@ -5,11 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Barrage"
         mc:Ignorable="d"
-        Title="Barrage" Height="420" Width="405" Icon="files/Icon.ico" Loaded="Window_Loaded" Closing="Window_Closing" SizeChanged="Window_SizeChanged">
+        Title="Barrage" Height="420" Width="405" Icon="files/Icon.ico" Loaded="Window_Loaded" Closing="Window_Closing" SizeChanged="Window_SizeChanged" Background="Black">
     <Grid x:Name="gridSize">
-        <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridMain" Width="400" Height="400">
-            <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridGame" Visibility="Hidden">
-                <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridField">
+        <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridMain" Width="400" Height="400" Background="White">
+            <Grid x:Name="gridGame" Visibility="Hidden">
+                <Grid x:Name="gridField">
                     <Grid.Effect>
                         <BlurEffect Radius="0"/>
                     </Grid.Effect>
