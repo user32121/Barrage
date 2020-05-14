@@ -7,35 +7,44 @@
         mc:Ignorable="d"
         Title="Barrage" Height="420" Width="405" ResizeMode="CanMinimize" Icon="files/Icon.ico" Loaded="Window_Loaded" Closing="Window_Closing">
     <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridMain">
-        <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridGame">
-            <Grid.Effect>
-                <BlurEffect Radius="0"/>
-            </Grid.Effect>
-            <Image x:Name="Player" HorizontalAlignment="Center" Height="25" Margin="0" VerticalAlignment="Center" Width="25" Source="files/PlayerSprite.png" RenderTransformOrigin="0.5,0.5">
-                <Image.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform/>
-                        <SkewTransform/>
-                        <RotateTransform/>
-                        <TranslateTransform Y="100"/>
-                    </TransformGroup>
-                </Image.RenderTransform>
-            </Image>
-            <Image x:Name="Boss" HorizontalAlignment="Center" Height="50" Margin="0" VerticalAlignment="Center" Width="50" RenderTransformOrigin="0.5,0.5" Source="files/Boss.png">
-                <Image.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform/>
-                        <SkewTransform/>
-                        <RotateTransform/>
-                        <TranslateTransform X="300" Y="-300"/>
-                    </TransformGroup>
-                </Image.RenderTransform>
-            </Image>
+        <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridGame" Visibility="Hidden">
+            <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridField">
+                <Grid.Effect>
+                    <BlurEffect Radius="0"/>
+                </Grid.Effect>
+                <Image x:Name="Player" HorizontalAlignment="Center" Height="25" Margin="0" VerticalAlignment="Center" Width="25" Source="files/PlayerSprite.png" RenderTransformOrigin="0.5,0.5">
+                    <Image.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform Y="100"/>
+                        </TransformGroup>
+                    </Image.RenderTransform>
+                </Image>
+                <Image x:Name="Boss" HorizontalAlignment="Center" Height="50" Margin="0" VerticalAlignment="Center" Width="50" RenderTransformOrigin="0.5,0.5" Source="files/Boss.png">
+                    <Image.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform X="300" Y="-300"/>
+                        </TransformGroup>
+                    </Image.RenderTransform>
+                </Image>
+            </Grid>
+            <Label x:Name="labelVisual" Content="V i s u a l" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" FontSize="10" Visibility="Hidden"/>
+            <CheckBox x:Name="checkMouse" Content="useMouse" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent" FontSize="10" Opacity="0.5" Panel.ZIndex="100"/>
+            <Label x:Name="projCount" Content="projectiles" Margin="0,10,0,0"  VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" Opacity="0.5" Panel.ZIndex="100" FontSize="10"/>
+            <Grid x:Name="gridPause" Visibility="Hidden">
+                <Label x:Name="labelPause" Margin="0,0,0,100" Content="Paused" VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="100" FontSize="36"/>
+                <Label x:Name="labelBack" Margin="0,10,0,0" Content="Back" VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="100" FontSize="30" MouseEnter="LabelBack_MouseEnter" MouseLeave="LabelBack_MouseLeave" MouseUp="LabelBack_MouseUp"/>
+            </Grid>
         </Grid>
-        <Label x:Name="labelVisual" Content="V i s u a l" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" FontSize="10" Visibility="Hidden"/>
-        <CheckBox x:Name="checkMouse" Content="useMouse" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent" FontSize="10" Opacity="0.5" Panel.ZIndex="100"/>
-        <Label x:Name="projCount" Content="projectiles" Margin="0"  VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" Opacity="0.5" Panel.ZIndex="100" FontSize="10"/>
-        <Label x:Name="PauseText" Margin="0,0,0,100" Content="" VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="100" FontSize="36" BorderBrush="Transparent" Background="Transparent"/>
-        <Label x:Name="labelFps" Content="fps" Margin="0,10,0,0"  VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" Opacity="0.5" Panel.ZIndex="100" FontSize="10"/>
+        <Grid x:Name="gridMenu">
+            <Label x:Name="labelPlay" Content="Play" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-70,0,0" Width="200" Height="60" FontSize="25" Background="#FFC8C8C8" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseDown="LabelMenu_MouseDown" MouseUp="LabelMenu_MouseUp"/>
+            <Label x:Name="labelEditor" Content="Editor" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,70,0,0" Width="200" Height="60" FontSize="25" Background="#FFC8C8C8" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseDown="LabelMenu_MouseDown" MouseUp="LabelMenu_MouseUp"/>
+        </Grid>
+        <Label x:Name="labelFps" Content="fps" VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" Opacity="0.5" Panel.ZIndex="100" FontSize="10"/>
     </Grid>
 </Window>

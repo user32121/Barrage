@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.Windows.Threading;
 using System.Windows.Media.Effects;
 using System.Threading;
+using System.Windows.Interop;
 
 namespace Barrage
 {
@@ -45,6 +46,14 @@ namespace Barrage
         const int fpsMeasureRate = 5;
         public static bool stopRequested;
 
+        enum GAMESTATE
+        {
+            MENU,
+            PLAY,
+            EDITOR,
+        }
+        GAMESTATE gamestate = GAMESTATE.MENU;
+
 #if SONG
         MediaPlayer song = new MediaPlayer();
         bool songPlaying;
@@ -58,7 +67,7 @@ namespace Barrage
             InitializeComponent();
 
             this.KeyDown += new KeyEventHandler(MainWindow_KeyDown);
-            extraUI = gridGame.Children.Count;
+            extraUI = gridField.Children.Count;
 
             frameLength = Stopwatch.Frequency / 60;  //framerate
 
@@ -92,20 +101,27 @@ namespace Barrage
             stopwatch.Start();
             while (!stopRequested)
             {
-                if (!paused)
+                if (gamestate == GAMESTATE.PLAY)
                 {
-                    time++;
-
-                    if (!gameOver)
+                    if (!paused)
                     {
-                        PlayerMove();
-                        ReadNextLine();
+                        time++;
+
+                        if (!gameOver)
+                        {
+                            PlayerMove();
+                            ReadNextLine();
+                        }
+
+                        MoveProjectiles();
+
+                        if (!(gameOver || isVisual))
+                            CheckPlayerHit();
                     }
+                }
+                else if (gamestate == GAMESTATE.EDITOR)
+                {
 
-                    MoveProjectiles();
-
-                    if (!(gameOver || isVisual))
-                        CheckPlayerHit();
                 }
                 this.Refresh(DispatcherPriority.Input);
                 ModerateFrames();
@@ -114,78 +130,80 @@ namespace Barrage
 
         void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.R)
-            {
-                readIndex = 0;
-                spwnInd = 0;
-                spwnVals.Clear();
-                repeatVals.Clear();
-                labels.Clear();
-                wait = 0;
-                time = 0;
+            if (gamestate == GAMESTATE.PLAY)
+                if (e.Key == Key.R)
+                {
+                    readIndex = 0;
+                    spwnInd = 0;
+                    spwnVals.Clear();
+                    repeatVals.Clear();
+                    labels.Clear();
+                    wait = 0;
+                    time = 0;
 
-                isVisual = false;
-                labelVisual.Visibility = Visibility.Hidden;
+                    isVisual = false;
+                    labelVisual.Visibility = Visibility.Hidden;
 
 #if SONG
-                song.Stop();
-                songPlaying = false;
+                    song.Stop();
+                    songPlaying = false;
 #endif
 #if TAS
                 TASIndex = 0;
 #endif
 
-                ReadSpawnTxt();
+                    ReadSpawnTxt();
 
-                gameOver = false;
-                paused = false;
-                gridGame.Effect = new BlurEffect { Radius = 0 };
-                PauseText.Content = "";
-
-                projectiles.Clear();
-                gridGame.Children.RemoveRange(extraUI, gridGame.Children.Count);
-
-                plyrX = 0;
-                plyrY = 100;
-                Player.RenderTransform = new TranslateTransform(plyrX, plyrY);
-
-                bossPos = new Vector(300, -300);
-                bossTarget = "0,0";
-                bossMvSpd = "0";
-                bossAngSpd = "0";
-                bossAngle = 0;
-            }
-            else if (e.Key == Key.Escape && !gameOver)
-            {
-                if (!paused)
-                {
-                    gridGame.Effect = new BlurEffect { Radius = 10 };
-                    PauseText.Content = "Paused";
-#if SONG
-                    song.Pause();
-#endif
-                    paused = true;
-                }
-                else
-                {
-                    gridGame.Effect = new BlurEffect { Radius = 0 };
-                    PauseText.Content = "";
-#if SONG
-                    if (songPlaying)
-                        song.Play();
-#endif
+                    gameOver = false;
                     paused = false;
+                    gridField.Effect = null;
+                    gridPause.Visibility = Visibility.Hidden;
+
+                    projectiles.Clear();
+                    gridField.Children.RemoveRange(extraUI, gridField.Children.Count);
+
+                    plyrX = 0;
+                    plyrY = 100;
+                    Player.RenderTransform = new TranslateTransform(plyrX, plyrY);
+
+                    bossPos = new Vector(300, -300);
+                    bossTarget = "0,0";
+                    bossMvSpd = "0";
+                    bossAngSpd = "0";
+                    bossAngle = 0;
                 }
-            }
+                else if (e.Key == Key.Escape && !gameOver)
+                {
+                    if (!paused)
+                    {
+                        gridField.Effect = new BlurEffect { Radius = 10 };
+                        gridPause.Visibility = Visibility.Visible;
+                        labelPause.Content = "Paused";
 #if SONG
-            else if (e.Key == Key.Q)
-            {
-                song.Position -= TimeSpan.FromSeconds(0.1);
-            }
-            else if (e.Key == Key.W)
-            {
-                song.Position += TimeSpan.FromSeconds(0.1);
-            }
+                        song.Pause();
+#endif
+                        paused = true;
+                    }
+                    else
+                    {
+                        gridField.Effect = null;
+                        gridPause.Visibility = Visibility.Hidden;
+#if SONG
+                        if (songPlaying)
+                            song.Play();
+#endif
+                        paused = false;
+                    }
+                }
+#if SONG
+                else if (e.Key == Key.Q)
+                {
+                    song.Position -= TimeSpan.FromSeconds(0.1);
+                }
+                else if (e.Key == Key.W)
+                {
+                    song.Position += TimeSpan.FromSeconds(0.1);
+                }
 #endif
         }
 
@@ -201,9 +219,9 @@ namespace Barrage
 
             if (checkMouse.IsChecked == true && IsMouseOver)
             {
-                Point mousePos = Mouse.GetPosition(this);
-                plyrX = mousePos.X - 191;
-                plyrY = mousePos.Y - 205;
+                Point mousePos = Mouse.GetPosition(gridField);
+                plyrX = mousePos.X - gridField.ActualWidth / 2;
+                plyrY = mousePos.Y - gridField.ActualHeight / 2;
                 moved = true;
             }
             else
@@ -321,8 +339,9 @@ namespace Barrage
             if (hit)
             {
                 gameOver = true;
-                gridGame.Effect = new BlurEffect { Radius = 10 };
-                PauseText.Content = "Game Over";
+                gridField.Effect = new BlurEffect { Radius = 10 };
+                gridPause.Visibility = Visibility.Visible;
+                labelPause.Content = "Game Over";
             }
         }
 
@@ -553,7 +572,7 @@ namespace Barrage
                 projImage.Opacity = 0.3;
             Grid.SetColumn(projImage, 0);
             Grid.SetRow(projImage, 0);
-            gridGame.Children.Add(projImage);
+            gridField.Children.Add(projImage);
 
             //creates projectile
             double radians = (double)ReadString.Interpret(angle, typeof(double)) * Math.PI / 180;
@@ -622,7 +641,7 @@ namespace Barrage
             foreach (Projectile P in toRemove)
             {
                 projectiles.Remove(P);
-                gridGame.Children.Remove(P.Sprite);
+                gridField.Children.Remove(P.Sprite);
             }
 
             //counts projectiles for monitoring lag
@@ -727,6 +746,57 @@ namespace Barrage
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             stopRequested = true;
+        }
+
+        private void LabelMenu_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (Mouse.LeftButton == MouseButtonState.Pressed || Mouse.RightButton == MouseButtonState.Pressed || Mouse.MiddleButton == MouseButtonState.Pressed)
+                ((Label)sender).Background = new SolidColorBrush(Color.FromRgb(150, 150, 150));
+            else
+                ((Label)sender).Background = new SolidColorBrush(Color.FromRgb(230, 230, 230));
+        }
+        private void LabelMenu_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ((Label)sender).Background = new SolidColorBrush(Color.FromRgb(200, 200, 200));
+        }
+        private void LabelMenu_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ((Label)sender).Background = new SolidColorBrush(Color.FromRgb(150, 150, 150));
+        }
+        private void LabelMenu_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (sender == labelPlay)
+            {
+                gamestate = GAMESTATE.PLAY;
+                gridMenu.Visibility = Visibility.Hidden;
+                gridGame.Visibility = Visibility.Visible;
+                MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.R));
+            }
+            else if (sender == labelEditor)
+            {
+                gamestate = GAMESTATE.EDITOR;
+                gridMenu.Visibility = Visibility.Hidden;
+                //gridEditor.Visibility = Visibility.Visible;
+            }
+
+            ((Label)sender).Background = new SolidColorBrush(Color.FromRgb(230, 230, 230));
+        }
+        private void LabelBack_MouseEnter(object sender, MouseEventArgs e)
+        {
+            ((Label)sender).Foreground = new SolidColorBrush(Color.FromRgb(150, 150, 150));
+        }
+        private void LabelBack_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ((Label)sender).Foreground = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+        }
+        private void LabelBack_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            gamestate = GAMESTATE.MENU;
+            gridMenu.Visibility = Visibility.Visible;
+            gridGame.Visibility = Visibility.Hidden;
+            //gridEditor.Visibility = Visibility.Hidden;
+
+            ((Label)sender).Foreground = new SolidColorBrush(Color.FromRgb(150, 150, 150));
         }
     }
     public static class ExtensionMethods
