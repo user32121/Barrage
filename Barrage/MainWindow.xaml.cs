@@ -778,7 +778,7 @@ namespace Barrage
             {
                 gamestate = GAMESTATE.EDITOR;
                 gridMenu.Visibility = Visibility.Hidden;
-                //gridEditor.Visibility = Visibility.Visible;
+                gridEditor.Visibility = Visibility.Visible;
             }
 
             ((Label)sender).Background = new SolidColorBrush(Color.FromRgb(230, 230, 230));
@@ -796,7 +796,7 @@ namespace Barrage
             gamestate = GAMESTATE.MENU;
             gridMenu.Visibility = Visibility.Visible;
             gridGame.Visibility = Visibility.Hidden;
-            //gridEditor.Visibility = Visibility.Hidden;
+            gridEditor.Visibility = Visibility.Hidden;
 
             ((Label)sender).Foreground = new SolidColorBrush(Color.FromRgb(150, 150, 150));
         }
