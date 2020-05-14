@@ -82,8 +82,10 @@ namespace Barrage
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Width += 400 - gridMain.ActualWidth;
-            Height += 400 - gridMain.ActualHeight;
+            Width += 400 - gridSize.ActualWidth;
+            Height += 400 - gridSize.ActualHeight;
+            MinWidth = Width;
+            MinHeight = Height;
 
             kickStart = new DispatcherTimer();
             kickStart.Tick += KickStart_Tick;
@@ -797,6 +799,11 @@ namespace Barrage
             //gridEditor.Visibility = Visibility.Hidden;
 
             ((Label)sender).Foreground = new SolidColorBrush(Color.FromRgb(150, 150, 150));
+        }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            gridMain.RenderTransform = new ScaleTransform(gridSize.ActualWidth / 400, gridSize.ActualHeight / 400);
         }
     }
     public static class ExtensionMethods
