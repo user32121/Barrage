@@ -777,8 +777,12 @@ namespace Barrage
             else if (sender == labelEditor)
             {
                 gamestate = GAMESTATE.EDITOR;
+                gridMain.Width = 800;
+                gridGame.HorizontalAlignment = HorizontalAlignment.Left;
+                Width *= 2;
                 gridMenu.Visibility = Visibility.Hidden;
                 gridEditor.Visibility = Visibility.Visible;
+                gridGame.Visibility = Visibility.Visible;
             }
 
             ((Label)sender).Background = new SolidColorBrush(Color.FromRgb(230, 230, 230));
@@ -793,6 +797,12 @@ namespace Barrage
         }
         private void LabelBack_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (gamestate == GAMESTATE.EDITOR)
+            {
+                gridMain.Width = 400;
+                gridGame.HorizontalAlignment = HorizontalAlignment.Center;
+                Width /= 2;
+            }
             gamestate = GAMESTATE.MENU;
             gridMenu.Visibility = Visibility.Visible;
             gridGame.Visibility = Visibility.Hidden;
@@ -803,8 +813,12 @@ namespace Barrage
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            double min = Math.Min(gridSize.ActualWidth / 400, gridSize.ActualHeight / 400);
+            double min = Math.Min(gridSize.ActualWidth / gridMain.Width, gridSize.ActualHeight / gridMain.Height);
             gridMain.RenderTransform = new ScaleTransform(min, min);
+            leftBlack.Width = Math.Max(gridSize.ActualWidth - min * gridMain.Width, 0) / 2;
+            rightBlack.Width = Math.Max(gridSize.ActualWidth - min * gridMain.Width, 0) / 2;
+            upBlack.Height = Math.Max(gridSize.ActualHeight - min * gridMain.Height, 0) / 2;
+            downBlack.Height = Math.Max(gridSize.ActualHeight - min * gridMain.Height, 0) / 2;
         }
     }
     public static class ExtensionMethods

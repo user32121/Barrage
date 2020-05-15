@@ -8,11 +8,8 @@
         Title="Barrage" Height="420" Width="405" Icon="files/Icon.ico" Loaded="Window_Loaded" Closing="Window_Closing" SizeChanged="Window_SizeChanged" Background="Black">
     <Grid x:Name="gridSize">
         <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridMain" Width="400" Height="400" Background="White">
-            <Grid x:Name="gridGame" Visibility="Hidden">
+            <Grid x:Name="gridGame" Visibility="Hidden" Width="400" Height="400">
                 <Grid x:Name="gridField">
-                    <Grid.Effect>
-                        <BlurEffect Radius="0"/>
-                    </Grid.Effect>
                     <Image x:Name="Player" HorizontalAlignment="Center" Height="25" Margin="0" VerticalAlignment="Center" Width="25" Source="files/PlayerSprite.png" RenderTransformOrigin="0.5,0.5">
                         <Image.RenderTransform>
                             <TransformGroup>
@@ -43,7 +40,8 @@
                 </Grid>
             </Grid>
             <Grid x:Name="gridEditor" Visibility="Hidden">
-                <Label x:Name="labelEditorBack" Margin="0,10,0,0" Content="Back" VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="100" FontSize="30" MouseEnter="LabelBack_MouseEnter" MouseLeave="LabelBack_MouseLeave" MouseUp="LabelBack_MouseUp"/>
+                <Label x:Name="labelEditorBack" Margin="10,0,0,10" Content="Back" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="100" FontSize="24" MouseEnter="LabelBack_MouseEnter" MouseLeave="LabelBack_MouseLeave" MouseUp="LabelBack_MouseUp"/>
+                <TextBox x:Name="textEditor" HorizontalAlignment="Right" VerticalAlignment="Top" Width="400" Height="400"/>
             </Grid>
             <Grid x:Name="gridMenu">
                 <Label x:Name="labelPlay" Content="Play" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-70,0,0" Width="200" Height="60" FontSize="25" Background="#FFC8C8C8" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseDown="LabelMenu_MouseDown" MouseUp="LabelMenu_MouseUp"/>
@@ -51,5 +49,9 @@
             </Grid>
             <Label x:Name="labelFps" Content="fps" VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" Opacity="0.5" Panel.ZIndex="100" FontSize="10"/>
         </Grid>
+        <Label x:Name="leftBlack" Background="Black" HorizontalAlignment="Left" Width="0"/>
+        <Label x:Name="rightBlack" Background="Black" HorizontalAlignment="Right" Width="0"/>
+        <Label x:Name="upBlack" Background="Black" VerticalAlignment="Top" Height="0"/>
+        <Label x:Name="downBlack" Background="Black" VerticalAlignment="Bottom" Height="0"/>
     </Grid>
 </Window>
