@@ -54,6 +54,8 @@ namespace Barrage
         }
         GAMESTATE gamestate = GAMESTATE.MENU;
 
+        Size minSize;
+
 #if SONG
         MediaPlayer song = new MediaPlayer();
         bool songPlaying;
@@ -86,6 +88,7 @@ namespace Barrage
             Height += 400 - gridSize.ActualHeight;
             MinWidth = Width;
             MinHeight = Height;
+            minSize = new Size(Width, Height);
 
             kickStart = new DispatcherTimer();
             kickStart.Tick += KickStart_Tick;
@@ -132,49 +135,49 @@ namespace Barrage
 
         void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
-            if (gamestate == GAMESTATE.PLAY)
-                if (e.Key == Key.R)
-                {
-                    readIndex = 0;
-                    spwnInd = 0;
-                    spwnVals.Clear();
-                    repeatVals.Clear();
-                    labels.Clear();
-                    wait = 0;
-                    time = 0;
+            if (e.Key == Key.R)
+            {
+                readIndex = 0;
+                spwnInd = 0;
+                spwnVals.Clear();
+                repeatVals.Clear();
+                labels.Clear();
+                wait = 0;
+                time = 0;
 
-                    isVisual = false;
-                    labelVisual.Visibility = Visibility.Hidden;
+                isVisual = false;
+                labelVisual.Visibility = Visibility.Hidden;
 
 #if SONG
-                    song.Stop();
-                    songPlaying = false;
+                song.Stop();
+                songPlaying = false;
 #endif
 #if TAS
                 TASIndex = 0;
 #endif
 
-                    ReadSpawnTxt();
+                ReadSpawnTxt();
 
-                    gameOver = false;
-                    paused = false;
-                    gridField.Effect = null;
-                    gridPause.Visibility = Visibility.Hidden;
+                gameOver = false;
+                paused = false;
+                gridField.Effect = null;
+                gridPause.Visibility = Visibility.Hidden;
 
-                    projectiles.Clear();
-                    gridField.Children.RemoveRange(extraUI, gridField.Children.Count);
+                projectiles.Clear();
+                gridField.Children.RemoveRange(extraUI, gridField.Children.Count);
 
-                    plyrX = 0;
-                    plyrY = 100;
-                    Player.RenderTransform = new TranslateTransform(plyrX, plyrY);
+                plyrX = 0;
+                plyrY = 100;
+                Player.RenderTransform = new TranslateTransform(plyrX, plyrY);
 
-                    bossPos = new Vector(300, -300);
-                    bossTarget = "0,0";
-                    bossMvSpd = "0";
-                    bossAngSpd = "0";
-                    bossAngle = 0;
-                }
-                else if (e.Key == Key.Escape && !gameOver)
+                bossPos = new Vector(300, -300);
+                bossTarget = "0,0";
+                bossMvSpd = "0";
+                bossAngSpd = "0";
+                bossAngle = 0;
+            }
+            else if (gamestate == GAMESTATE.PLAY)
+                if (e.Key == Key.Escape && !gameOver)
                 {
                     if (!paused)
                     {
@@ -772,14 +775,23 @@ namespace Barrage
                 gamestate = GAMESTATE.PLAY;
                 gridMenu.Visibility = Visibility.Hidden;
                 gridGame.Visibility = Visibility.Visible;
-                MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.R));
             }
             else if (sender == labelEditor)
             {
                 gamestate = GAMESTATE.EDITOR;
                 gridMain.Width = 800;
+                gridMain.Height = 450;
                 gridGame.HorizontalAlignment = HorizontalAlignment.Left;
-                Width *= 2;
+                gridGame.VerticalAlignment = VerticalAlignment.Top;
+                double sX = gridSize.ActualWidth - rightBlack.Width * 4,
+                    sY = (gridSize.ActualHeight - downBlack.Height * 2) / 8 * 9 - gridSize.ActualHeight;
+                if (sX > 0)
+                    Width += sX;
+                if (sY > 0)
+                    Height += sY;
+                Window_SizeChanged(this, null);
+                MinWidth = minSize.Width + 400;
+                MinHeight = minSize.Height + 50;
                 gridMenu.Visibility = Visibility.Hidden;
                 gridEditor.Visibility = Visibility.Visible;
                 gridGame.Visibility = Visibility.Visible;
@@ -800,13 +812,24 @@ namespace Barrage
             if (gamestate == GAMESTATE.EDITOR)
             {
                 gridMain.Width = 400;
+                gridMain.Height = 400;
                 gridGame.HorizontalAlignment = HorizontalAlignment.Center;
-                Width /= 2;
+                MinWidth = minSize.Width;
+                MinHeight = minSize.Height;
+                if (WindowState != WindowState.Maximized)
+                {
+                    double s = gridSize.ActualHeight / 9 - downBlack.Height / 4;
+                    Width -= gridSize.ActualWidth / 2 - rightBlack.Width;
+                    Height -= s;
+                }
+                Window_SizeChanged(this, null);
             }
             gamestate = GAMESTATE.MENU;
             gridMenu.Visibility = Visibility.Visible;
             gridGame.Visibility = Visibility.Hidden;
             gridEditor.Visibility = Visibility.Hidden;
+
+            MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.R));
 
             ((Label)sender).Foreground = new SolidColorBrush(Color.FromRgb(150, 150, 150));
         }

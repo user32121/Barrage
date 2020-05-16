@@ -40,7 +40,7 @@
                 </Grid>
             </Grid>
             <Grid x:Name="gridEditor" Visibility="Hidden">
-                <Label x:Name="labelEditorBack" Margin="10,0,0,10" Content="Back" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="100" FontSize="24" MouseEnter="LabelBack_MouseEnter" MouseLeave="LabelBack_MouseLeave" MouseUp="LabelBack_MouseUp"/>
+                <Label x:Name="labelEditorBack" Margin="10,0,0,5" Content="Back" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="100" FontSize="24" MouseEnter="LabelBack_MouseEnter" MouseLeave="LabelBack_MouseLeave" MouseUp="LabelBack_MouseUp"/>
                 <TextBox x:Name="textEditor" HorizontalAlignment="Right" VerticalAlignment="Top" Width="400" Height="400"/>
             </Grid>
             <Grid x:Name="gridMenu">
