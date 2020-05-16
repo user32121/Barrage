@@ -1,4 +1,7 @@
 ﻿#collapsing spiral
 proj|tags=circle|speed=5 - t / 10|angle=n * 14.4|startPos=0,-50|file=MOD n 3
+proj|tags=laser|xyPos=10 * t,0|angle=-45 + n|size=3
 wait|1
 ifGoto|1|0
+
+visual

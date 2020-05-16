@@ -46,6 +46,34 @@ namespace Barrage
         const int fpsMeasureRate = 5;
         public static bool stopRequested;
 
+        public static double plyrX;
+        public static double plyrY;
+        double plyrSpeed = 5;
+        const double plyrFast = 5;
+        const double plyrSlow = 2;
+
+        string[] spawnPattern;
+        int readIndex = 0;
+        double wait;
+        readonly Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
+        readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
+        int spwnInd;
+        readonly List<double> spwnVals = new List<double>();
+
+        string bossTarget = "0,0";
+        string bossMvSpd = "0";
+        string bossAngSpd = "0";
+        public static Vector bossPos = new Vector(300, -300);
+        double bossAngle = 0;
+
+        BitmapImage[] playPauseImgs = new BitmapImage[]
+        {
+            new BitmapImage(new Uri("files/Play.png", UriKind.Relative)),
+            new BitmapImage(new Uri("files/Pause.png", UriKind.Relative)),
+        };
+        List<BitmapImage> projectileImgs = new List<BitmapImage>();
+        int laserImgsIndex;
+
         enum GAMESTATE
         {
             MENU,
@@ -75,6 +103,23 @@ namespace Barrage
 
             plyrY = 100;
 
+            if (File.Exists("files/Boss.png"))
+                Boss.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Boss.png"));
+            if (File.Exists("files/Player.png"))
+                Player.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Player.png"));
+
+            if (File.Exists("files/Play.png"))
+            {
+                playPauseImgs[0] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Play.png"));
+                labelEditorPlay.Source = playPauseImgs[0];
+            }
+            if (File.Exists("files/Pause.png"))
+                playPauseImgs[1] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Pause.png"));
+            if (File.Exists("files/Step.png"))
+            {
+                labelEditorStepForwards.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Step.png"));
+                labelEditorStepBackwards.Source = labelEditorStepForwards.Source;
+            }
 #if SONG
             song.Open(new Uri("files/song.mp3", UriKind.Relative));
 #endif
@@ -212,12 +257,6 @@ namespace Barrage
 #endif
         }
 
-        public static double plyrX;
-        public static double plyrY;
-        double plyrSpeed = 5;
-        const double plyrFast = 5;
-        const double plyrSlow = 2;
-
         void PlayerMove()
         {
             bool moved = false;
@@ -349,20 +388,6 @@ namespace Barrage
                 labelPause.Content = "Game Over";
             }
         }
-
-        string[] spawnPattern;
-        int readIndex = 0;
-        double wait;
-        readonly Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
-        readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
-        int spwnInd;
-        readonly List<double> spwnVals = new List<double>();
-
-        string bossTarget = "0,0";
-        string bossMvSpd = "0";
-        string bossAngSpd = "0";
-        public static Vector bossPos = new Vector(300, -300);
-        double bossAngle = 0;
 
         void ReadNextLine()
         {
@@ -556,10 +581,20 @@ namespace Barrage
             {
                 projImage.Width = r * 2;
                 projImage.Height = r * 2;
-                if (File.Exists("files/Projectile" + file + ".png"))
-                    projImage.Source = new BitmapImage(new Uri("files/Projectile" + file + ".png", UriKind.Relative));
-                else
-                    projImage.Source = new BitmapImage(new Uri("files/ProjectileD.png", UriKind.Relative));
+                if (file >= laserImgsIndex || projectileImgs[file] == null)
+                {
+                    while (file >= laserImgsIndex)
+                    {
+                        projectileImgs.Insert(laserImgsIndex, null);
+                        laserImgsIndex++;
+                    }
+                    if (File.Exists("files/Projectile" + file + ".png"))
+                        projectileImgs[file] = (new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Projectile" + file + ".png")));
+                    else
+                        projectileImgs[file] = (new BitmapImage(new Uri("files/Projectile.png", UriKind.Relative)));
+                }
+                projImage.Source = projectileImgs[file];
+
                 projImage.RenderTransformOrigin = new Point(0.5, 0.5);
             }
             else if (tags.Contains("laser"))
@@ -567,11 +602,18 @@ namespace Barrage
                 projImage.Stretch = Stretch.Fill;
                 projImage.Width = r * 2;
                 projImage.Height = 100;
-                if (File.Exists("files/Projectile" + file + ".png"))
-                    projImage.Source = new BitmapImage(new Uri("files/Laser" + file + ".png", UriKind.Relative));
-                else
-                    projImage.Source = new BitmapImage(new Uri("files/LaserD.png", UriKind.Relative));
-                projImage.RenderTransformOrigin = new Point(0.5, 0);
+                if (file + laserImgsIndex >= projectileImgs.Count || projectileImgs[file + laserImgsIndex] == null)
+                {
+                    while (file + laserImgsIndex >= projectileImgs.Count)
+                        projectileImgs.Add(null);
+
+                    if (File.Exists("files/Laser" + file + ".png"))
+                        projectileImgs[file + laserImgsIndex] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Laser" + file + ".png"));
+                    else
+                        projectileImgs[file + laserImgsIndex] = new BitmapImage(new Uri("files/Laser.png", UriKind.Relative));
+                    projImage.RenderTransformOrigin = new Point(0.5, 0);
+                }
+                projImage.Source = projectileImgs[file + laserImgsIndex];
             }
             if (actDelay > 0 || actDelay == -1)
                 projImage.Opacity = 0.3;
@@ -770,13 +812,13 @@ namespace Barrage
         }
         private void LabelMenu_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (sender == labelPlay)
+            if (sender == labelMenuPlay)
             {
                 gamestate = GAMESTATE.PLAY;
                 gridMenu.Visibility = Visibility.Hidden;
                 gridGame.Visibility = Visibility.Visible;
             }
-            else if (sender == labelEditor)
+            else if (sender == labelMenuEditor)
             {
                 gamestate = GAMESTATE.EDITOR;
                 gridMain.Width = 800;
