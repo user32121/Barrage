@@ -155,7 +155,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="files\PlayerSprite.png">
+    <Content Include="files\Player.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
