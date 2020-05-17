@@ -81,7 +81,8 @@ namespace Barrage
             EDITOR,
         }
         GAMESTATE gamestate = GAMESTATE.MENU;
-
+        bool playing;
+        bool stepForwards;
         Size minSize;
 
 #if SONG
@@ -111,14 +112,14 @@ namespace Barrage
             if (File.Exists("files/Play.png"))
             {
                 playPauseImgs[0] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Play.png"));
-                labelEditorPlay.Source = playPauseImgs[0];
+                ImageEditorPlay.Source = playPauseImgs[0];
             }
             if (File.Exists("files/Pause.png"))
                 playPauseImgs[1] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Pause.png"));
             if (File.Exists("files/Step.png"))
             {
-                labelEditorStepForwards.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Step.png"));
-                labelEditorStepBackwards.Source = labelEditorStepForwards.Source;
+                ImageEditorStepForwards.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Step.png"));
+                ImageEditorStepBackwards.Source = ImageEditorStepForwards.Source;
             }
 #if SONG
             song.Open(new Uri("files/song.mp3", UriKind.Relative));
@@ -151,7 +152,7 @@ namespace Barrage
             stopwatch.Start();
             while (!stopRequested)
             {
-                if (gamestate == GAMESTATE.PLAY)
+                if (gamestate == GAMESTATE.PLAY || playing || stepForwards)
                 {
                     if (!paused)
                     {
@@ -165,13 +166,10 @@ namespace Barrage
 
                         MoveProjectiles();
 
-                        if (!(gameOver || isVisual))
+                        if (!gameOver && !isVisual && gamestate != GAMESTATE.EDITOR)
                             CheckPlayerHit();
                     }
-                }
-                else if (gamestate == GAMESTATE.EDITOR)
-                {
-
+                    stepForwards = false;
                 }
                 this.Refresh(DispatcherPriority.Input);
                 ModerateFrames();
@@ -192,7 +190,7 @@ namespace Barrage
 
                 isVisual = false;
                 labelVisual.Visibility = Visibility.Hidden;
-
+                playing = false;
 #if SONG
                 song.Stop();
                 songPlaying = false;
@@ -200,7 +198,6 @@ namespace Barrage
 #if TAS
                 TASIndex = 0;
 #endif
-
                 ReadSpawnTxt();
 
                 gameOver = false;
@@ -222,6 +219,7 @@ namespace Barrage
                 bossAngle = 0;
             }
             else if (gamestate == GAMESTATE.PLAY)
+            {
                 if (e.Key == Key.Escape && !gameOver)
                 {
                     if (!paused)
@@ -247,14 +245,29 @@ namespace Barrage
                 }
 #if SONG
                 else if (e.Key == Key.Q)
-                {
                     song.Position -= TimeSpan.FromSeconds(0.1);
-                }
                 else if (e.Key == Key.W)
-                {
                     song.Position += TimeSpan.FromSeconds(0.1);
-                }
 #endif
+            }
+            else if (gamestate == GAMESTATE.EDITOR)
+            {
+                if (e.Key == Key.Space || e.Key == Key.K)
+                {
+                    ImageEditor_MouseUp(ImageEditorPlay, null);
+                    ImageEditor_MouseLeave(ImageEditorPlay, null);
+                }
+                else if (e.Key == Key.J)
+                {
+                    ImageEditor_MouseUp(ImageEditorStepBackwards, null);
+                    ImageEditor_MouseLeave(ImageEditorStepBackwards, null);
+                }
+                else if (e.Key == Key.L)
+                {
+                    ImageEditor_MouseUp(ImageEditorStepForwards, null);
+                    ImageEditor_MouseLeave(ImageEditorStepForwards, null);
+                }
+            }
         }
 
         void PlayerMove()
@@ -825,6 +838,8 @@ namespace Barrage
                 gridMain.Height = 450;
                 gridGame.HorizontalAlignment = HorizontalAlignment.Left;
                 gridGame.VerticalAlignment = VerticalAlignment.Top;
+                gridGameBorder.BorderThickness = new Thickness(0.5);
+                labelFps.Margin = new Thickness(0, 0, 400, 0);
                 double sX = gridSize.ActualWidth - rightBlack.Width * 4,
                     sY = (gridSize.ActualHeight - downBlack.Height * 2) / 8 * 9 - gridSize.ActualHeight;
                 if (sX > 0)
@@ -856,6 +871,8 @@ namespace Barrage
                 gridMain.Width = 400;
                 gridMain.Height = 400;
                 gridGame.HorizontalAlignment = HorizontalAlignment.Center;
+                gridGameBorder.BorderThickness = new Thickness();
+                labelFps.Margin = new Thickness();
                 MinWidth = minSize.Width;
                 MinHeight = minSize.Height;
                 if (WindowState != WindowState.Maximized)
@@ -874,6 +891,40 @@ namespace Barrage
             MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.R));
 
             ((Label)sender).Foreground = new SolidColorBrush(Color.FromRgb(150, 150, 150));
+        }
+        private void ImageEditor_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (Mouse.LeftButton == MouseButtonState.Pressed || Mouse.RightButton == MouseButtonState.Pressed || Mouse.MiddleButton == MouseButtonState.Pressed)
+                ((Image)sender).Opacity = 1;
+            else
+                ((Image)sender).Opacity = 0.5;
+        }
+        private void ImageEditor_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ((Image)sender).Opacity = 0.8;
+        }
+        private void ImageEditor_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ((Image)sender).Opacity = 1;
+        }
+        private void ImageEditor_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            ((Image)sender).Opacity = 0.5;
+
+            if (sender == ImageEditorPlay)
+            {
+                playing = !playing;
+                if (playing)
+                    ImageEditorPlay.Source = playPauseImgs[1];
+                else
+                    ImageEditorPlay.Source = playPauseImgs[0];
+            }
+            else if (sender == ImageEditorStepForwards)
+                stepForwards = true;
+            else if (sender == ImageEditorStepBackwards)
+            {
+
+            }
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
