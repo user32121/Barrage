@@ -553,6 +553,8 @@ namespace Barrage
 
                         if (line.Length < 2)
                             MessageIssue(spawnPattern[readIndex], "val requires an input");
+                        else if (ind < 0)
+                            MessageIssue(spawnPattern[readIndex], "val# cannot be negative");
                         else
                             spwnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double));
                     }

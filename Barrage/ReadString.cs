@@ -91,7 +91,7 @@ namespace Barrage
                 else
                 {
                     int.TryParse(input.Substring(i + 3, j), out int valId);
-                    if (valId < numVals.Count)
+                    if (valId < numVals.Count && valId >= 0)
                         input = input.Replace(input.Substring(i, j + 3), numVals[valId].ToString());
                     else
                         input = input.Replace(input.Substring(i, j + 3), "0");
