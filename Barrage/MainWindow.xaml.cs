@@ -85,6 +85,8 @@ namespace Barrage
         bool stepForwards;
         Size minSize;
 
+        LinearGradientBrush hitIndicatorBrush = new LinearGradientBrush(Colors.Transparent, Colors.Transparent, new Point(0, 0.5), new Point(1, 0.5));
+
 #if SONG
         MediaPlayer song = new MediaPlayer();
         bool songPlaying;
@@ -166,7 +168,7 @@ namespace Barrage
 
                         MoveProjectiles();
 
-                        if (!gameOver && !isVisual && gamestate != GAMESTATE.EDITOR)
+                        if (!gameOver && !isVisual)
                             CheckPlayerHit();
                     }
                     stepForwards = false;
@@ -393,12 +395,34 @@ namespace Barrage
                 }
             }
 
-            if (hit)
+            if (gamestate == GAMESTATE.PLAY)
             {
-                gameOver = true;
-                gridField.Effect = new BlurEffect { Radius = 10 };
-                gridPause.Visibility = Visibility.Visible;
-                labelPause.Content = "Game Over";
+                if (hit)
+                {
+                    gameOver = true;
+                    gridField.Effect = new BlurEffect { Radius = 10 };
+                    gridPause.Visibility = Visibility.Visible;
+                    labelPause.Content = "Game Over";
+                }
+            }
+            else if (gamestate == GAMESTATE.EDITOR)
+            {
+                if (hit)
+                {
+                    hitIndicatorBrush.GradientStops[0].Color = Colors.White;
+                    hitIndicatorBrush.GradientStops[1].Color = Colors.White;
+                }
+                else
+                {
+                    Color col = hitIndicatorBrush.GradientStops[0].Color;
+                    if (col.A > 20)
+                        col.A -= 20;
+                    else
+                        col.A = 0;
+                    hitIndicatorBrush.GradientStops[0].Color = col;
+                    hitIndicatorBrush.GradientStops[1].Color = Colors.Transparent;
+                }
+                labelEditorHitIndicator.OpacityMask = hitIndicatorBrush;
             }
         }
 

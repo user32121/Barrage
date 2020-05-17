@@ -1,6 +1,4 @@
 ﻿#collapsing spiral
-val-1|0
-proj|tags=circle|speed=5 - t / 10|angle=n * 14.4|startPos=val-1,-50|file=MOD n 3
-val-1|val-1 + 1
+proj|tags=circle|speed=5 - t / 10|angle=n * 14.4|startPos=0,-50|file=MOD n 3
 wait|1
 ifGoto|1|0
