@@ -29,13 +29,35 @@ namespace Barrage
     /// </summary>
     public partial class MainWindow : Window
     {
+        //game
         readonly int extraUI;
         readonly List<Projectile> projectiles = new List<Projectile>();
         bool paused;
         bool gameOver;
         bool isVisual;
         int time;
+        //player
+        public static double plyrX;
+        public static double plyrY;
+        double plyrSpeed = 5;
+        const double plyrFast = 5;
+        const double plyrSlow = 2;
+        //boss
+        string bossTarget = "0,0";
+        string bossMvSpd = "0";
+        string bossAngSpd = "0";
+        public static Vector bossPos = new Vector(300, -300);
+        double bossAngle = 0;
+        //spawn pattern
+        string[] spawnPattern;
+        int readIndex = 0;
+        double wait;
+        readonly Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
+        readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
+        int spwnInd;
+        readonly List<double> spwnVals = new List<double>();
 
+        //frame moderation
         DispatcherTimer kickStart;
         readonly Stopwatch stopwatch = new Stopwatch();
         readonly long frameLength;
@@ -46,26 +68,16 @@ namespace Barrage
         const int fpsMeasureRate = 5;
         public static bool stopRequested;
 
-        public static double plyrX;
-        public static double plyrY;
-        double plyrSpeed = 5;
-        const double plyrFast = 5;
-        const double plyrSlow = 2;
+        //gamestate
+        enum GAMESTATE
+        {
+            MENU,
+            PLAY,
+            EDITOR,
+        }
+        GAMESTATE gamestate = GAMESTATE.MENU;
 
-        string[] spawnPattern;
-        int readIndex = 0;
-        double wait;
-        readonly Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
-        readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
-        int spwnInd;
-        readonly List<double> spwnVals = new List<double>();
-
-        string bossTarget = "0,0";
-        string bossMvSpd = "0";
-        string bossAngSpd = "0";
-        public static Vector bossPos = new Vector(300, -300);
-        double bossAngle = 0;
-
+        //image storage
         BitmapImage[] playPauseImgs = new BitmapImage[]
         {
             new BitmapImage(new Uri("files/Play.png", UriKind.Relative)),
@@ -74,18 +86,13 @@ namespace Barrage
         List<BitmapImage> projectileImgs = new List<BitmapImage>();
         int laserImgsIndex;
 
-        enum GAMESTATE
-        {
-            MENU,
-            PLAY,
-            EDITOR,
-        }
-        GAMESTATE gamestate = GAMESTATE.MENU;
+        //editor
         bool playing;
         bool stepForwards;
         Size minSize;
-
         LinearGradientBrush hitIndicatorBrush = new LinearGradientBrush(Colors.Transparent, Colors.Transparent, new Point(0, 0.5), new Point(1, 0.5));
+        Projectile[][] projHist = new Projectile[100][];
+        int projHistIndex = 0;
 
 #if SONG
         MediaPlayer song = new MediaPlayer();
@@ -170,8 +177,16 @@ namespace Barrage
 
                         if (!gameOver && !isVisual)
                             CheckPlayerHit();
+
+                        if (gamestate == GAMESTATE.EDITOR)
+                        {
+                            projHist[projHistIndex] = new Projectile[projectiles.Count];
+                            projectiles.CopyTo(projHist[projHistIndex]);
+                            if (++projHistIndex >= projHist.Length)
+                                projHistIndex = 0;
+                        }
+                        stepForwards = false;
                     }
-                    stepForwards = false;
                 }
                 this.Refresh(DispatcherPriority.Input);
                 ModerateFrames();
@@ -193,6 +208,7 @@ namespace Barrage
                 isVisual = false;
                 labelVisual.Visibility = Visibility.Hidden;
                 playing = false;
+                ImageEditorPlay.Source = playPauseImgs[0];
 #if SONG
                 song.Stop();
                 songPlaying = false;
@@ -949,7 +965,17 @@ namespace Barrage
                 stepForwards = true;
             else if (sender == ImageEditorStepBackwards)
             {
-
+                projHistIndex--;
+                for (int i = 0; i < projHist[projHistIndex].Length; i++)
+                    if (projectiles.Count < i)
+                        projectiles.Add(projHist[projHistIndex][i]);
+                    else
+                    {
+                        
+                        projectiles[i] = projHist[projHistIndex][i];
+                    }
+                while (projectiles.Count > projHist[projHistIndex].Length)
+                    projectiles.RemoveAt(projectiles.Count - 1);
             }
         }
 
@@ -970,6 +996,13 @@ namespace Barrage
         public static void Refresh(this UIElement uiElement, DispatcherPriority priority)
         {
             uiElement.Dispatcher.Invoke(priority, EmptyDelegate);
+        }
+
+        public static Vector Scale(this Vector v1, Vector v2)
+        {
+            v1.X *= v2.X;
+            v1.Y *= v2.Y;
+            return v1;
         }
     }
 }

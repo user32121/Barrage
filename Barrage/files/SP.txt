@@ -1,4 +1,3 @@
-﻿#collapsing spiral
-proj|tags=circle|speed=5 - t / 10|angle=n * 14.4|startPos=0,-50|file=MOD n 3
-wait|1
+﻿proj|tags=circle,wallBounce|speed=-3|angle=n * 14.4|startPos=0,-50|file=MOD n 3|tagCount=1
+wait|3
 ifGoto|1|0

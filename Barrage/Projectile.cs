@@ -40,7 +40,7 @@ namespace Barrage
             IsAlive = true;
         }
 
-        public void SetPos(double x, double y)
+        public void Render()
         {
             int y1 = 0;
             TransformGroup TG = new TransformGroup();
@@ -54,8 +54,9 @@ namespace Barrage
             }
 
             TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle, typeof(double)) - 90));
-            Position = new Vector(x, y);
-            TG.Children.Add(new TranslateTransform(x, y + y1));
+            if (Tags.Contains("circle"))
+                TG.Children.Add(new ScaleTransform(velDir.X, velDir.Y));
+            TG.Children.Add(new TranslateTransform(Position.X, Position.Y + y1));
             Sprite.RenderTransform = TG;
         }
 
@@ -90,13 +91,13 @@ namespace Barrage
             {
                 if (Tags.Contains("wallBounce") && TagCount != 0)
                 {
-                    SetPos(Position.X - 2 * (Position.X - 200 * Math.Sign(Position.X)), Position.Y);
+                    Position.X = 400 * Math.Sign(Position.X) - Position.X;
                     velDir.X *= -1;
                     TagCount--;
                 }
                 else if (Tags.Contains("screenWrap") && TagCount != 0)
                 {
-                    SetPos(Position.X - 400 * Math.Sign(Position.X), Position.Y);
+                    Position.X -= 400 * Math.Sign(Position.X);
                     TagCount--;
                 }
                 else if (!Tags.Contains("outside") && Math.Abs(Position.X) > 200 + r)
@@ -107,13 +108,13 @@ namespace Barrage
             {
                 if (Tags.Contains("wallBounce") && TagCount != 0)
                 {
-                    SetPos(Position.X, Position.Y - 2 * (Position.Y - 200 * Math.Sign(Position.Y)));
+                    Position.Y = 400 * Math.Sign(Position.Y) - Position.Y;
                     velDir.Y *= -1;
                     TagCount--;
                 }
                 else if (Tags.Contains("screenWrap") && TagCount != 0)
                 {
-                    SetPos(Position.X, Position.Y - 400 * Math.Sign(Position.Y));
+                    Position.Y -= 400 * Math.Sign(Position.Y);
                     TagCount--;
                 }
                 else if (!Tags.Contains("outside") && Math.Abs(Position.Y) > 200 + r)
@@ -160,7 +161,9 @@ namespace Barrage
             }
 
             //moves projectile by velocity
-            SetPos(Position.X + Velocity.X * velDir.X, Position.Y + Velocity.Y * velDir.Y);
+            Position += Velocity.Scale(velDir);
+
+            Render();
 
             //sets lastVals
             lastVals[(int)LVI.x] = Position.X;
