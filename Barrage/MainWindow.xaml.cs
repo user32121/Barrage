@@ -130,6 +130,8 @@ namespace Barrage
                 ImageEditorStepForwards.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Step.png"));
                 ImageEditorStepBackwards.Source = ImageEditorStepForwards.Source;
             }
+            for (int i = 0; i < projHist.Length; i++)
+                projHist[i] = new Projectile[0];
 #if SONG
             song.Open(new Uri("files/song.mp3", UriKind.Relative));
 #endif
@@ -181,7 +183,8 @@ namespace Barrage
                         if (gamestate == GAMESTATE.EDITOR)
                         {
                             projHist[projHistIndex] = new Projectile[projectiles.Count];
-                            projectiles.CopyTo(projHist[projHistIndex]);
+                            for (int i = 0; i < projectiles.Count; i++)
+                                projHist[projHistIndex][i] = projectiles[i].Clone();
                             if (++projHistIndex >= projHist.Length)
                                 projHistIndex = 0;
                         }
@@ -301,7 +304,6 @@ namespace Barrage
             }
             else
             {
-
 #if TAS
                 if (TASIndex < TASInputs.GetLength(0) - 1)
                     if (TASInputs[TASIndex, 3] > 0)
@@ -965,17 +967,24 @@ namespace Barrage
                 stepForwards = true;
             else if (sender == ImageEditorStepBackwards)
             {
-                projHistIndex--;
+                if (--projHistIndex < 0)
+                    projHistIndex = projHist.Length - 1;
                 for (int i = 0; i < projHist[projHistIndex].Length; i++)
-                    if (projectiles.Count < i)
+                    if (projectiles.Count <= i)
                         projectiles.Add(projHist[projHistIndex][i]);
                     else
                     {
-                        
+                        gridField.Children.Remove(projectiles[i].Sprite);
                         projectiles[i] = projHist[projHistIndex][i];
+                        if (!gridField.Children.Contains(projectiles[i].Sprite))
+                            gridField.Children.Add(projectiles[i].Sprite);
+                        projectiles[i].Render();
                     }
                 while (projectiles.Count > projHist[projHistIndex].Length)
+                {
+                    gridField.Children.Remove(projectiles[projectiles.Count - 1].Sprite);
                     projectiles.RemoveAt(projectiles.Count - 1);
+                }
             }
         }
 

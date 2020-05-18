@@ -30,6 +30,8 @@ namespace Barrage
         public enum LVI /*Last Value Index*/ { x, y, xVel, yVel, spd, ang }
         public static int LVIL = 6; //Last Value Index Length
 
+        public Projectile() { }
+
         public Projectile(string radius)
         {
             Radius = radius;
@@ -38,6 +40,33 @@ namespace Barrage
             int r = (int)ReadString.Interpret(radius, typeof(int));
             RadiusSqr = r * r;
             IsAlive = true;
+        }
+
+        public Projectile Clone()
+        {
+            Projectile p = new Projectile()
+            {
+                ActDelay = ActDelay,
+                Age = Age,
+                Angle = Angle,
+                Duration = Duration,
+                IsAlive = IsAlive,
+                Sprite = Sprite,
+                Position = Position,
+                Radius = Radius,
+                RadiusSqr = RadiusSqr,
+                Speed = Speed,
+                TagCount = TagCount,
+                Tags = Tags,
+                velDir = velDir,
+                Velocity = Velocity,
+                XyPos = XyPos,
+                XyVel = XyVel,
+            };
+            for (int i = 0; i < lastVals.Length; i++)
+                p.lastVals[i] = lastVals[i];
+
+            return p;
         }
 
         public void Render()
