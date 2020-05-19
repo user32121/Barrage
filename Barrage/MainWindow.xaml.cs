@@ -43,11 +43,11 @@ namespace Barrage
         const double plyrFast = 5;
         const double plyrSlow = 2;
         //boss
+        public static Vector bossPos = new Vector(300, -300);
+        double bossAngle = 0;
         string bossTarget = "0,0";
         string bossMvSpd = "0";
         string bossAngSpd = "0";
-        public static Vector bossPos = new Vector(300, -300);
-        double bossAngle = 0;
         //spawn pattern
         string[] spawnPattern;
         int readIndex = 0;
@@ -91,7 +91,7 @@ namespace Barrage
         bool stepForwards;
         Size minSize;
         LinearGradientBrush hitIndicatorBrush = new LinearGradientBrush(Colors.Transparent, Colors.Transparent, new Point(0, 0.5), new Point(1, 0.5));
-        Projectile[][] projHist = new Projectile[100][];
+        Projectile[][] projHist = new Projectile[1000][];
         int projHistIndex = 0;
 
 #if SONG
@@ -182,11 +182,11 @@ namespace Barrage
 
                         if (gamestate == GAMESTATE.EDITOR)
                         {
+                            if (++projHistIndex >= projHist.Length)
+                                projHistIndex = 0;
                             projHist[projHistIndex] = new Projectile[projectiles.Count];
                             for (int i = 0; i < projectiles.Count; i++)
                                 projHist[projHistIndex][i] = projectiles[i].Clone();
-                            if (++projHistIndex >= projHist.Length)
-                                projHistIndex = 0;
                         }
                         stepForwards = false;
                     }
@@ -278,15 +278,20 @@ namespace Barrage
                     ImageEditor_MouseUp(ImageEditorPlay, null);
                     ImageEditor_MouseLeave(ImageEditorPlay, null);
                 }
-                else if (e.Key == Key.J)
-                {
-                    ImageEditor_MouseUp(ImageEditorStepBackwards, null);
-                    ImageEditor_MouseLeave(ImageEditorStepBackwards, null);
-                }
                 else if (e.Key == Key.L)
                 {
                     ImageEditor_MouseUp(ImageEditorStepForwards, null);
                     ImageEditor_MouseLeave(ImageEditorStepForwards, null);
+                }
+                else if (e.Key == Key.J)
+                {
+                    ImageEditor_MouseUp(ImageEditorStepBackwards, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
+                    ImageEditor_MouseLeave(ImageEditorStepBackwards, null);
+                }
+                else if (e.Key == Key.H)
+                {
+                    ImageEditor_MouseUp(ImageEditorStepBackwards, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right));
+                    ImageEditor_MouseLeave(ImageEditorStepBackwards, null);
                 }
             }
         }
@@ -967,8 +972,12 @@ namespace Barrage
                 stepForwards = true;
             else if (sender == ImageEditorStepBackwards)
             {
-                if (--projHistIndex < 0)
-                    projHistIndex = projHist.Length - 1;
+                if (e.ChangedButton == MouseButton.Left)
+                    projHistIndex--;
+                else if (e.ChangedButton == MouseButton.Right)
+                    projHistIndex -= 10;
+                if (projHistIndex < 0)
+                    projHistIndex += projHist.Length;
                 for (int i = 0; i < projHist[projHistIndex].Length; i++)
                     if (projectiles.Count <= i)
                         projectiles.Add(projHist[projHistIndex][i]);

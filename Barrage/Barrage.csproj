@@ -94,6 +94,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="GameFrame.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="Projectile.cs" />
     <Compile Include="ReadString.cs" />
