@@ -31,7 +31,7 @@ namespace Barrage
     {
         //game
         readonly int extraUI;
-        readonly List<Projectile> projectiles = new List<Projectile>();
+        List<Projectile> projectiles = new List<Projectile>();
         bool paused;
         bool gameOver;
         bool isVisual;
@@ -51,10 +51,10 @@ namespace Barrage
         string[] spawnPattern;
         int readIndex = 0;
         double wait;
-        readonly Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
+        Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
         readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
         int spwnInd;
-        readonly List<double> spwnVals = new List<double>();
+        List<double> spwnVals = new List<double>();
 
         //frame moderation
         DispatcherTimer kickStart;
@@ -90,8 +90,8 @@ namespace Barrage
         bool stepForwards;
         Size minSize;
         LinearGradientBrush hitIndicatorBrush = new LinearGradientBrush(Colors.Transparent, Colors.Transparent, new Point(0, 0.5), new Point(1, 0.5));
-        Projectile[][] projHist = new Projectile[1000][];
-        int projHistIndex = 0;
+        GameFrame[] hist = new GameFrame[1000];
+        int histIndex = 0;
 
 #if SONG
         MediaPlayer song = new MediaPlayer();
@@ -129,8 +129,6 @@ namespace Barrage
                 ImageEditorStepForwards.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Step.png"));
                 ImageEditorStepBackwards.Source = ImageEditorStepForwards.Source;
             }
-            for (int i = 0; i < projHist.Length; i++)
-                projHist[i] = new Projectile[0];
 #if SONG
             song.Open(new Uri("files/song.mp3", UriKind.Relative));
 #endif
@@ -178,14 +176,30 @@ namespace Barrage
 
                         if (!gameOver && !isVisual)
                             CheckPlayerHit();
+                        RenderPlayerAndBoss();
 
                         if (gamestate == GAMESTATE.EDITOR)
                         {
-                            if (++projHistIndex >= projHist.Length)
-                                projHistIndex = 0;
-                            projHist[projHistIndex] = new Projectile[projectiles.Count];
+                            if (++histIndex >= hist.Length)
+                                histIndex = 0;
+                            hist[histIndex] = new GameFrame()
+                            {
+                                bossAngle = bossAngle,
+                                bossAngSpd = bossAngSpd,
+                                bossMvSpd = bossMvSpd,
+                                bossPos = bossPos,
+                                bossTarget = bossTarget,
+                                plyrPos = plyrPos,
+                                projectiles = new Projectile[projectiles.Count],
+                                readIndex = readIndex,
+                                repeatVals = new Dictionary<int, int>(repeatVals),
+                                spwnInd = spwnInd,
+                                spwnVals = spwnVals.ToArray(),
+                                time = time,
+                                wait = wait,
+                            };
                             for (int i = 0; i < projectiles.Count; i++)
-                                projHist[projHistIndex][i] = projectiles[i].Clone();
+                                hist[histIndex].projectiles[i] = projectiles[i].Clone();
                         }
                         stepForwards = false;
                     }
@@ -378,9 +392,17 @@ namespace Barrage
                     plyrPos.Y = -200;
                 else if (plyrPos.Y > 200)
                     plyrPos.Y = 200;
-
-                Player.RenderTransform = new TranslateTransform(plyrPos.X, plyrPos.Y);
             }
+        }
+
+        void RenderPlayerAndBoss()
+        {
+            Player.RenderTransform = new TranslateTransform(plyrPos.X, plyrPos.Y);
+
+            TransformGroup TG = new TransformGroup();
+            TG.Children.Add(new RotateTransform(bossAngle));
+            TG.Children.Add(new TranslateTransform(bossPos.X, bossPos.Y));
+            Boss.RenderTransform = TG;
         }
 
         void CheckPlayerHit()
@@ -769,11 +791,6 @@ namespace Barrage
             }
             bossPos += offset;
             bossAngle += angSpd;
-
-            TransformGroup TG = new TransformGroup();
-            TG.Children.Add(new RotateTransform(bossAngle));
-            TG.Children.Add(new TranslateTransform(bossPos.X, bossPos.Y));
-            Boss.RenderTransform = TG;
         }
 
         void ReadSpawnTxt()
@@ -971,28 +988,40 @@ namespace Barrage
             else if (sender == ImageEditorStepBackwards)
             {
                 if (e.ChangedButton == MouseButton.Left)
-                    projHistIndex--;
+                    histIndex--;
                 else if (e.ChangedButton == MouseButton.Right)
-                    projHistIndex -= 10;
-                if (projHistIndex < 0)
-                    projHistIndex += projHist.Length;
-                for (int i = 0; i < projHist[projHistIndex].Length; i++)
-                    if (projectiles.Count <= i)
-                        projectiles.Add(projHist[projHistIndex][i]);
-                    else
-                    {
-                        gridField.Children.Remove(projectiles[i].Sprite);
-                        projectiles[i] = projHist[projHistIndex][i];
-                        if (!gridField.Children.Contains(projectiles[i].Sprite))
-                            gridField.Children.Add(projectiles[i].Sprite);
-                        projectiles[i].Render();
-                    }
-                while (projectiles.Count > projHist[projHistIndex].Length)
+                    histIndex -= 5;
+                if (histIndex < 0)
+                    histIndex += hist.Length;
+                while (hist[histIndex] == null)
+                    if (--histIndex < 0)
+                        histIndex += hist.Length;
+
+                for (int i = 0; i < projectiles.Count; i++)
+                    gridField.Children.Remove(projectiles[i].Sprite);
+                projectiles = new List<Projectile>(hist[histIndex].projectiles);
+                for (int i = 0; i < projectiles.Count; i++)
                 {
-                    gridField.Children.Remove(projectiles[projectiles.Count - 1].Sprite);
-                    projectiles.RemoveAt(projectiles.Count - 1);
+                    projectiles[i] = hist[histIndex].projectiles[i].Clone();
+                    gridField.Children.Add(projectiles[i].Sprite);
+                    projectiles[i].Render();
                 }
+                plyrPos = hist[histIndex].plyrPos;
+                bossPos = hist[histIndex].bossPos;
+                bossAngle = hist[histIndex].bossAngle;
+                bossTarget = hist[histIndex].bossTarget;
+                bossMvSpd = hist[histIndex].bossMvSpd;
+                bossAngSpd = hist[histIndex].bossAngSpd;
+                time = hist[histIndex].time;
+                readIndex = hist[histIndex].readIndex;
+                wait = hist[histIndex].wait;
+                repeatVals = hist[histIndex].repeatVals;
+                spwnInd = hist[histIndex].spwnInd;
+                spwnVals = new List<double>(hist[histIndex].spwnVals);
+
+                RenderPlayerAndBoss();
             }
+            Console.WriteLine(time);
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)

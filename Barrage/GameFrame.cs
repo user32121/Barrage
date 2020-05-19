@@ -9,19 +9,19 @@ namespace Barrage
 {
     class GameFrame
     {
-        Projectile[] projectiles;
-        Vector plyrPos;
-        Vector bossPos;
-        double bossAngle;
-        string bossTarget = "0,0";
-        string bossMvSpd = "0";
-        string bossAngSpd = "0";
+        public Projectile[] projectiles;
+        public Vector plyrPos;
+        public Vector bossPos;
+        public double bossAngle;
+        public string bossTarget;
+        public string bossMvSpd;
+        public string bossAngSpd;
 
-        int time;
-        int readIndex = 0;
-        double wait;
-        readonly Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
-        int spwnInd;
-        readonly List<double> spwnVals = new List<double>();
+        public int time;
+        public int readIndex;
+        public double wait;
+        public Dictionary<int, int> repeatVals;    //(line,repeats left)
+        public int spwnInd;
+        public double[] spwnVals;
     }
 }
