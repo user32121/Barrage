@@ -112,8 +112,8 @@ namespace Barrage
             //add values
             input = input.
                 Replace("t", t.ToString()).
-                Replace("PLYRX", MainWindow.plyrX.ToString()).
-                Replace("PLYRY", MainWindow.plyrY.ToString()).
+                Replace("PLYRX", MainWindow.plyrPos.X.ToString()).
+                Replace("PLYRY", MainWindow.plyrPos.Y.ToString()).
                 Replace("BOSSX", MainWindow.bossPos.X.ToString()).
                 Replace("BOSSY", MainWindow.bossPos.Y.ToString());
             if (lastVals == null)

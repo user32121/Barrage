@@ -37,8 +37,7 @@ namespace Barrage
         bool isVisual;
         int time;
         //player
-        public static double plyrX;
-        public static double plyrY;
+        public static Vector plyrPos;
         double plyrSpeed = 5;
         const double plyrFast = 5;
         const double plyrSlow = 2;
@@ -111,7 +110,7 @@ namespace Barrage
 
             frameLength = Stopwatch.Frequency / 60;  //framerate
 
-            plyrY = 100;
+            plyrPos.Y = 100;
 
             if (File.Exists("files/Boss.png"))
                 Boss.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Boss.png"));
@@ -229,9 +228,8 @@ namespace Barrage
                 projectiles.Clear();
                 gridField.Children.RemoveRange(extraUI, gridField.Children.Count);
 
-                plyrX = 0;
-                plyrY = 100;
-                Player.RenderTransform = new TranslateTransform(plyrX, plyrY);
+                plyrPos = new Vector(0, 100);
+                Player.RenderTransform = new TranslateTransform(plyrPos.X, plyrPos.Y);
 
                 bossPos = new Vector(300, -300);
                 bossTarget = "0,0";
@@ -303,8 +301,8 @@ namespace Barrage
             if (checkMouse.IsChecked == true && IsMouseOver)
             {
                 Point mousePos = Mouse.GetPosition(gridField);
-                plyrX = mousePos.X - gridField.ActualWidth / 2;
-                plyrY = mousePos.Y - gridField.ActualHeight / 2;
+                plyrPos.X = mousePos.X - gridField.ActualWidth / 2;
+                plyrPos.Y = mousePos.Y - gridField.ActualHeight / 2;
                 moved = true;
             }
             else
@@ -322,7 +320,7 @@ namespace Barrage
 #endif 
                     )
                 {
-                    plyrX -= plyrSpeed;
+                    plyrPos.X -= plyrSpeed;
                     moved = true;
                 }
                 if (Keyboard.IsKeyDown(Key.Right)
@@ -331,7 +329,7 @@ namespace Barrage
 #endif 
                     )
                 {
-                    plyrX += plyrSpeed;
+                    plyrPos.X += plyrSpeed;
                     moved = true;
                 }
                 if (Keyboard.IsKeyDown(Key.Up)
@@ -340,7 +338,7 @@ namespace Barrage
 #endif
                     )
                 {
-                    plyrY -= plyrSpeed;
+                    plyrPos.Y -= plyrSpeed;
                     moved = true;
                 }
                 if (Keyboard.IsKeyDown(Key.Down)
@@ -349,7 +347,7 @@ namespace Barrage
 #endif
                     )
                 {
-                    plyrY += plyrSpeed;
+                    plyrPos.Y += plyrSpeed;
                     moved = true;
                 }
                 if ((Keyboard.IsKeyDown(Key.LeftShift)
@@ -372,16 +370,16 @@ namespace Barrage
 
             if (moved)
             {
-                if (plyrX < -200)
-                    plyrX = -200;
-                else if (plyrX > 200)
-                    plyrX = 200;
-                if (plyrY < -200)
-                    plyrY = -200;
-                else if (plyrY > 200)
-                    plyrY = 200;
+                if (plyrPos.X < -200)
+                    plyrPos.X = -200;
+                else if (plyrPos.X > 200)
+                    plyrPos.X = 200;
+                if (plyrPos.Y < -200)
+                    plyrPos.Y = -200;
+                else if (plyrPos.Y > 200)
+                    plyrPos.Y = 200;
 
-                Player.RenderTransform = new TranslateTransform(plyrX, plyrY);
+                Player.RenderTransform = new TranslateTransform(plyrPos.X, plyrPos.Y);
             }
         }
 
@@ -398,7 +396,7 @@ namespace Barrage
                 if (item.Tags.Contains("circle"))
                 {
                     //distance is less than radius
-                    if (Math.Pow(plyrX - item.Position.X, 2) + Math.Pow(plyrY - item.Position.Y, 2) < item.RadiusSqr)
+                    if (Math.Pow(plyrPos.X - item.Position.X, 2) + Math.Pow(plyrPos.Y - item.Position.Y, 2) < item.RadiusSqr)
                         hit = true;
                 }
                 else if (item.Tags.Contains("laser"))
@@ -411,9 +409,9 @@ namespace Barrage
                     if (m1 > 1000) m1 = 1000; else if (m1 < -1000) m1 = -1000;
                     if (m2 > 1000) m2 = 1000; else if (m2 < -1000) m2 = -1000;
 
-                    double b1 = item.Position.Y - m1 * item.Position.X, b2 = plyrY - m2 * plyrX,
+                    double b1 = item.Position.Y - m1 * item.Position.X, b2 = plyrPos.Y - m2 * plyrPos.X,
                         ix = (b2 - b1) / (m1 - m2), iy = m1 * ix + b1;
-                    if (Math.Pow(plyrX - ix, 2) + Math.Pow(plyrY - iy, 2) < item.RadiusSqr && ((Math.Abs(ang % 360) <= 90 || Math.Abs(ang % 360) > 270) ? ix >= item.Position.X : ix <= item.Position.X))
+                    if (Math.Pow(plyrPos.X - ix, 2) + Math.Pow(plyrPos.Y - iy, 2) < item.RadiusSqr && ((Math.Abs(ang % 360) <= 90 || Math.Abs(ang % 360) > 270) ? ix >= item.Position.X : ix <= item.Position.X))
                         hit = true;
                 }
             }
