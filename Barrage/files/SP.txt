@@ -1,3 +1,5 @@
-﻿proj|tags=circle,wallBounce|speed=-3|angle=n * 14.4|startPos=0,-50|file=MOD n 3|tagCount=1
-wait|3
+﻿RNG|1
+val0|RNG -10 10
+proj|tags=circle|speed=3|angle=val0 + n * 10
+wait|1
 ifGoto|1|0

@@ -4,7 +4,7 @@ note: an unrecognised command will still be counted as a line, but will not have
 note2: equations will be in postfix notation when a messagebox displays an error
 
 
-proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration
+proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration        fires a projectile with the given properties
 -tags		
  +circle	    standard circle projectile
  +laser		    laser (cannot have both laser and circle)
@@ -16,40 +16,42 @@ proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration
 -xyPos		    position of projectile (overrides angle and speed)
 -xyVel		    velocity of projectile (overrides xyPos, angle, and speed)
 -size		    radius of projectile (or half of width of laser)
--startPos	    pos to spawn projectiles (x,y)
+-startPos	    pos to fires projectile (x,y) from
 -duration	    # frames a proj will exist, -1 is infinity
 -tagCount       # times a proj will wallBounce (or similar), -1 is infinity
 -actDelay	    # frames before the projectile can collide with the player, -1 is infinity
 -file   	    a number indicating which image file to use (e.g. 0 will get Projectile0.png)
 
-boss|#1|#2|#3|#4	moves the boss sprite to #1,#2 at #3 pixels/frame and rotates at #4 degrees/frame
-
-repeat|#1|#2	    repeats from line #1, #2 - 1 times
+wait|#1		        waits #1 of frames before spawning projectiles again (including this frame)
 
 ifGoto|#1|#2        if #1 is equal to 1, go to line #2
 
+repeat|#1|#2	    repeats from line #1, #2 - 1 times
+
+boss|#1|#2|#3|#4	moves the boss sprite to #1,#2 at #3 pixels/frame and rotates at #4 degrees/frame
+
 val#1|#2    	    sets val#1 to #2 (stored for later usage)
 
-wait|#1		        waits #1 of frames before spawning projectiles again (including this frame)
-
 :name               creates a label "name" that indicates the line it is on
+
+rng|#1              sets the random number generator seed to #1
 
 visual              indicates a visual map (one that is not meant to be played) (player cannot lose)
 
 
 Available Values:
+n		    the number of projectiles created so far
 t		    the age of the projectile (or game)
-n		    the number of projectiles spawned so far
 PLYRX		the player's position
 PLYRY		
 BOSSX		the boss' position
 BOSSY		
+LANG		the angle from the last frame
+LSPD		the speed from the last frame
 LXPOS		position from last frame
 LYPOS		
 LXVEL		velocity from last frame
 LYVEL		
-LSPD		the speed from the last frame
-LANG		the angle from the last frame
 
 
 Available Functions:
