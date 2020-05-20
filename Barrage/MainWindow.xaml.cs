@@ -29,6 +29,8 @@ namespace Barrage
     /// </summary>
     public partial class MainWindow : Window
     {
+        static MainWindow Main;
+
         //game
         readonly int extraUI;
         List<Projectile> projectiles = new List<Projectile>();
@@ -73,7 +75,7 @@ namespace Barrage
             PLAY,
             EDITOR,
         }
-        GAMESTATE gamestate = GAMESTATE.MENU;
+        static GAMESTATE gamestate = GAMESTATE.MENU;
 
         //image storage
         BitmapImage[] playPauseImgs = new BitmapImage[]
@@ -104,7 +106,7 @@ namespace Barrage
         {
             InitializeComponent();
 
-            this.KeyDown += new KeyEventHandler(MainWindow_KeyDown);
+            KeyDown += new KeyEventHandler(MainWindow_KeyDown);
             extraUI = gridField.Children.Count;
 
             frameLength = Stopwatch.Frequency / 60;  //framerate
@@ -137,6 +139,8 @@ namespace Barrage
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            Main = this;
+
             Width += 400 - gridSize.ActualWidth;
             Height += 400 - gridSize.ActualHeight;
             MinWidth = Width;
@@ -284,6 +288,11 @@ namespace Barrage
             else if (gamestate == GAMESTATE.EDITOR)
             {
                 if (e.Key == Key.Space || e.Key == Key.K || e.Key == Key.Escape)
+                {
+                    ImageEditor_MouseUp(ImageEditorPlay, null);
+                    ImageEditor_MouseLeave(ImageEditorPlay, null);
+                }
+                else if (e.Key == Key.P && playing)
                 {
                     ImageEditor_MouseUp(ImageEditorPlay, null);
                     ImageEditor_MouseLeave(ImageEditorPlay, null);
@@ -733,9 +742,10 @@ namespace Barrage
             if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, readIndex),
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
-                if (Application.Current != null)
-                    Application.Current.Shutdown();
-                stopRequested = true;
+                if (gamestate == GAMESTATE.EDITOR)
+                    MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
+                else
+                    LabelBack_MouseUp(labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
             }
         }
         public static void MessageIssue(string text, int line)
@@ -743,9 +753,10 @@ namespace Barrage
             if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, line),
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
-                if (Application.Current != null)
-                    Application.Current.Shutdown();
-                stopRequested = true;
+                if (gamestate == GAMESTATE.EDITOR)
+                    Main.MainWindow_KeyDown(Main, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
+                else
+                    Main.LabelBack_MouseUp(Main.labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
             }
         }
         void MessageIssue(string text, string issue)
@@ -753,9 +764,10 @@ namespace Barrage
             if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1} because {2}\n Continue?", text, readIndex, issue),
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
-                if (Application.Current != null)
-                    Application.Current.Shutdown();
-                stopRequested = true;
+                if (gamestate == GAMESTATE.EDITOR)
+                    MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
+                else
+                    LabelBack_MouseUp(labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
             }
         }
 
