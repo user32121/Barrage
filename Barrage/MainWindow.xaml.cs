@@ -52,7 +52,6 @@ namespace Barrage
         int readIndex = 0;
         double wait;
         Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
-        readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
         int spwnInd;
         List<double> spwnVals = new List<double>();
 
@@ -217,7 +216,6 @@ namespace Barrage
                 spwnInd = 0;
                 spwnVals.Clear();
                 repeatVals.Clear();
-                labels.Clear();
                 wait = 0;
                 time = 0;
 
@@ -797,6 +795,7 @@ namespace Barrage
         {
             StreamReader sr = new StreamReader("files/SP.txt");
             List<string> readFile = new List<string>();
+            Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
 
             //loads files into readFile and removes comments and empty spaces
             while (!sr.EndOfStream)
