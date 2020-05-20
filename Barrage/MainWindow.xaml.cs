@@ -640,6 +640,13 @@ namespace Barrage
                     songPlaying = true;
                 }
 #endif
+                else if (line[0] == "rng")
+                {
+                    if (int.TryParse(line[1], out int num))
+                        ReadString.rng = new Random(num);
+                    else
+                        MessageIssue(line[1]);
+                }
 
                 //next line
                 readIndex++;
