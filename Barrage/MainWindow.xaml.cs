@@ -283,7 +283,7 @@ namespace Barrage
             }
             else if (gamestate == GAMESTATE.EDITOR)
             {
-                if (e.Key == Key.Space || e.Key == Key.K)
+                if (e.Key == Key.Space || e.Key == Key.K || e.Key == Key.Escape)
                 {
                     ImageEditor_MouseUp(ImageEditorPlay, null);
                     ImageEditor_MouseLeave(ImageEditorPlay, null);
@@ -801,40 +801,50 @@ namespace Barrage
         void ReadSpawnTxt()
         {
             StreamReader sr = new StreamReader("files/SP.txt");
+            string[] lines;
+            if (gamestate == GAMESTATE.EDITOR)
+                lines = textEditor.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            else
+            {
+                string temp = sr.ReadToEnd();
+                textEditor.Text = temp;
+                lines = temp.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            }
+            sr.Close();
+            sr.Dispose();
+
             List<string> readFile = new List<string>();
             Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
 
             //loads files into readFile and removes comments and empty spaces
-            while (!sr.EndOfStream)
+            for (int i = 0; i < lines.Length; i++)
             {
-                string line = sr.ReadLine();
-                if (line == "visual")
+                if (lines[i] == "visual")
                 {
                     isVisual = true;
                     labelVisual.Visibility = Visibility.Visible;
 
                 }
-                else if (line == "" || line.Substring(0, 1) == "#")
+                else if (lines[i] == "" || lines[i].Substring(0, 1) == "#")
                 {
                     readFile.Add("");
                 }
                 else
                 {
-                    readFile.Add(line);
+                    readFile.Add(lines[i]);
 
                     //repeat
-                    if (line.Contains("repeat"))
+                    if (lines[i].Contains("repeat"))
                         repeatVals.Add(readFile.Count - 1, 0);
 
                     //label
-                    if (line[0] == ':')
-                        if (labels.ContainsKey(line))
-                            MessageBox.Show("\"" + line + "\" is already a label", "", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    if (lines[i][0] == ':')
+                        if (labels.ContainsKey(lines[i]))
+                            MessageBox.Show("\"" + lines[i] + "\" is already a label", "", MessageBoxButton.OK, MessageBoxImage.Warning);
                         else
-                            labels.Add(line, readFile.Count - 1);
+                            labels.Add(lines[i], readFile.Count - 1);
                 }
             }
-            sr.Dispose();
 
             //insert labels
             string[] keys = labels.Keys.ToArray();
@@ -919,6 +929,7 @@ namespace Barrage
                 Window_SizeChanged(this, null);
                 MinWidth = minSize.Width + 400;
                 MinHeight = minSize.Height + 50;
+
                 gridMenu.Visibility = Visibility.Hidden;
                 gridEditor.Visibility = Visibility.Visible;
                 gridGame.Visibility = Visibility.Visible;
@@ -952,6 +963,11 @@ namespace Barrage
                     Height -= s;
                 }
                 Window_SizeChanged(this, null);
+
+                StreamWriter sw = new StreamWriter("files/SP.txt");
+                sw.Write(textEditor.Text);
+                sw.Close();
+                sw.Dispose();
             }
             gamestate = GAMESTATE.MENU;
             gridMenu.Visibility = Visibility.Visible;
@@ -1038,6 +1054,15 @@ namespace Barrage
             rightBlack.Width = Math.Max(gridSize.ActualWidth - min * gridMain.Width, 0) / 2;
             upBlack.Height = Math.Max(gridSize.ActualHeight - min * gridMain.Height, 0) / 2;
             downBlack.Height = Math.Max(gridSize.ActualHeight - min * gridMain.Height, 0) / 2;
+        }
+
+        private void textEditor_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                textEditor.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                e.Handled = true;
+            }
         }
     }
     public static class ExtensionMethods
