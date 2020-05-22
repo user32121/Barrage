@@ -1,5 +1,6 @@
 rng|1
+:START
 val0|RNG -40 40
 proj|tags=circle|speed=3|angle=val0 + n * 10
 wait|1
-ifGoto|1|1
+ifGoto|1|:START

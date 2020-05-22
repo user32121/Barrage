@@ -50,7 +50,7 @@ namespace Barrage
         string bossMvSpd = "0";
         string bossAngSpd = "0";
         //spawn pattern
-        string[] spawnPattern;
+        List<string> spawnPattern;
         int readIndex = 0;
         double wait;
         Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
@@ -93,6 +93,9 @@ namespace Barrage
         LinearGradientBrush hitIndicatorBrush = new LinearGradientBrush(Colors.Transparent, Colors.Transparent, new Point(0, 0.5), new Point(1, 0.5));
         GameFrame[] hist = new GameFrame[1000];
         int histIndex = 0;
+        Point projStartPos;
+        Point projEndPos;
+        int textEditKeyPresses;
 
 #if SONG
         MediaPlayer song = new MediaPlayer();
@@ -130,6 +133,8 @@ namespace Barrage
                 ImageEditorStepForwards.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Step.png"));
                 ImageEditorStepBackwards.Source = ImageEditorStepForwards.Source;
             }
+            if (File.Exists("files/Arrow.png"))
+                Arrow.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Arrow.png"));
 #if SONG
             song.Open(new Uri("files/song.mp3", UriKind.Relative));
 #endif
@@ -214,6 +219,12 @@ namespace Barrage
 
         void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
+            if (textEditKeyPresses > 0)
+            {
+                textEditKeyPresses--;
+                return;
+            }
+
             if (e.Key == Key.R)
             {
                 readIndex = 0;
@@ -225,8 +236,6 @@ namespace Barrage
 
                 isVisual = false;
                 labelVisual.Visibility = Visibility.Hidden;
-                playing = false;
-                ImageEditorPlay.Source = playPauseImgs[0];
 #if SONG
                 song.Stop();
                 songPlaying = false;
@@ -483,7 +492,7 @@ namespace Barrage
             ReadString.t = time;
             ReadString.lastVals = null;
 
-            while (wait <= 0 && readIndex < spawnPattern.Length && !stopRequested)
+            while (wait <= 0 && readIndex < spawnPattern.Count && !stopRequested)
             {
                 ReadString.line = readIndex;
 
@@ -865,7 +874,7 @@ namespace Barrage
                     readFile[i] = readFile[i].Replace(keys[j], labels[keys[j]].ToString());
 
             //transfers lines into spawnPattern
-            spawnPattern = readFile.ToArray<string>();
+            spawnPattern = readFile;
         }
 
         void ModerateFrames()
@@ -968,6 +977,7 @@ namespace Barrage
                 labelFps.Margin = new Thickness();
                 MinWidth = minSize.Width;
                 MinHeight = minSize.Height;
+                playing = false;
                 if (WindowState != WindowState.Maximized)
                 {
                     double s = gridSize.ActualHeight / 9 - downBlack.Height / 4;
@@ -1068,12 +1078,79 @@ namespace Barrage
             downBlack.Height = Math.Max(gridSize.ActualHeight - min * gridMain.Height, 0) / 2;
         }
 
-        private void textEditor_KeyDown(object sender, KeyEventArgs e)
+        private void TextEditor_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
-            {
                 textEditor.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-                e.Handled = true;
+            textEditKeyPresses++;
+        }
+
+        private void GridField_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (gamestate == GAMESTATE.EDITOR)
+            {
+                projStartPos = e.GetPosition((Grid)sender);
+                Arrow.RenderTransform = new TransformGroup()
+                {
+                    Children = new TransformCollection() {
+                        new ScaleTransform(0, 1),
+                        new TranslateTransform(projStartPos.X, projStartPos.Y),
+                    }
+                };
+                Arrow.Visibility = Visibility.Visible;
+            }
+        }
+        private void GridField_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (gamestate == GAMESTATE.EDITOR && Arrow.Visibility == Visibility.Visible)
+            {
+                projEndPos = e.GetPosition((Grid)sender);
+                spawnPattern.Insert(readIndex, string.Format("proj|tags=circle|startPos={0},{1}|speed={2}|angle={3}",
+                    projStartPos.X - 200, projStartPos.Y - 200,
+                    Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
+                    Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180));
+                int p = 0;
+                for (int i = readIndex; i > 0 && p != -1 && p < textEditor.Text.Length; i--)
+                    p = textEditor.Text.IndexOf(Environment.NewLine, p + 1);
+
+                if (p == -1)
+                    textEditor.Text += string.Format("{0}proj|tags=cirlc|startPos={1},{2}|speed={3}|angle={4}",
+                        Environment.NewLine, projStartPos.X - 200, projStartPos.Y - 200,
+                        Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
+                        Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180);
+                else if (p == 0)
+                    textEditor.Text = textEditor.Text.Insert(p, string.Format("proj|tags=cirlc|startPos={1},{2}|speed={3}|angle={4}{0}",
+                        Environment.NewLine, projStartPos.X - 200, projStartPos.Y - 200,
+                        Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
+                        Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180));
+                else
+                    textEditor.Text = textEditor.Text.Insert(p, string.Format("{0}proj|tags=cirlc|startPos={1},{2}|speed={3}|angle={4}",
+                        Environment.NewLine, projStartPos.X - 200, projStartPos.Y - 200,
+                        Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
+                        Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180));
+
+                Arrow.Visibility = Visibility.Hidden;
+            }
+        }
+
+        private void GridField_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (gamestate == GAMESTATE.EDITOR && Arrow.Visibility == Visibility.Visible)
+            {
+                if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
+                {
+                    projEndPos = e.GetPosition((Grid)sender);
+                    Arrow.RenderTransform = new TransformGroup()
+                    {
+                        Children = new TransformCollection() {
+                            new ScaleTransform(Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)), 1),
+                            new RotateTransform(Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180),
+                            new TranslateTransform(projStartPos.X, projStartPos.Y),
+                       }
+                    };
+                }
+                else
+                    GridField_MouseUp(sender, new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, MouseButton.Left));
             }
         }
     }

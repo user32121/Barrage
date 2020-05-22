@@ -144,6 +144,7 @@
     <Resource Include="files\Laser.png" />
     <Resource Include="files\Pause.png" />
     <Resource Include="files\Play.png" />
+    <Resource Include="files\Arrow.png" />
     <Content Include="files\presets.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
