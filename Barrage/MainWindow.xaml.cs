@@ -968,37 +968,49 @@ namespace Barrage
         }
         private void LabelBack_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            bool canceled = false;
             if (gamestate == GAMESTATE.EDITOR)
             {
-                gridMain.Width = 400;
-                gridMain.Height = 400;
-                gridGame.HorizontalAlignment = HorizontalAlignment.Center;
-                gridGameBorder.BorderThickness = new Thickness();
-                labelFps.Margin = new Thickness();
-                MinWidth = minSize.Width;
-                MinHeight = minSize.Height;
-                playing = false;
-                if (WindowState != WindowState.Maximized)
+                MessageBoxResult result = MessageBox.Show("Do you want to save changes?", "", MessageBoxButton.YesNoCancel);
+
+                if (result != MessageBoxResult.Cancel)
                 {
-                    double s = gridSize.ActualHeight / 9 - downBlack.Height / 4;
-                    Width -= gridSize.ActualWidth / 2 - rightBlack.Width;
-                    Height -= s;
+                    gridMain.Width = 400;
+                    gridMain.Height = 400;
+                    gridGame.HorizontalAlignment = HorizontalAlignment.Center;
+                    gridGameBorder.BorderThickness = new Thickness();
+                    labelFps.Margin = new Thickness();
+                    MinWidth = minSize.Width;
+                    MinHeight = minSize.Height;
+                    playing = false;
+                    if (WindowState != WindowState.Maximized)
+                    {
+                        double s = gridSize.ActualHeight / 9 - downBlack.Height / 4;
+                        Width -= gridSize.ActualWidth / 2 - rightBlack.Width;
+                        Height -= s;
+                    }
+                    Window_SizeChanged(this, null);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        StreamWriter sw = new StreamWriter("files/SP.txt");
+                        sw.Write(textEditor.Text);
+                        sw.Close();
+                        sw.Dispose();
+                    }
                 }
-                Window_SizeChanged(this, null);
-
-                StreamWriter sw = new StreamWriter("files/SP.txt");
-                sw.Write(textEditor.Text);
-                sw.Close();
-                sw.Dispose();
+                else
+                    canceled = true;
             }
-            gamestate = GAMESTATE.MENU;
-            gridMenu.Visibility = Visibility.Visible;
-            gridGame.Visibility = Visibility.Hidden;
-            gridEditor.Visibility = Visibility.Hidden;
+            if (!canceled)
+            {
+                gamestate = GAMESTATE.MENU;
+                gridMenu.Visibility = Visibility.Visible;
+                gridGame.Visibility = Visibility.Hidden;
+                gridEditor.Visibility = Visibility.Hidden;
 
-            MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.R));
-
-            ((Label)sender).Foreground = new SolidColorBrush(Color.FromRgb(150, 150, 150));
+                MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.R));
+            }
         }
         private void ImageEditor_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -1084,6 +1096,10 @@ namespace Barrage
                 textEditor.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
             textEditKeyPresses++;
         }
+        private void TextEditor_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ReadSpawnTxt();
+        }
 
         private void GridField_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -1114,17 +1130,17 @@ namespace Barrage
                     p = textEditor.Text.IndexOf(Environment.NewLine, p + 1);
 
                 if (p == -1)
-                    textEditor.Text += string.Format("{0}proj|tags=cirlc|startPos={1},{2}|speed={3}|angle={4}",
+                    textEditor.Text += string.Format("{0}proj|tags=circle|startPos={1},{2}|speed={3}|angle={4}",
                         Environment.NewLine, projStartPos.X - 200, projStartPos.Y - 200,
                         Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
                         Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180);
                 else if (p == 0)
-                    textEditor.Text = textEditor.Text.Insert(p, string.Format("proj|tags=cirlc|startPos={1},{2}|speed={3}|angle={4}{0}",
+                    textEditor.Text = textEditor.Text.Insert(p, string.Format("proj|tags=circle|startPos={1},{2}|speed={3}|angle={4}{0}",
                         Environment.NewLine, projStartPos.X - 200, projStartPos.Y - 200,
                         Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
                         Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180));
                 else
-                    textEditor.Text = textEditor.Text.Insert(p, string.Format("{0}proj|tags=cirlc|startPos={1},{2}|speed={3}|angle={4}",
+                    textEditor.Text = textEditor.Text.Insert(p, string.Format("{0}proj|tags=circle|startPos={1},{2}|speed={3}|angle={4}",
                         Environment.NewLine, projStartPos.X - 200, projStartPos.Y - 200,
                         Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
                         Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180));
