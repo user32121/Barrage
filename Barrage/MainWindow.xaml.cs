@@ -93,6 +93,7 @@ namespace Barrage
         LinearGradientBrush hitIndicatorBrush = new LinearGradientBrush(Colors.Transparent, Colors.Transparent, new Point(0, 0.5), new Point(1, 0.5));
         GameFrame[] hist = new GameFrame[1000];
         int histIndex = 0;
+        int histIndexMin = 0;
         Point projStartPos;
         Point projEndPos;
         int textEditKeyPresses;
@@ -138,6 +139,23 @@ namespace Barrage
 #if SONG
             song.Open(new Uri("files/song.mp3", UriKind.Relative));
 #endif
+
+            hist[0] = new GameFrame()
+            {
+                bossAngle = bossAngle,
+                bossAngSpd = bossAngSpd,
+                bossMvSpd = bossMvSpd,
+                bossPos = bossPos,
+                bossTarget = bossTarget,
+                plyrPos = plyrPos,
+                projectiles = new Projectile[0],
+                readIndex = readIndex,
+                repeatVals = repeatVals,
+                spwnInd = spwnInd,
+                spwnVals = new double[0],
+                time = time,
+                wait = wait,
+            };
 
             ReadSpawnTxt();
         }
@@ -208,6 +226,8 @@ namespace Barrage
                             };
                             for (int i = 0; i < projectiles.Count; i++)
                                 hist[histIndex].projectiles[i] = projectiles[i].Clone();
+                            if (histIndex == histIndexMin)
+                                histIndexMin++;
                         }
                         stepForwards = false;
                     }
@@ -296,12 +316,7 @@ namespace Barrage
             }
             else if (gamestate == GAMESTATE.EDITOR)
             {
-                if (e.Key == Key.Space || e.Key == Key.K || e.Key == Key.Escape)
-                {
-                    ImageEditor_MouseUp(ImageEditorPlay, null);
-                    ImageEditor_MouseLeave(ImageEditorPlay, null);
-                }
-                else if (e.Key == Key.P && playing)
+                if (e.Key == Key.Space || e.Key == Key.K || e.Key == Key.Escape || e.Key == Key.P && playing)
                 {
                     ImageEditor_MouseUp(ImageEditorPlay, null);
                     ImageEditor_MouseLeave(ImageEditorPlay, null);
@@ -1047,6 +1062,8 @@ namespace Barrage
                     histIndex--;
                 else if (e.ChangedButton == MouseButton.Right)
                     histIndex -= 5;
+                if (histIndex < histIndexMin)
+                    histIndex = histIndexMin;
                 if (histIndex < 0)
                     histIndex += hist.Length;
                 while (hist[histIndex] == null)
@@ -1077,7 +1094,6 @@ namespace Barrage
 
                 RenderPlayerAndBoss();
             }
-            Console.WriteLine(time);
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
