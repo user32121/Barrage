@@ -1139,12 +1139,33 @@ namespace Barrage
             if (gamestate == GAMESTATE.EDITOR && Arrow.Visibility == Visibility.Visible)
             {
                 projEndPos = e.GetPosition((Grid)sender);
-            
+
                 List<string> lines = new List<string>(textEditor.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
+                string[] statement;
+                //shift repeat and ifGoto
+                for (int i = 0; i < lines.Count; i++)
+                {
+                    statement = lines[i].Split('|');
+                    if (statement.Length >= 1)
+                    {
+                        int index = -1;
+                        if (statement[0] == "repeat" && statement.Length >= 2)
+                            index = 1;
+                        else if (statement[0] == "ifGoto" && statement.Length >= 3)
+                            index = 2;
+                        if (index != -1 && int.TryParse(statement[index], out int num) && num >= readIndex)
+                        {
+                            statement[index] = (num + 1).ToString();
+                            lines[i] = string.Join("|", statement);
+                        }
+                    }
+                }
+                //insert new projectile
                 lines.Insert(readIndex, string.Format("proj|tags=circle|startPos={0},{1}|speed={2}|angle={3}",
                     projStartPos.X - 200, projStartPos.Y - 200,
                     Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
                     Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180));
+
                 textEditor.Text = string.Join(Environment.NewLine, lines);
 
                 Arrow.Visibility = Visibility.Hidden;
