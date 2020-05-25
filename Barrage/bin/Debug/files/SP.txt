@@ -1,6 +1,5 @@
-rng|1
+#collapsing colorful spiral (requires Projectile1.png and Projectile2.png in files folder)
 :START
-val0|RNG -40 40
-proj|tags=circle|speed=3|angle=val0 + n * 10
+proj|tags=circle|speed=ABS ( 5 - t / 10 ) * -1|angle=n * 14.4 + ATAN ( t * 2 - 100 ) 1|startPos=0,-50|file=MOD n 3
 wait|1
-ifGoto|1|:START
+repeat|:START|3600

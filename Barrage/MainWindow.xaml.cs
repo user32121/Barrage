@@ -870,7 +870,7 @@ namespace Barrage
                     readFile.Add(lines[i]);
 
                     //repeat
-                    if (lines[i].Contains("repeat"))
+                    if (lines[i].Contains("repeat") && !repeatVals.ContainsKey(readFile.Count - 1))
                         repeatVals.Add(readFile.Count - 1, 0);
 
                     //label
@@ -995,6 +995,7 @@ namespace Barrage
                     gridGame.HorizontalAlignment = HorizontalAlignment.Center;
                     gridGameBorder.BorderThickness = new Thickness();
                     labelFps.Margin = new Thickness();
+                    ImageEditorPlay.Source = playPauseImgs[0];
                     MinWidth = minSize.Width;
                     MinHeight = minSize.Height;
                     playing = false;
@@ -1114,7 +1115,8 @@ namespace Barrage
         }
         private void TextEditor_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ReadSpawnTxt();
+            if (gamestate == GAMESTATE.EDITOR)
+                ReadSpawnTxt();
         }
 
         private void GridField_MouseDown(object sender, MouseButtonEventArgs e)
@@ -1137,29 +1139,13 @@ namespace Barrage
             if (gamestate == GAMESTATE.EDITOR && Arrow.Visibility == Visibility.Visible)
             {
                 projEndPos = e.GetPosition((Grid)sender);
-                spawnPattern.Insert(readIndex, string.Format("proj|tags=circle|startPos={0},{1}|speed={2}|angle={3}",
+            
+                List<string> lines = new List<string>(textEditor.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
+                lines.Insert(readIndex, string.Format("proj|tags=circle|startPos={0},{1}|speed={2}|angle={3}",
                     projStartPos.X - 200, projStartPos.Y - 200,
                     Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
                     Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180));
-                int p = 0;
-                for (int i = readIndex; i > 0 && p != -1 && p < textEditor.Text.Length; i--)
-                    p = textEditor.Text.IndexOf(Environment.NewLine, p + 1);
-
-                if (p == -1)
-                    textEditor.Text += string.Format("{0}proj|tags=circle|startPos={1},{2}|speed={3}|angle={4}",
-                        Environment.NewLine, projStartPos.X - 200, projStartPos.Y - 200,
-                        Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
-                        Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180);
-                else if (p == 0)
-                    textEditor.Text = textEditor.Text.Insert(p, string.Format("proj|tags=circle|startPos={1},{2}|speed={3}|angle={4}{0}",
-                        Environment.NewLine, projStartPos.X - 200, projStartPos.Y - 200,
-                        Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
-                        Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180));
-                else
-                    textEditor.Text = textEditor.Text.Insert(p, string.Format("{0}proj|tags=circle|startPos={1},{2}|speed={3}|angle={4}",
-                        Environment.NewLine, projStartPos.X - 200, projStartPos.Y - 200,
-                        Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
-                        Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180));
+                textEditor.Text = string.Join(Environment.NewLine, lines);
 
                 Arrow.Visibility = Visibility.Hidden;
             }
