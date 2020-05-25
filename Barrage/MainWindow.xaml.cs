@@ -56,6 +56,7 @@ namespace Barrage
         Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
         int spwnInd;
         List<double> spwnVals = new List<double>();
+        Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
 
         //frame moderation
         DispatcherTimer kickStart;
@@ -502,13 +503,13 @@ namespace Barrage
 
         void ReadNextLine()
         {
-            ReadString.n = spwnInd;
-            ReadString.numVals = spwnVals;
-            ReadString.t = time;
-            ReadString.lastVals = null;
 
             while (wait <= 0 && readIndex < spawnPattern.Count && !stopRequested)
             {
+                ReadString.n = spwnInd;
+                ReadString.numVals = spwnVals;
+                ReadString.t = time;
+                ReadString.lastVals = null;
                 ReadString.line = readIndex;
 
                 //keeps reading lines untill text says to wait
@@ -850,7 +851,7 @@ namespace Barrage
             sr.Dispose();
 
             List<string> readFile = new List<string>();
-            Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
+            labels.Clear();
 
             //loads files into readFile and removes comments and empty spaces
             for (int i = 0; i < lines.Length; i++)
@@ -1142,6 +1143,23 @@ namespace Barrage
 
                 List<string> lines = new List<string>(textEditor.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
                 string[] statement;
+                //check if in a loop
+                bool inLoop = false;
+                for (int i = readIndex; i < spawnPattern.Count; i++)
+                {
+                    statement = spawnPattern[i].Split('|');
+                    if (statement.Length >= 1)
+                    {
+                        int index = -1;
+                        if (statement[0] == "repeat" && statement.Length >= 2)
+                            index = 1;
+                        else if (statement[0] == "ifGoto" && statement.Length >= 3)
+                            index = 2;
+                        if (index != -1 && int.TryParse(statement[index], out int num) && num < readIndex)
+                            inLoop = true;
+                    }
+                }
+
                 //shift repeat and ifGoto
                 for (int i = 0; i < lines.Count; i++)
                 {
@@ -1155,16 +1173,28 @@ namespace Barrage
                             index = 2;
                         if (index != -1 && int.TryParse(statement[index], out int num) && num >= readIndex)
                         {
-                            statement[index] = (num + 1).ToString();
+                            statement[index] = (num + (inLoop ? 3 : 1)).ToString();
                             lines[i] = string.Join("|", statement);
                         }
                     }
                 }
+
                 //insert new projectile
                 lines.Insert(readIndex, string.Format("proj|tags=circle|startPos={0},{1}|speed={2}|angle={3}",
                     projStartPos.X - 200, projStartPos.Y - 200,
                     Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
                     Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180));
+
+                //insert statements
+                if (inLoop)
+                {
+                    //find next available label for ifGoto
+                    int labelIndex = 0;
+                    while (labels.ContainsKey(':' + labelIndex.SetWidth(4)))
+                        labelIndex++;
+                    lines.Insert(readIndex, string.Format("ifGoto|t != {0}|{1}", time + 1, ":" + labelIndex.SetWidth(4)));
+                    lines.Insert(readIndex + 2, ":" + labelIndex.SetWidth(4));
+                }
 
                 textEditor.Text = string.Join(Environment.NewLine, lines);
 
@@ -1207,6 +1237,12 @@ namespace Barrage
             v1.X *= v2.X;
             v1.Y *= v2.Y;
             return v1;
+        }
+
+        public static string SetWidth(this int n, int width)
+        {
+            string s = n.ToString();
+            return new string('0', width - s.Length) + s;
         }
     }
 }
