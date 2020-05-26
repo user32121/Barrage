@@ -503,7 +503,6 @@ namespace Barrage
 
         void ReadNextLine()
         {
-
             while (wait <= 0 && readIndex < spawnPattern.Count && !stopRequested)
             {
                 ReadString.n = spwnInd;
@@ -1143,11 +1142,12 @@ namespace Barrage
 
                 List<string> lines = new List<string>(textEditor.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
                 string[] statement;
-                //check if in a loop
                 bool inLoop = false;
-                for (int i = readIndex; i < spawnPattern.Count; i++)
+
+                //check if in a loop
+                for (int i = readIndex; i < lines.Count; i++)
                 {
-                    statement = spawnPattern[i].Split('|');
+                    statement = lines[i].Split('|');
                     if (statement.Length >= 1)
                     {
                         int index = -1;
@@ -1186,16 +1186,38 @@ namespace Barrage
                     Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180));
 
                 //insert statements
-                if (inLoop)
+                //check if at end
+                if (readIndex == lines.Count - 1 && wait < 0)
                 {
-                    //find next available label for ifGoto
-                    int labelIndex = 0;
-                    while (labels.ContainsKey(':' + labelIndex.SetWidth(4)))
-                        labelIndex++;
-                    lines.Insert(readIndex, string.Format("ifGoto|t != {0}|{1}", time + 1, ":" + labelIndex.SetWidth(4)));
-                    lines.Insert(readIndex + 2, ":" + labelIndex.SetWidth(4));
+                    lines.Insert(readIndex, "wait|" + (int)-wait);
+                    readIndex++;
+                    wait += (int)-wait;
                 }
+                else
+                {
+                    //split wait
+                    if (wait > 0)
+                    {
+                        statement = lines[readIndex - 1].Split('|');
+                        if (statement.Length >= 1 && statement[0] == "wait" && int.TryParse(statement[1], out int num))
+                        {
+                            lines[readIndex - 1] = "wait|" + (num - wait);
+                            lines.Insert(readIndex + 1, "wait|" + wait);
+                            wait = 0;
+                        }
+                    }
 
+                    //time checker in loop
+                    if (inLoop)
+                    {
+                        //find next available label for ifGoto
+                        int labelIndex = 0;
+                        while (labels.ContainsKey(':' + labelIndex.SetWidth(4)))
+                            labelIndex++;
+                        lines.Insert(readIndex, string.Format("ifGoto|t != {0}|{1}", time + 1, ":" + labelIndex.SetWidth(4)));
+                        lines.Insert(readIndex + 2, ":" + labelIndex.SetWidth(4));
+                    }
+                }
                 textEditor.Text = string.Join(Environment.NewLine, lines);
 
                 Arrow.Visibility = Visibility.Hidden;
