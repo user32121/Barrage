@@ -283,6 +283,7 @@ namespace Barrage
                 Player.RenderTransform = new TranslateTransform(plyrPos.X, plyrPos.Y);
 
                 bossPos = new Vector(300, -300);
+                Boss.RenderTransform = new TranslateTransform(bossPos.X, bossPos.Y);
                 bossTarget = "0,0";
                 bossMvSpd = "0";
                 bossAngSpd = "0";
