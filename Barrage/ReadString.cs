@@ -315,7 +315,9 @@ namespace Barrage
                     input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
                 }
             }
-            if (input[0] is double) //double
+            if (input.Count < 1)
+                return 0;
+            else if (input[0] is double) //double
                 return (double)input[0];
             else if (input[0] is int) //integer
                 return (int)input[0];
@@ -331,12 +333,7 @@ namespace Barrage
             double[] output = new double[count];
 
             if (start < 0)
-                if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, line),
-                    "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No && Application.Current != null)
-                {
-                    Application.Current.Shutdown();
-                    MainWindow.stopRequested = true;
-                }
+                MainWindow.MessageIssue(text, line);
 
             for (int i = 0; i < count; i++)
             {
@@ -348,12 +345,8 @@ namespace Barrage
                     output[i] = (int)input[i + start];
                 else if (double.TryParse((string)input[i + start], out double num))    //string
                     output[i] = num;
-                else if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, line),
-                    "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No && Application.Current != null)
-                {
-                    Application.Current.Shutdown();
-                    MainWindow.stopRequested = true;
-                }
+                else
+                    MainWindow.MessageIssue(text, line);
             }
 
             return output;

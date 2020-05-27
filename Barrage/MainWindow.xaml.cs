@@ -98,6 +98,7 @@ namespace Barrage
         Point projStartPos;
         Point projEndPos;
         int textEditKeyPresses;
+        DispatcherTimer autosaveTimer;
 
 #if SONG
         MediaPlayer song = new MediaPlayer();
@@ -174,6 +175,10 @@ namespace Barrage
             kickStart = new DispatcherTimer();
             kickStart.Tick += KickStart_Tick;
             kickStart.Start();
+            autosaveTimer = new DispatcherTimer();
+            autosaveTimer.Interval = TimeSpan.FromSeconds(60);
+            autosaveTimer.Tick += AutosaveTimer_Tick;
+            autosaveTimer.Start();
         }
 
         private void KickStart_Tick(object sender, EventArgs e)
@@ -1246,6 +1251,17 @@ namespace Barrage
                 }
                 else
                     GridField_MouseUp(sender, new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, MouseButton.Left));
+            }
+        }
+
+        private void AutosaveTimer_Tick(object sender, EventArgs e)
+        {
+            if(gamestate == GAMESTATE.EDITOR)
+            {
+                StreamWriter sw = new StreamWriter("files/SP(autosave).txt");
+                sw.Write(textEditor.Text);
+                sw.Close();
+                sw.Dispose();
             }
         }
     }
