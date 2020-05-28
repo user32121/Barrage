@@ -100,6 +100,7 @@ namespace Barrage
         int textEditKeyPresses;
         DispatcherTimer autosaveTimer;
         ImageBrush gridOverlay = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/files/Grid.png")));
+        bool isSPSaved;
 
 #if SONG
         MediaPlayer song = new MediaPlayer();
@@ -855,6 +856,8 @@ namespace Barrage
             {
                 string temp = sr.ReadToEnd();
                 textEditor.Text = temp;
+                isSPSaved = true;
+                Title = "Barrage";
                 lines = temp.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             }
             sr.Close();
@@ -932,14 +935,12 @@ namespace Barrage
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (gamestate == GAMESTATE.EDITOR)
+            if (gamestate == GAMESTATE.EDITOR && !isSPSaved)
             {
                 MessageBoxResult result = MessageBox.Show("Do you want to save changes?", "", MessageBoxButton.YesNoCancel);
 
                 if (result == MessageBoxResult.Yes)
-                {
                     SaveSP();
-                }
                 else if (result == MessageBoxResult.Cancel)
                     e.Cancel = true;
             }
@@ -955,6 +956,8 @@ namespace Barrage
             sw.Write(textEditor.Text);
             sw.Close();
             sw.Dispose();
+            isSPSaved = true;
+            Title = "Barrage";
         }
 
         private void LabelMenu_MouseEnter(object sender, MouseEventArgs e)
@@ -1019,7 +1022,11 @@ namespace Barrage
             bool canceled = false;
             if (gamestate == GAMESTATE.EDITOR)
             {
-                MessageBoxResult result = MessageBox.Show("Do you want to save changes?", "", MessageBoxButton.YesNoCancel);
+                MessageBoxResult result;
+                if (isSPSaved)
+                    result = MessageBox.Show("Leaving editor.", "", MessageBoxButton.OKCancel);
+                else
+                    result = MessageBox.Show("Do you want to save changes?", "", MessageBoxButton.YesNoCancel);
 
                 if (result != MessageBoxResult.Cancel)
                 {
@@ -1041,9 +1048,7 @@ namespace Barrage
                     Window_SizeChanged(this, null);
 
                     if (result == MessageBoxResult.Yes)
-                    {
                         SaveSP();
-                    }
                 }
                 else
                     canceled = true;
@@ -1151,6 +1156,8 @@ namespace Barrage
         {
             if (gamestate == GAMESTATE.EDITOR)
                 ReadSpawnTxt();
+            isSPSaved = false;
+            Title = "*Barrage";
         }
 
         private void GridField_MouseDown(object sender, MouseButtonEventArgs e)

@@ -1,3 +1,10 @@
+proj|tags=circle|startPos=130,30|speed=1|angle=90
+proj|tags=circle|startPos=100,40|speed=1|angle=90
+proj|tags=circle|startPos=90,70|speed=0.5|angle=90
+proj|tags=circle|startPos=80,60|speed=1|angle=90
+proj|tags=circle|startPos=70,60|speed=1.11803398874989|angle=116.565051177078
+proj|tags=circle|startPos=50,60|speed=1|angle=90
+proj|tags=circle|startPos=-86.6666666666667,-48.6666666666667|speed=6.72945432821678|angle=48.4135982747719
 proj|tags=circle|startPos=48.6666666666667,-6.66666666666669|speed=3.30067333198007|angle=88.8426669318705
 proj|tags=circle|startPos=8,-18|speed=3.61355472876471|angle=60.1240073083106
 proj|tags=circle|startPos=-96,-62|speed=7.61869046781955|angle=32.855721950433
