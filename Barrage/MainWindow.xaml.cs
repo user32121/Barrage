@@ -930,6 +930,23 @@ namespace Barrage
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if (gamestate == GAMESTATE.EDITOR)
+            {
+                MessageBoxResult result = MessageBox.Show("Do you want to save changes?", "", MessageBoxButton.YesNoCancel);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    StreamWriter sw = new StreamWriter("files/SP.txt");
+                    sw.Write(textEditor.Text);
+                    sw.Close();
+                    sw.Dispose();
+                }
+                else if (result == MessageBoxResult.Cancel)
+                    e.Cancel = true;
+            }
+        }
+        private void Window_Closed(object sender, EventArgs e)
+        {
             stopRequested = true;
         }
 
