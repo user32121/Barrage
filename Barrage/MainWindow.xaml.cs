@@ -326,7 +326,7 @@ namespace Barrage
             }
             else if (gamestate == GAMESTATE.EDITOR)
             {
-                if (e.Key == Key.Space || e.Key == Key.K || e.Key == Key.Escape || e.Key == Key.P && playing)
+                if (e.Key == Key.Escape || e.Key == Key.Space || e.Key == Key.K || e.Key == Key.P && playing)
                 {
                     ImageEditor_MouseUp(imageEditorPlay, null);
                     ImageEditor_MouseLeave(imageEditorPlay, null);
@@ -346,6 +346,8 @@ namespace Barrage
                     ImageEditor_MouseUp(imageEditorStepBackwards, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right));
                     ImageEditor_MouseLeave(imageEditorStepBackwards, null);
                 }
+                else if (e.Key == Key.S && e.KeyboardDevice.Modifiers == ModifierKeys.Control)
+                    SaveSP();
             }
         }
 
@@ -936,10 +938,7 @@ namespace Barrage
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    StreamWriter sw = new StreamWriter("files/SP.txt");
-                    sw.Write(textEditor.Text);
-                    sw.Close();
-                    sw.Dispose();
+                    SaveSP();
                 }
                 else if (result == MessageBoxResult.Cancel)
                     e.Cancel = true;
@@ -948,6 +947,14 @@ namespace Barrage
         private void Window_Closed(object sender, EventArgs e)
         {
             stopRequested = true;
+        }
+
+        void SaveSP()
+        {
+            StreamWriter sw = new StreamWriter("files/SP.txt");
+            sw.Write(textEditor.Text);
+            sw.Close();
+            sw.Dispose();
         }
 
         private void LabelMenu_MouseEnter(object sender, MouseEventArgs e)
@@ -1035,10 +1042,7 @@ namespace Barrage
 
                     if (result == MessageBoxResult.Yes)
                     {
-                        StreamWriter sw = new StreamWriter("files/SP.txt");
-                        sw.Write(textEditor.Text);
-                        sw.Close();
-                        sw.Dispose();
+                        SaveSP();
                     }
                 }
                 else
