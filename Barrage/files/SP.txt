@@ -1,1 +1,2 @@
-﻿
+﻿proj|tags=laser|startPos=100,100
+proj|tags=laser|startPos=100,100|angle=180

@@ -737,8 +737,8 @@ namespace Barrage
                         projectileImgs[file + laserImgsIndex] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Laser" + file + ".png"));
                     else
                         projectileImgs[file + laserImgsIndex] = new BitmapImage(new Uri("files/Laser.png", UriKind.Relative));
-                    projImage.RenderTransformOrigin = new Point(0.5, 0);
                 }
+                projImage.RenderTransformOrigin = new Point(0.5, 0);
                 projImage.Source = projectileImgs[file + laserImgsIndex];
             }
             if (actDelay > 0 || actDelay == -1)
@@ -1257,7 +1257,7 @@ namespace Barrage
 
         private void AutosaveTimer_Tick(object sender, EventArgs e)
         {
-            if(gamestate == GAMESTATE.EDITOR)
+            if (gamestate == GAMESTATE.EDITOR)
             {
                 StreamWriter sw = new StreamWriter("files/SP(autosave).txt");
                 sw.Write(textEditor.Text);
