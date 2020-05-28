@@ -99,6 +99,7 @@ namespace Barrage
         Point projEndPos;
         int textEditKeyPresses;
         DispatcherTimer autosaveTimer;
+        ImageBrush gridOverlay = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/files/Grid.png")));
 
 #if SONG
         MediaPlayer song = new MediaPlayer();
@@ -127,17 +128,19 @@ namespace Barrage
             if (File.Exists("files/Play.png"))
             {
                 playPauseImgs[0] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Play.png"));
-                ImageEditorPlay.Source = playPauseImgs[0];
+                imageEditorPlay.Source = playPauseImgs[0];
             }
             if (File.Exists("files/Pause.png"))
                 playPauseImgs[1] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Pause.png"));
             if (File.Exists("files/Step.png"))
             {
-                ImageEditorStepForwards.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Step.png"));
-                ImageEditorStepBackwards.Source = ImageEditorStepForwards.Source;
+                imageEditorStepForwards.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Step.png"));
+                imageEditorStepBackwards.Source = imageEditorStepForwards.Source;
             }
             if (File.Exists("files/Arrow.png"))
                 Arrow.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Arrow.png"));
+            if (File.Exists("files/Grid.png"))
+                gridOverlay = new ImageBrush(new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Grid.png")));
 #if SONG
             song.Open(new Uri("files/song.mp3", UriKind.Relative));
 #endif
@@ -325,23 +328,23 @@ namespace Barrage
             {
                 if (e.Key == Key.Space || e.Key == Key.K || e.Key == Key.Escape || e.Key == Key.P && playing)
                 {
-                    ImageEditor_MouseUp(ImageEditorPlay, null);
-                    ImageEditor_MouseLeave(ImageEditorPlay, null);
+                    ImageEditor_MouseUp(imageEditorPlay, null);
+                    ImageEditor_MouseLeave(imageEditorPlay, null);
                 }
                 else if (e.Key == Key.L)
                 {
-                    ImageEditor_MouseUp(ImageEditorStepForwards, null);
-                    ImageEditor_MouseLeave(ImageEditorStepForwards, null);
+                    ImageEditor_MouseUp(imageEditorStepForwards, null);
+                    ImageEditor_MouseLeave(imageEditorStepForwards, null);
                 }
                 else if (e.Key == Key.J)
                 {
-                    ImageEditor_MouseUp(ImageEditorStepBackwards, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
-                    ImageEditor_MouseLeave(ImageEditorStepBackwards, null);
+                    ImageEditor_MouseUp(imageEditorStepBackwards, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
+                    ImageEditor_MouseLeave(imageEditorStepBackwards, null);
                 }
                 else if (e.Key == Key.H)
                 {
-                    ImageEditor_MouseUp(ImageEditorStepBackwards, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right));
-                    ImageEditor_MouseLeave(ImageEditorStepBackwards, null);
+                    ImageEditor_MouseUp(imageEditorStepBackwards, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right));
+                    ImageEditor_MouseLeave(imageEditorStepBackwards, null);
                 }
             }
         }
@@ -715,9 +718,9 @@ namespace Barrage
                         laserImgsIndex++;
                     }
                     if (File.Exists("files/Projectile" + file + ".png"))
-                        projectileImgs[file] = (new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Projectile" + file + ".png")));
+                        projectileImgs[file] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Projectile" + file + ".png"));
                     else
-                        projectileImgs[file] = (new BitmapImage(new Uri("files/Projectile.png", UriKind.Relative)));
+                        projectileImgs[file] = new BitmapImage(new Uri("files/Projectile.png", UriKind.Relative));
                 }
                 projImage.Source = projectileImgs[file];
 
@@ -1001,7 +1004,7 @@ namespace Barrage
                     gridGame.HorizontalAlignment = HorizontalAlignment.Center;
                     gridGameBorder.BorderThickness = new Thickness();
                     labelFps.Margin = new Thickness();
-                    ImageEditorPlay.Source = playPauseImgs[0];
+                    imageEditorPlay.Source = playPauseImgs[0];
                     MinWidth = minSize.Width;
                     MinHeight = minSize.Height;
                     playing = false;
@@ -1057,17 +1060,17 @@ namespace Barrage
         {
             ((Image)sender).Opacity = 0.5;
 
-            if (sender == ImageEditorPlay)
+            if (sender == imageEditorPlay)
             {
                 playing = !playing;
                 if (playing)
-                    ImageEditorPlay.Source = playPauseImgs[1];
+                    imageEditorPlay.Source = playPauseImgs[1];
                 else
-                    ImageEditorPlay.Source = playPauseImgs[0];
+                    imageEditorPlay.Source = playPauseImgs[0];
             }
-            else if (sender == ImageEditorStepForwards)
+            else if (sender == imageEditorStepForwards)
                 stepForwards = true;
-            else if (sender == ImageEditorStepBackwards)
+            else if (sender == imageEditorStepBackwards)
             {
                 if (e.ChangedButton == MouseButton.Left)
                     histIndex--;
@@ -1134,6 +1137,12 @@ namespace Barrage
             if (gamestate == GAMESTATE.EDITOR)
             {
                 projStartPos = e.GetPosition((Grid)sender);
+                if ((bool)checkUseGrid.IsChecked)
+                {
+                    projStartPos.X = Math.Round(projStartPos.X / 10) * 10;
+                    projStartPos.Y = Math.Round(projStartPos.Y / 10) * 10;
+                }
+
                 Arrow.RenderTransform = new TransformGroup()
                 {
                     Children = new TransformCollection() {
@@ -1149,6 +1158,11 @@ namespace Barrage
             if (gamestate == GAMESTATE.EDITOR && Arrow.Visibility == Visibility.Visible)
             {
                 projEndPos = e.GetPosition((Grid)sender);
+                if ((bool)checkUseGrid.IsChecked)
+                {
+                    projEndPos.X = Math.Round(projEndPos.X / 10) * 10;
+                    projEndPos.Y = Math.Round(projEndPos.Y / 10) * 10;
+                }
 
                 List<string> lines = new List<string>(textEditor.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
                 string[] statement;
@@ -1264,6 +1278,14 @@ namespace Barrage
                 sw.Close();
                 sw.Dispose();
             }
+        }
+
+        private void CheckUseGrid_CheckedChanged(object sender, RoutedEventArgs e)
+        {
+            if ((bool)checkUseGrid.IsChecked)
+                gridField.Background = gridOverlay;
+            else
+                gridField.Background = Brushes.Transparent;
         }
     }
     public static class ExtensionMethods

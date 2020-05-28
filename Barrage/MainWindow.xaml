@@ -8,7 +8,7 @@
     <Grid x:Name="gridSize">
         <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridMain" Width="400" Height="400" Background="White">
             <Grid x:Name="gridGame" Visibility="Hidden" Width="400" Height="400">
-                <Grid x:Name="gridField" Background="Transparent" MouseDown="GridField_MouseDown" MouseUp="GridField_MouseUp" MouseMove="GridField_MouseMove">
+                <Grid x:Name="gridField" MouseDown="GridField_MouseDown" MouseUp="GridField_MouseUp" MouseMove="GridField_MouseMove" Background="Transparent">
                     <Image x:Name="Player" HorizontalAlignment="Center" Height="25" Margin="0" VerticalAlignment="Center" Width="25" Source="/files/Player.png" RenderTransformOrigin="0.5,0.5">
                         <Image.RenderTransform>
                             <TransformGroup>
@@ -32,7 +32,7 @@
                     <Image x:Name="Arrow" Source="files/Arrow.png" Height="50" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-25,0,0" Visibility="Hidden" Stretch="Fill" RenderTransformOrigin="0,0.5" Width="1"/>
                 </Grid>
                 <Label x:Name="labelVisual" Content="V i s u a l" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" FontSize="10" Visibility="Hidden"/>
-                <CheckBox x:Name="checkMouse" Content="useMouse" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent" FontSize="10" Opacity="0.5" Panel.ZIndex="100"/>
+                <CheckBox x:Name="checkMouse" Content="use mouse" HorizontalAlignment="Left" Margin="0" VerticalAlignment="Top" Background="{x:Null}" FontSize="10" Opacity="0.5" Panel.ZIndex="100"/>
                 <Label x:Name="projCount" Content="projectiles" Margin="0,10,0,0"  VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" Opacity="0.5" Panel.ZIndex="100" FontSize="10"/>
                 <Grid x:Name="gridPause" Visibility="Hidden">
                     <Label x:Name="labelPause" Margin="0,0,0,70" Content="Paused" VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="100" FontSize="36"/>
@@ -46,9 +46,9 @@
                 <Label x:Name="labelEditorHitIndicator" Background="Red" Height="20" Width="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,380,0,0" OpacityMask="#00000000"/>
                 <Label x:Name="labelEditorBack" Margin="10,0,0,5" Content="Back" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="100" FontSize="24" MouseEnter="LabelBack_MouseEnter" MouseLeave="LabelBack_MouseLeave" MouseUp="LabelBack_MouseUp"/>
                 <TextBox x:Name="textEditor" HorizontalAlignment="Right" VerticalAlignment="Top" Width="400" Height="400" FontFamily="Consolas" TextWrapping="Wrap" AcceptsReturn="True" KeyDown="TextEditor_KeyDown" IsTabStop="False" TextChanged="TextEditor_TextChanged" VerticalScrollBarVisibility="Visible" FontSize="10"/>
-                <Image x:Name="ImageEditorPlay" Source="/files/Play.png" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-200,0,200,0" Opacity="0.8" MouseEnter="ImageEditor_MouseEnter" MouseLeave="ImageEditor_MouseLeave" MouseDown="ImageEditor_MouseDown" MouseUp="ImageEditor_MouseUp"/>
-                <Image x:Name="ImageEditorStepForwards" Source="/files/Step.png" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-150,0,150,0" Opacity="0.8" MouseEnter="ImageEditor_MouseEnter" MouseLeave="ImageEditor_MouseLeave" MouseDown="ImageEditor_MouseDown" MouseUp="ImageEditor_MouseUp"/>
-                <Image x:Name="ImageEditorStepBackwards" Source="/files/Step.png" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-250,0,250,0" RenderTransformOrigin="0.5,0.5" Opacity="0.8" MouseEnter="ImageEditor_MouseEnter" MouseLeave="ImageEditor_MouseLeave" MouseDown="ImageEditor_MouseDown" MouseUp="ImageEditor_MouseUp">
+                <Image x:Name="imageEditorPlay" Source="/files/Play.png" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-200,0,200,0" Opacity="0.8" MouseEnter="ImageEditor_MouseEnter" MouseLeave="ImageEditor_MouseLeave" MouseDown="ImageEditor_MouseDown" MouseUp="ImageEditor_MouseUp"/>
+                <Image x:Name="imageEditorStepForwards" Source="/files/Step.png" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-150,0,150,0" Opacity="0.8" MouseEnter="ImageEditor_MouseEnter" MouseLeave="ImageEditor_MouseLeave" MouseDown="ImageEditor_MouseDown" MouseUp="ImageEditor_MouseUp"/>
+                <Image x:Name="imageEditorStepBackwards" Source="/files/Step.png" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-250,0,250,0" RenderTransformOrigin="0.5,0.5" Opacity="0.8" MouseEnter="ImageEditor_MouseEnter" MouseLeave="ImageEditor_MouseLeave" MouseDown="ImageEditor_MouseDown" MouseUp="ImageEditor_MouseUp">
                     <Image.RenderTransform>
                         <TransformGroup>
                             <ScaleTransform ScaleY="1" ScaleX="-1"/>
@@ -58,6 +58,7 @@
                         </TransformGroup>
                     </Image.RenderTransform>
                 </Image>
+                <CheckBox x:Name="checkUseGrid" Checked="CheckUseGrid_CheckedChanged" Content="use grid" Opacity="0.5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-30,0,30,17" Background="{x:Null}" Height="16" Unchecked="CheckUseGrid_CheckedChanged"/>
             </Grid>
             <Grid x:Name="gridMenu">
                 <Label x:Name="labelMenuPlay" Content="Play" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-70,0,0" Width="200" Height="60" FontSize="25" Background="#FFC8C8C8" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseDown="LabelMenu_MouseDown" MouseUp="LabelMenu_MouseUp"/>
