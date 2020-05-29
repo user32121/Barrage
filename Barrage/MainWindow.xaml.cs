@@ -985,6 +985,7 @@ namespace Barrage
                 gamestate = GAMESTATE.PLAY;
                 gridMenu.Visibility = Visibility.Hidden;
                 gridGame.Visibility = Visibility.Visible;
+                gridField.Background = Brushes.Transparent;
             }
             else if (sender == labelMenuEditor)
             {
@@ -1008,6 +1009,10 @@ namespace Barrage
                 gridMenu.Visibility = Visibility.Hidden;
                 gridEditor.Visibility = Visibility.Visible;
                 gridGame.Visibility = Visibility.Visible;
+                if ((bool)checkUseGrid.IsChecked)
+                    gridField.Background = gridOverlay;
+                else
+                    gridField.Background = Brushes.Transparent;
             }
 
             ((Label)sender).Background = new SolidColorBrush(Color.FromRgb(230, 230, 230));
