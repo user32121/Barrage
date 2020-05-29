@@ -295,7 +295,7 @@ namespace Barrage
             }
             else if (gamestate == GAMESTATE.PLAY)
             {
-                if (e.Key == Key.Escape && !gameOver)
+                if ((e.Key == Key.Escape || e.Key == Key.P && !paused) && !gameOver)
                 {
                     if (!paused)
                     {
@@ -517,6 +517,9 @@ namespace Barrage
         {
             while (wait <= 0 && readIndex < spawnPattern.Count && !stopRequested)
             {
+                if (Keyboard.IsKeyDown(Key.P))
+                    return;
+
                 ReadString.n = spwnInd;
                 ReadString.numVals = spwnVals;
                 ReadString.t = time;
@@ -1239,7 +1242,7 @@ namespace Barrage
 
                 //insert statements
                 //check if at end
-                if (readIndex == lines.Count - 1 && wait < 0)
+                if (readIndex == spawnPattern.Count && wait < 0)
                 {
                     lines.Insert(readIndex, "wait|" + (int)-wait);
                     readIndex++;
