@@ -75,6 +75,7 @@ namespace Barrage
             MENU,
             PLAY,
             EDITOR,
+            OPTIONS,
         }
         static GAMESTATE gamestate = GAMESTATE.MENU;
 
@@ -372,6 +373,22 @@ namespace Barrage
                     else
                         TASIndex += 1;
 #endif
+                if ((Keyboard.IsKeyDown(Key.LeftShift)
+#if TAS
+                    || TASInputs[TASIndex, 2] == 1
+#endif
+                    ) && plyrSpeed == plyrFast)
+                {
+                    plyrSpeed = plyrSlow;
+                }
+                if (Keyboard.IsKeyUp(Key.LeftShift)
+#if TAS
+                    && TASInputs[TASIndex, 2] != 1
+#endif
+                     && plyrSpeed == plyrSlow)
+                {
+                    plyrSpeed = plyrFast;
+                }
                 if (Keyboard.IsKeyDown(Key.Left)
 #if TAS
                     || TASInputs[TASIndex, 0] == -1
@@ -407,22 +424,6 @@ namespace Barrage
                 {
                     plyrPos.Y += plyrSpeed;
                     moved = true;
-                }
-                if ((Keyboard.IsKeyDown(Key.LeftShift)
-#if TAS
-                    || TASInputs[TASIndex, 2] == 1
-#endif
-                    ) && plyrSpeed == plyrFast)
-                {
-                    plyrSpeed = plyrSlow;
-                }
-                if (Keyboard.IsKeyUp(Key.LeftShift)
-#if TAS
-                    && TASInputs[TASIndex, 2] != 1
-#endif
-                     && plyrSpeed == plyrSlow)
-                {
-                    plyrSpeed = plyrFast;
                 }
             }
 
@@ -1014,6 +1015,16 @@ namespace Barrage
                 else
                     gridField.Background = Brushes.Transparent;
             }
+            else if (sender == labelMenuOptions)
+            {
+                gamestate = GAMESTATE.OPTIONS;
+                gridMenu.Visibility = Visibility.Hidden;
+                gridOptions.Visibility = Visibility.Visible;
+            }
+            else if (sender == labelMenuQuit)
+            {
+                Application.Current.Shutdown();
+            }
 
             ((Label)sender).Background = new SolidColorBrush(Color.FromRgb(230, 230, 230));
         }
@@ -1067,6 +1078,7 @@ namespace Barrage
                 gridMenu.Visibility = Visibility.Visible;
                 gridGame.Visibility = Visibility.Hidden;
                 gridEditor.Visibility = Visibility.Hidden;
+                gridOptions.Visibility = Visibility.Hidden;
 
                 MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.R));
             }
