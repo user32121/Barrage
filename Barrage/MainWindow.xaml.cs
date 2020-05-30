@@ -1175,8 +1175,8 @@ namespace Barrage
                 projStartPos = e.GetPosition((Grid)sender);
                 if ((bool)checkUseGrid.IsChecked)
                 {
-                    projStartPos.X = Math.Round(projStartPos.X / 10) * 10;
-                    projStartPos.Y = Math.Round(projStartPos.Y / 10) * 10;
+                    projStartPos.X = Math.Round(projStartPos.X / 20) * 20;
+                    projStartPos.Y = Math.Round(projStartPos.Y / 20) * 20;
                 }
 
                 Arrow.RenderTransform = new TransformGroup()
@@ -1196,8 +1196,8 @@ namespace Barrage
                 projEndPos = e.GetPosition((Grid)sender);
                 if ((bool)checkUseGrid.IsChecked)
                 {
-                    projEndPos.X = Math.Round(projEndPos.X / 10) * 10;
-                    projEndPos.Y = Math.Round(projEndPos.Y / 10) * 10;
+                    projEndPos.X = Math.Round(projEndPos.X / 20) * 20;
+                    projEndPos.Y = Math.Round(projEndPos.Y / 20) * 20;
                 }
 
                 List<string> lines = new List<string>(textEditor.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
