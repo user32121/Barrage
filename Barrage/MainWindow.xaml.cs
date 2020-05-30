@@ -469,7 +469,7 @@ namespace Barrage
                 else if (item.Tags.Contains("laser"))
                 {
                     //dist to line is less than radius, also checks if plyr is behind laser
-                    ReadString.t = item.Age; ReadString.lastVals = item.lastVals;
+                    ReadString.t = item.Age; ReadString.projVals = item.projVals;
                     double ang = (double)ReadString.Interpret(item.Angle, typeof(double)),
                         radians = ang * Math.PI / 180,
                         m1 = Math.Sin(radians) / Math.Cos(radians), m2 = -1 / m1;
@@ -524,7 +524,7 @@ namespace Barrage
                 ReadString.n = spwnInd;
                 ReadString.numVals = spwnVals;
                 ReadString.t = time;
-                ReadString.lastVals = null;
+                ReadString.projVals = null;
                 ReadString.line = readIndex;
 
                 //keeps reading lines untill text says to wait
@@ -542,7 +542,7 @@ namespace Barrage
                     string xyPos = "";
                     string xyVel = "";
                     string startPos = "0,-100";
-                    int duration = -1;
+                    string duration = "-1";
                     int tagCount = -1;
                     int actDelay = 1;
                     int file = 0;
@@ -592,7 +592,7 @@ namespace Barrage
                                 tags[t] = tags[t].Trim();
                         }
                         else if (line[i].Contains("duration"))
-                            duration = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
+                            duration = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
                         else if (line[i].Contains("tagCount"))
                             tagCount = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
                         else if (line[i].Contains("actDelay"))
@@ -705,10 +705,10 @@ namespace Barrage
         }
 
         public void CreateProj(string size, string startPos, string speed, string angle, string xyPos,
-            string xyVel, List<string> tags, int duration, int tagCount, int actDelay, int file)
+            string xyVel, List<string> tags, string duration, int tagCount, int actDelay, int file)
         {
             ReadString.t = 0;
-            ReadString.lastVals = null;
+            ReadString.projVals = null;
 
             //displays projectile
             int r = Math.Abs((int)ReadString.Interpret(size, typeof(int)));
@@ -814,20 +814,15 @@ namespace Barrage
         void MoveProjectiles()
         {
             //move projectiles
-            List<Projectile> toRemove = new List<Projectile>();
-            foreach (Projectile P in projectiles)
+            for (int i = 0; i < projectiles.Count; i++)
             {
-                P.Move();
-                if (!P.IsAlive)
+                projectiles[i].Move();
+                if (i < projectiles.Count && !projectiles[i].IsAlive)
                 {
-                    toRemove.Add(P);
+                    gridField.Children.Remove(projectiles[i].Sprite);
+                    projectiles.RemoveAt(i);
+                    i--;
                 }
-            }
-            //remove projectiles
-            foreach (Projectile P in toRemove)
-            {
-                projectiles.Remove(P);
-                gridField.Children.Remove(P.Sprite);
             }
 
             //counts projectiles for monitoring lag
@@ -835,7 +830,7 @@ namespace Barrage
 
             //move the boss
             ReadString.t = time;
-            ReadString.lastVals = null;
+            ReadString.projVals = null;
             Vector target = (Vector)ReadString.Interpret(bossTarget, typeof(Vector));
             Vector offset = target - bossPos;
             double mvSpd = (double)ReadString.Interpret(bossMvSpd, typeof(double));

@@ -28,7 +28,7 @@ namespace Barrage
         public static List<double> numVals;
 
         public static int t;
-        public static double[] lastVals;
+        public static double[] projVals;
 
         public static int line;
 
@@ -116,8 +116,10 @@ namespace Barrage
                 Replace("PLYRY", MainWindow.plyrPos.Y.ToString()).
                 Replace("BOSSX", MainWindow.bossPos.X.ToString()).
                 Replace("BOSSY", MainWindow.bossPos.Y.ToString());
-            if (lastVals == null)
+            if (projVals == null)
                 input = input.
+                    Replace("XPOS", "0").
+                    Replace("YPOS", "0").
                     Replace("LXPOS", "0").
                     Replace("LYPOS", "0").
                     Replace("LXVEL", "0").
@@ -126,12 +128,14 @@ namespace Barrage
                     Replace("LANG", "0");
             else
                 input = input.
-                    Replace("LXPOS", lastVals[(int)Projectile.LVI.x].ToString()).
-                    Replace("LYPOS", lastVals[(int)Projectile.LVI.y].ToString()).
-                    Replace("LXVEL", lastVals[(int)Projectile.LVI.xVel].ToString()).
-                    Replace("LYVEL", lastVals[(int)Projectile.LVI.yVel].ToString()).
-                    Replace("LSPD", lastVals[(int)Projectile.LVI.spd].ToString()).
-                    Replace("LANG", lastVals[(int)Projectile.LVI.ang].ToString());
+                    Replace("XPOS", projVals[(int)Projectile.VI.XPOS].ToString()).
+                    Replace("YPOS", projVals[(int)Projectile.VI.YPOS].ToString()).
+                    Replace("LXPOS", projVals[(int)Projectile.VI.LXPOS].ToString()).
+                    Replace("LYPOS", projVals[(int)Projectile.VI.LYPOS].ToString()).
+                    Replace("LXVEL", projVals[(int)Projectile.VI.LXVEL].ToString()).
+                    Replace("LYVEL", projVals[(int)Projectile.VI.LYVEL].ToString()).
+                    Replace("LSPD", projVals[(int)Projectile.VI.LSPD].ToString()).
+                    Replace("LANG", projVals[(int)Projectile.VI.LANG].ToString());
 
             if (Treturn == typeof(int))
             {

@@ -12,7 +12,7 @@ namespace Barrage
         public Image Sprite;
         public Vector Position;
         public Vector Velocity;
-        public Vector velDir = new Vector(1, 1);
+        public Vector VelDir = new Vector(1, 1);
         public List<string> Tags;
         public string Speed;
         public string Angle;
@@ -20,15 +20,14 @@ namespace Barrage
         public string XyVel;
         public string Radius;
         public int RadiusSqr;
-        public int Duration;
+        public string Duration;
         public int TagCount;
         public int ActDelay;
         public bool IsAlive;
         public int Age;
 
-        public readonly double[] lastVals = new double[6];
-        public enum LVI /*Last Value Index*/ { x, y, xVel, yVel, spd, ang }
-        public static int LVIL = 6; //Last Value Index Length
+        public readonly double[] projVals = new double[8];
+        public enum VI /*Value Index*/ { XPOS, YPOS, LXPOS, LYPOS, LXVEL, LYVEL, LSPD, LANG }
 
         public Projectile() { }
 
@@ -36,7 +35,9 @@ namespace Barrage
         {
             Radius = radius;
             ReadString.t = 0;
-            ReadString.lastVals = lastVals;
+            projVals[(int)VI.XPOS] = Position.X;
+            projVals[(int)VI.YPOS] = Position.Y;
+            ReadString.projVals = projVals;
             int r = (int)ReadString.Interpret(radius, typeof(int));
             RadiusSqr = r * r;
             IsAlive = true;
@@ -58,13 +59,13 @@ namespace Barrage
                 Speed = Speed,
                 TagCount = TagCount,
                 Tags = Tags,
-                velDir = velDir,
+                VelDir = VelDir,
                 Velocity = Velocity,
                 XyPos = XyPos,
                 XyVel = XyVel,
             };
-            for (int i = 0; i < lastVals.Length; i++)
-                p.lastVals[i] = lastVals[i];
+            for (int i = 0; i < projVals.Length; i++)
+                p.projVals[i] = projVals[i];
 
             return p;
         }
@@ -72,25 +73,31 @@ namespace Barrage
         public void Render()
         {
             int y1 = 0;
+            ReadString.t = Age;
+            projVals[(int)VI.XPOS] = Position.X;
+            projVals[(int)VI.YPOS] = Position.Y;
+            ReadString.projVals = projVals;
             TransformGroup TG = new TransformGroup();
             if (Tags.Contains("laser"))
             {
                 y1 = 50;    //add 50 to y because ...
                 TG.Children.Add(new ScaleTransform(1, 6));
-                //rotate laser
-                ReadString.t = Age;
-                ReadString.lastVals = lastVals;
             }
 
             TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle, typeof(double)) - 90));
             if (Tags.Contains("circle"))
-                TG.Children.Add(new ScaleTransform(velDir.X, velDir.Y));
+                TG.Children.Add(new ScaleTransform(VelDir.X, VelDir.Y));
             TG.Children.Add(new TranslateTransform(Position.X, Position.Y + y1));
             Sprite.RenderTransform = TG;
         }
 
         public void Move()
         {
+            ReadString.t = Age;
+            projVals[(int)VI.XPOS] = Position.X;
+            projVals[(int)VI.YPOS] = Position.Y;
+            ReadString.projVals = projVals;
+
             //ActDelay
             if (ActDelay > 0)
             {
@@ -103,16 +110,12 @@ namespace Barrage
             Age++;
 
             //projectiles that have duration have a limited lifespan
-            if (Duration != -1)
-            {
-                Duration--;
-                if (Duration <= 0)
+            int d = (int)ReadString.Interpret(Duration, typeof(int));
+            if (d != -1)
+                if (d < Age)
                     IsAlive = false;
-            }
 
             //radius
-            ReadString.t = Age;
-            ReadString.lastVals = lastVals;
             int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int)));
 
             //checks if offscreen (x)
@@ -121,7 +124,7 @@ namespace Barrage
                 if (Tags.Contains("wallBounce") && TagCount != 0)
                 {
                     Position.X = 400 * Math.Sign(Position.X) - Position.X;
-                    velDir.X *= -1;
+                    VelDir.X *= -1;
                     TagCount--;
                 }
                 else if (Tags.Contains("screenWrap") && TagCount != 0)
@@ -138,7 +141,7 @@ namespace Barrage
                 if (Tags.Contains("wallBounce") && TagCount != 0)
                 {
                     Position.Y = 400 * Math.Sign(Position.Y) - Position.Y;
-                    velDir.Y *= -1;
+                    VelDir.Y *= -1;
                     TagCount--;
                 }
                 else if (Tags.Contains("screenWrap") && TagCount != 0)
@@ -190,17 +193,17 @@ namespace Barrage
             }
 
             //moves projectile by velocity
-            Position += Velocity.Scale(velDir);
+            Position += Velocity.Scale(VelDir);
 
             Render();
 
-            //sets lastVals
-            lastVals[(int)LVI.x] = Position.X;
-            lastVals[(int)LVI.y] = Position.Y;
-            lastVals[(int)LVI.xVel] = Velocity.X;
-            lastVals[(int)LVI.yVel] = Velocity.Y;
-            lastVals[(int)LVI.spd] = spd;
-            lastVals[(int)LVI.ang] = ang;
+            //sets last projVals
+            projVals[(int)VI.LXPOS] = Position.X;
+            projVals[(int)VI.LYPOS] = Position.Y;
+            projVals[(int)VI.LXVEL] = Velocity.X;
+            projVals[(int)VI.LYVEL] = Velocity.Y;
+            projVals[(int)VI.LSPD] = spd;
+            projVals[(int)VI.LANG] = ang;
         }
     }
 }
