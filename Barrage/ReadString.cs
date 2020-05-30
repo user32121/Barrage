@@ -10,7 +10,7 @@ namespace Barrage
     class ReadString
     {
         public static Random rng = new Random();
-        static Dictionary<string, double> opPrecedence = new Dictionary<string, double>() {
+        static readonly Dictionary<string, double> opPrecedence = new Dictionary<string, double>() {
             //lower number means lower precedence
             //.1 means it is left assosciative (calculation is read left to right)
             { "==", 0.1 }, { "!=", 0.1 }, { ">", 0.1 }, { ">=", 0.1 }, { "<", 0.1 }, { "<=", 0.1 },

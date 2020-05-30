@@ -56,7 +56,7 @@ namespace Barrage
         Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
         int spwnInd;
         List<double> spwnVals = new List<double>();
-        Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
+        readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
 
         //frame moderation
         DispatcherTimer kickStart;
@@ -80,31 +80,31 @@ namespace Barrage
         static GAMESTATE gamestate = GAMESTATE.MENU;
 
         //image storage
-        BitmapImage[] playPauseImgs = new BitmapImage[]
+        readonly BitmapImage[] playPauseImgs = new BitmapImage[]
         {
             new BitmapImage(new Uri("files/Play.png", UriKind.Relative)),
             new BitmapImage(new Uri("files/Pause.png", UriKind.Relative)),
         };
-        List<BitmapImage> projectileImgs = new List<BitmapImage>();
+        readonly List<BitmapImage> projectileImgs = new List<BitmapImage>();
         int laserImgsIndex;
 
         //editor
         bool playing;
         bool stepForwards;
         Size minSize;
-        LinearGradientBrush hitIndicatorBrush = new LinearGradientBrush(Colors.Transparent, Colors.Transparent, new Point(0, 0.5), new Point(1, 0.5));
-        GameFrame[] hist = new GameFrame[1000];
+        readonly LinearGradientBrush hitIndicatorBrush = new LinearGradientBrush(Colors.Transparent, Colors.Transparent, new Point(0, 0.5), new Point(1, 0.5));
+        readonly GameFrame[] hist = new GameFrame[1000];
         int histIndex = 0;
         int histIndexMin = 0;
         Point projStartPos;
         Point projEndPos;
         int textEditKeyPresses;
         DispatcherTimer autosaveTimer;
-        ImageBrush gridOverlay = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/files/Grid.png")));
+        readonly ImageBrush gridOverlay = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/files/Grid.png")));
         bool isSPSaved;
 
 #if SONG
-        MediaPlayer song = new MediaPlayer();
+        readonly MediaPlayer song = new MediaPlayer();
         bool songPlaying;
 #endif
 #if TAS
@@ -180,8 +180,10 @@ namespace Barrage
             kickStart = new DispatcherTimer();
             kickStart.Tick += KickStart_Tick;
             kickStart.Start();
-            autosaveTimer = new DispatcherTimer();
-            autosaveTimer.Interval = TimeSpan.FromSeconds(60);
+            autosaveTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(60)
+            };
             autosaveTimer.Tick += AutosaveTimer_Tick;
             autosaveTimer.Start();
         }
@@ -1333,7 +1335,7 @@ namespace Barrage
     }
     public static class ExtensionMethods
     {
-        private static Action EmptyDelegate = delegate () { };
+        private static readonly Action EmptyDelegate = delegate () { };
 
         public static void Refresh(this UIElement uiElement, DispatcherPriority priority)
         {
