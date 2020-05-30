@@ -3,7 +3,7 @@
 3. To change the patterns, go to "spawnPatterns.txt"
 	-refer to spawnInfo.txt for help
 	-there is also a "presets.txt" for samples
-4. There is an in-game editor. Currently there are many issues with it.
+4. There is an in-game editor. It is a work in progress.
 
 Controls are:
 arrow keys	movement
