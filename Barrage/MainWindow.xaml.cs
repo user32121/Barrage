@@ -222,30 +222,7 @@ namespace Barrage
                         RenderPlayerAndBoss();
 
                         if (gamestate == GAMESTATE.EDITOR)
-                        {
-                            if (++histIndex >= hist.Length)
-                                histIndex = 0;
-                            hist[histIndex] = new GameFrame()
-                            {
-                                bossAngle = bossAngle,
-                                bossAngSpd = bossAngSpd,
-                                bossMvSpd = bossMvSpd,
-                                bossPos = bossPos,
-                                bossTarget = bossTarget,
-                                plyrPos = plyrPos,
-                                projectiles = new Projectile[projectiles.Count],
-                                readIndex = readIndex,
-                                repeatVals = new Dictionary<int, int>(repeatVals),
-                                spwnInd = spwnInd,
-                                spwnVals = spwnVals.ToArray(),
-                                time = time,
-                                wait = wait,
-                            };
-                            for (int i = 0; i < projectiles.Count; i++)
-                                hist[histIndex].projectiles[i] = projectiles[i].Clone();
-                            if (histIndex == histIndexMin)
-                                histIndexMin++;
-                        }
+                            SaveFrame();
                         stepForwards = false;
                     }
                 }
@@ -466,7 +443,7 @@ namespace Barrage
 
             foreach (Projectile item in projectiles)
             {
-                if (item.ActDelay > 0 || item.ActDelay == -1)
+                if (!item.enabled)
                     continue;
 
                 //collision detection
@@ -554,7 +531,7 @@ namespace Barrage
                     string startPos = "0,-100";
                     string duration = "-1";
                     int tagCount = -1;
-                    int actDelay = 1;
+                    string actDelay = "0";
                     int file = 0;
 
                     for (int i = 1; i < line.Length; i++)
@@ -606,7 +583,7 @@ namespace Barrage
                         else if (line[i].Contains("tagCount"))
                             tagCount = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
                         else if (line[i].Contains("actDelay"))
-                            actDelay = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
+                            actDelay = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
                         else if (line[i].Contains("file"))
                             file = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
                     }
@@ -715,7 +692,7 @@ namespace Barrage
         }
 
         public void CreateProj(string size, string startPos, string speed, string angle, string xyPos,
-            string xyVel, List<string> tags, string duration, int tagCount, int actDelay, int file)
+            string xyVel, List<string> tags, string duration, int tagCount, string actDelay, int file)
         {
             ReadString.t = 0;
             ReadString.projVals = null;
@@ -761,7 +738,8 @@ namespace Barrage
                 projImage.RenderTransformOrigin = new Point(0.5, 0);
                 projImage.Source = projectileImgs[file + laserImgsIndex];
             }
-            if (actDelay > 0 || actDelay == -1)
+            int temp = (int)ReadString.Interpret(actDelay, typeof(int));
+            if (temp >= 0 || temp == -1)
                 projImage.Opacity = 0.3;
             Grid.SetColumn(projImage, 0);
             Grid.SetRow(projImage, 0);
@@ -781,7 +759,7 @@ namespace Barrage
                 Tags = tags,
                 TagCount = tagCount,
                 Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * (double)ReadString.Interpret(speed, typeof(double)),
-                ActDelay = actDelay
+                ActDelay = actDelay,
             };
 
             projectiles.Add(tempProjectile);
@@ -940,6 +918,32 @@ namespace Barrage
             avg *= fpsMeasureRate;
             avg = Math.Round(avg, 1);
             labelFps.Content = (int)avg == avg ? avg + ".0" : avg.ToString();
+        }
+
+        void SaveFrame()
+        {
+            if (++histIndex >= hist.Length)
+                histIndex = 0;
+            hist[histIndex] = new GameFrame()
+            {
+                bossAngle = bossAngle,
+                bossAngSpd = bossAngSpd,
+                bossMvSpd = bossMvSpd,
+                bossPos = bossPos,
+                bossTarget = bossTarget,
+                plyrPos = plyrPos,
+                projectiles = new Projectile[projectiles.Count],
+                readIndex = readIndex,
+                repeatVals = new Dictionary<int, int>(repeatVals),
+                spwnInd = spwnInd,
+                spwnVals = spwnVals.ToArray(),
+                time = time,
+                wait = wait,
+            };
+            for (int i = 0; i < projectiles.Count; i++)
+                hist[histIndex].projectiles[i] = projectiles[i].Clone();
+            if (histIndex == histIndexMin)
+                histIndexMin++;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

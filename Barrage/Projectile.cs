@@ -22,8 +22,9 @@ namespace Barrage
         public int RadiusSqr;
         public string Duration;
         public int TagCount;
-        public int ActDelay;
+        public string ActDelay;
         public bool IsAlive;
+        public bool enabled;
         public int Age;
 
         public readonly double[] projVals = new double[8];
@@ -99,20 +100,25 @@ namespace Barrage
             ReadString.projVals = projVals;
 
             //ActDelay
-            if (ActDelay > 0)
+            int temp = (int)ReadString.Interpret(ActDelay, typeof(int));
+            if (temp < Age && temp != -1)
             {
-                ActDelay--;
-                if (ActDelay == 0)
-                    Sprite.Opacity = 1;
+                enabled = false;
+                Sprite.Opacity = 0.3;
+            }
+            else
+            {
+                enabled = true;
+                Sprite.Opacity = 1;
             }
 
             //increase age (for parameters with t)
             Age++;
 
             //projectiles that have duration have a limited lifespan
-            int d = (int)ReadString.Interpret(Duration, typeof(int));
-            if (d != -1)
-                if (d < Age)
+            temp = (int)ReadString.Interpret(Duration, typeof(int));
+            if (temp != -1)
+                if (temp < Age)
                     IsAlive = false;
 
             //radius

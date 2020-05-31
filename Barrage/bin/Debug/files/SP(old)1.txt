@@ -1,2 +1,0 @@
-proj|tags=circle|speed=4|angle=n
-ifGoto|1|0
