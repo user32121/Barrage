@@ -147,6 +147,13 @@ namespace Barrage
             song.Open(new Uri("files/song.mp3", UriKind.Relative));
 #endif
 
+            //load settings
+            if (GameSettings.TryLoad())
+            {
+                checkMouse.IsChecked = GameSettings.useMouse;
+                checkUseGrid.IsChecked = GameSettings.useGrid;
+            }
+
             hist[0] = new GameFrame()
             {
                 bossAngle = bossAngle,
@@ -180,10 +187,7 @@ namespace Barrage
             kickStart = new DispatcherTimer();
             kickStart.Tick += KickStart_Tick;
             kickStart.Start();
-            autosaveTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(60)
-            };
+            autosaveTimer = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(60) };
             autosaveTimer.Tick += AutosaveTimer_Tick;
             autosaveTimer.Start();
         }
@@ -248,6 +252,10 @@ namespace Barrage
                 this.Refresh(DispatcherPriority.Input);
                 ModerateFrames();
             }
+
+            GameSettings.useMouse = (bool)checkMouse.IsChecked;
+            GameSettings.useGrid = (bool)checkUseGrid.IsChecked;
+            GameSettings.Save();
         }
 
         void MainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -1325,12 +1333,13 @@ namespace Barrage
             }
         }
 
-        private void CheckUseGrid_CheckedChanged(object sender, RoutedEventArgs e)
+        private void CheckOptions_CheckedChanged(object sender, RoutedEventArgs e)
         {
-            if ((bool)checkUseGrid.IsChecked)
-                gridField.Background = gridOverlay;
-            else
-                gridField.Background = Brushes.Transparent;
+            if (sender == checkUseGrid)
+                if ((bool)checkUseGrid.IsChecked)
+                    gridField.Background = gridOverlay;
+                else
+                    gridField.Background = Brushes.Transparent;
         }
     }
     public static class ExtensionMethods

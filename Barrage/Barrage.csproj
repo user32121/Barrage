@@ -98,6 +98,7 @@
     <Compile Include="MainWindow.cs" />
     <Compile Include="Projectile.cs" />
     <Compile Include="ReadString.cs" />
+    <Compile Include="GameSettings.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

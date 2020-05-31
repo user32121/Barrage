@@ -61,7 +61,7 @@
             <Grid x:Name="gridOptions" Visibility="Hidden">
                 <Label Background="{x:Null}" Content="Game&#x0a;&#x0a;Editor" FontSize="20" FontWeight="Bold"/>
                 <CheckBox x:Name="checkMouse" Content="Use mouse" HorizontalAlignment="Left" Margin="5,30,0,0" VerticalAlignment="Top" Background="{x:Null}" Panel.ZIndex="100" FontSize="20" VerticalContentAlignment="Center"/>
-                <CheckBox x:Name="checkUseGrid" Checked="CheckUseGrid_CheckedChanged" Content="Use grid" Margin="5,90,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Background="{x:Null}" Unchecked="CheckUseGrid_CheckedChanged" FontSize="20" VerticalContentAlignment="Center"/>
+                <CheckBox x:Name="checkUseGrid" Checked="CheckOptions_CheckedChanged" Content="Use grid" Margin="5,90,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Background="{x:Null}" Unchecked="CheckOptions_CheckedChanged" FontSize="20" VerticalContentAlignment="Center"/>
                 <Label x:Name="labelOptionsBack" Margin="10,0,0,5" Content="Back" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="100" FontSize="24" MouseEnter="LabelBack_MouseEnter" MouseLeave="LabelBack_MouseLeave" MouseUp="LabelBack_MouseUp"/>
             </Grid>
             <Grid x:Name="gridMenu">
