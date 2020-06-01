@@ -13,6 +13,8 @@ namespace Barrage
     {
         //game
         public static bool useMouse;
+        public static bool checkForInfiniteLoop;
+
         //editor
         public static bool useGrid;
         public static int maxHistFrames = 1000;
@@ -21,6 +23,7 @@ namespace Barrage
         {
             BinaryWriter bw = new BinaryWriter(new FileStream("files/settings.dat", FileMode.Create));
             bw.Write(useMouse);
+            bw.Write(checkForInfiniteLoop);
             bw.Write(useGrid);
             bw.Write(maxHistFrames);
         }
@@ -31,6 +34,7 @@ namespace Barrage
             {
                 BinaryReader br = new BinaryReader(new FileStream("files/settings.dat", FileMode.Open));
                 useMouse = br.ReadBoolean();
+                checkForInfiniteLoop = br.ReadBoolean();
                 useGrid = br.ReadBoolean();
                 maxHistFrames = br.ReadInt32();
                 return true;

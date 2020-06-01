@@ -156,10 +156,10 @@ namespace Barrage
             if (GameSettings.TryLoad())
             {
                 checkMouse.IsChecked = GameSettings.useMouse;
+                checkInfiniteLoop.IsChecked = GameSettings.checkForInfiniteLoop;
                 checkUseGrid.IsChecked = GameSettings.useGrid;
                 textMaxRewind.Text = GameSettings.maxHistFrames.ToString();
                 sliderMaxRewind.Value = Math.Log10(GameSettings.maxHistFrames);
-                textMaxRewind.Text = GameSettings.maxHistFrames.ToString();
             }
 
             hist.Add(new GameFrame()
@@ -239,6 +239,7 @@ namespace Barrage
             }
 
             GameSettings.useMouse = (bool)checkMouse.IsChecked;
+            GameSettings.checkForInfiniteLoop = (bool)checkInfiniteLoop.IsChecked;
             GameSettings.useGrid = (bool)checkUseGrid.IsChecked;
             GameSettings.Save();
         }
@@ -511,10 +512,11 @@ namespace Barrage
 
         void ReadNextLine()
         {
-            SPTimeout.Restart();
+            if ((bool)checkInfiniteLoop.IsChecked)
+                SPTimeout.Restart();
             while (wait <= 0 && readIndex < spawnPattern.Count && !stopRequested && !stopReadingRequested)
             {
-                if (SPTimeout.ElapsedMilliseconds > 3000)
+                if ((bool)checkInfiniteLoop.IsChecked && SPTimeout.ElapsedMilliseconds > 3000)
                 {
                     MessageIssue("The SP might be stuck in a infinite loop\nContinue?", false);
                     SPTimeout.Restart();
