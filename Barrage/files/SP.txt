@@ -1,8 +1,1 @@
-﻿val0|RNG 0 360
-val1|RNG -200 200
-val2|RNG -200 200
-ifGoto|SQRT ( ( PLYRX - val0 ) ^ 2 + ( PLYRY - val1 ) ^ 2 ) < 20|:SKIP
-proj|tags=circle|startPos=val1,val2|angle=val0|speed=3|actDelay=t + SQRT ( ( PLYRX - XPOS ) ^ 2 + ( PLYRY - YPOS ) ^ 2 ) - 20
-:SKIP
-wait|1
-ifGoto|1|0
+﻿proj|tags=circle|speed=3|file=MOD t 3

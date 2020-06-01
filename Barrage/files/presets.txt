@@ -104,3 +104,13 @@ boss|SIN ( t * 4 ) * 100|COS ( t * 2 + 180 ) * 100|25|-10
 proj|tags=circle|speed=MAX ( t - 30 ) 0|angle=-90|size=MAX ( 10 - t / 3 ) 0|startPos=SIN ( n * 4 ) * 100,COS ( n * 2 + 180 ) * 100
 wait|1
 repeat|1|10000
+
+#can't get hit?
+val0|RNG 0 360
+val1|RNG -200 200
+val2|RNG -200 200
+ifGoto|SQRT ( ( PLYRX - val0 ) ^ 2 + ( PLYRY - val1 ) ^ 2 ) < 20|:SKIP
+proj|tags=circle|startPos=val1,val2|angle=val0|speed=3|actDelay=t + SQRT ( ( PLYRX - XPOS ) ^ 2 + ( PLYRY - YPOS ) ^ 2 ) - 20
+:SKIP
+wait|1
+ifGoto|1|0

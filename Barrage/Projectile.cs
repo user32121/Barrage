@@ -101,7 +101,7 @@ namespace Barrage
 
             //ActDelay
             int temp = (int)ReadString.Interpret(ActDelay, typeof(int));
-            if (temp < Age && temp != -1)
+            if (temp > Age || temp == -1)
             {
                 enabled = false;
                 Sprite.Opacity = 0.3;
