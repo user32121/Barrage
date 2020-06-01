@@ -57,6 +57,8 @@ namespace Barrage
         int spwnInd;
         List<double> spwnVals = new List<double>();
         readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
+        Stopwatch SPTimeout = new Stopwatch();
+        static bool stopReadingRequested;
 
         //frame moderation
         DispatcherTimer kickStart;
@@ -509,10 +511,14 @@ namespace Barrage
 
         void ReadNextLine()
         {
-            while (wait <= 0 && readIndex < spawnPattern.Count && !stopRequested)
+            SPTimeout.Restart();
+            while (wait <= 0 && readIndex < spawnPattern.Count && !stopRequested && !stopReadingRequested)
             {
-                if (Keyboard.IsKeyDown(Key.P))
-                    return;
+                if (SPTimeout.ElapsedMilliseconds > 3000)
+                {
+                    MessageIssue("The SP might be stuck in a infinite loop\nContinue?", false);
+                    SPTimeout.Restart();
+                }
 
                 ReadString.n = spwnInd;
                 ReadString.numVals = spwnVals;
@@ -549,7 +555,7 @@ namespace Barrage
                             string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
                             if (str.Length < 2)
                             {
-                                MessageIssue(line[i]);
+                                MessageIssue(line[i], true);
                                 str = new string[2] { "", "" };
                             }
                             startPos = ReadString.ToEquation(str[0]) + "," + ReadString.ToEquation(str[1]);
@@ -563,7 +569,7 @@ namespace Barrage
                             string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
                             if (str.Length < 2)
                             {
-                                MessageIssue(line[i]);
+                                MessageIssue(line[i], true);
                                 str = new string[2] { "", "" };
                             }
                             xyPos = ReadString.ToEquation(str[0]) + "," + ReadString.ToEquation(str[1]);
@@ -573,7 +579,7 @@ namespace Barrage
                             string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
                             if (str.Length < 2)
                             {
-                                MessageIssue(line[i]);
+                                MessageIssue(line[i], true);
                                 str = new string[2] { "", "" };
                             }
                             xyVel = ReadString.ToEquation(str[0]) + "," + ReadString.ToEquation(str[1]);
@@ -666,7 +672,7 @@ namespace Barrage
                             spwnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double));
                     }
                     else
-                        MessageIssue(line[0]);
+                        MessageIssue(line[0], true);
                 }
 #if SONG
                 else if (line[0] == "music")
@@ -687,13 +693,14 @@ namespace Barrage
                     if (int.TryParse(line[1], out int num))
                         ReadString.rng = new Random(num);
                     else
-                        MessageIssue(line[1]);
+                        MessageIssue(line[1], true);
                 }
 
                 //next line
                 readIndex++;
             }
 
+            stopReadingRequested = false;
             wait--;
         }
 
@@ -749,11 +756,12 @@ namespace Barrage
             projectiles.Add(tempProjectile);
         }
 
-        void MessageIssue(string text)
+        void MessageIssue(string text, bool useTemplate)
         {
-            if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, readIndex),
+            if (MessageBox.Show(useTemplate ? string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, readIndex) : text,
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
+                stopReadingRequested = true;
                 if (gamestate == GAMESTATE.EDITOR)
                     MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
                 else
@@ -765,6 +773,7 @@ namespace Barrage
             if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, line),
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
+                stopReadingRequested = true;
                 if (gamestate == GAMESTATE.EDITOR)
                     Main.MainWindow_KeyDown(Main, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
                 else
@@ -776,6 +785,7 @@ namespace Barrage
             if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1} because {2}\n Continue?", text, readIndex, issue),
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
+                stopReadingRequested = true;
                 if (gamestate == GAMESTATE.EDITOR)
                     MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
                 else
