@@ -21,7 +21,8 @@ namespace Barrage
         public string Radius;
         public int RadiusSqr;
         public string Duration;
-        public int TagCount;
+        public string TagCount;
+        public int TagUses;
         public string ActDelay;
         public string File;
         public bool IsAlive;
@@ -131,18 +132,19 @@ namespace Barrage
             int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int)));
 
             //checks if offscreen (x)
+            temp = (int)ReadString.Interpret(TagCount, typeof(int));
             if (Math.Abs(Position.X) > 200)
             {
-                if (Tags.Contains("wallBounce") && TagCount != 0)
+                if (Tags.Contains("wallBounce") && (temp == -1 || temp > TagUses))
                 {
                     Position.X = 400 * Math.Sign(Position.X) - Position.X;
                     VelDir.X *= -1;
-                    TagCount--;
+                    TagUses++;
                 }
-                else if (Tags.Contains("screenWrap") && TagCount != 0)
+                else if (Tags.Contains("screenWrap") && (temp == -1 || temp > TagUses))
                 {
                     Position.X -= 400 * Math.Sign(Position.X);
-                    TagCount--;
+                    TagUses++;
                 }
                 else if (!Tags.Contains("outside") && Math.Abs(Position.X) > 200 + r)
                     IsAlive = false;
@@ -150,16 +152,16 @@ namespace Barrage
             //checks if offscreen (y)
             if (Math.Abs(Position.Y) > 200)
             {
-                if (Tags.Contains("wallBounce") && TagCount != 0)
+                if (Tags.Contains("wallBounce") && (temp == -1 || temp > TagUses))
                 {
                     Position.Y = 400 * Math.Sign(Position.Y) - Position.Y;
                     VelDir.Y *= -1;
-                    TagCount--;
+                    TagUses++;
                 }
-                else if (Tags.Contains("screenWrap") && TagCount != 0)
+                else if (Tags.Contains("screenWrap") && (temp == -1 || temp > TagUses))
                 {
                     Position.Y -= 400 * Math.Sign(Position.Y);
-                    TagCount--;
+                    TagUses++;
                 }
                 else if (!Tags.Contains("outside") && Math.Abs(Position.Y) > 200 + r)
                     IsAlive = false;

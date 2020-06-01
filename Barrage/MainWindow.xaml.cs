@@ -530,7 +530,7 @@ namespace Barrage
                     string xyVel = "";
                     string startPos = "0,-100";
                     string duration = "-1";
-                    int tagCount = -1;
+                    string tagCount = "-1";
                     string actDelay = "0";
                     string file = "0";
 
@@ -581,7 +581,7 @@ namespace Barrage
                         else if (line[i].Contains("duration"))
                             duration = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
                         else if (line[i].Contains("tagCount"))
-                            tagCount = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
+                            tagCount = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
                         else if (line[i].Contains("actDelay"))
                             actDelay = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
                         else if (line[i].Contains("file"))
@@ -692,7 +692,7 @@ namespace Barrage
         }
 
         public void CreateProj(string size, string startPos, string speed, string angle, string xyPos,
-            string xyVel, List<string> tags, string duration, int tagCount, string actDelay, string file)
+            string xyVel, List<string> tags, string duration, string tagCount, string actDelay, string file)
         {
             ReadString.t = 0;
             ReadString.projVals = null;

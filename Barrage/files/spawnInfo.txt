@@ -48,6 +48,8 @@ BOSSX		the boss' position
 BOSSY		
 LANG		the angle from the last frame
 LSPD		the speed from the last frame
+XPOS		position in this frame
+YPOS		
 LXPOS		position from last frame
 LYPOS		
 LXVEL		velocity from last frame
