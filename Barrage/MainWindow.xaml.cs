@@ -93,7 +93,7 @@ namespace Barrage
         bool stepForwards;
         Size minSize;
         readonly LinearGradientBrush hitIndicatorBrush = new LinearGradientBrush(Colors.Transparent, Colors.Transparent, new Point(0, 0.5), new Point(1, 0.5));
-        readonly GameFrame[] hist = new GameFrame[1000];
+        readonly List<GameFrame> hist = new List<GameFrame>();
         int histIndex = 0;
         int histIndexMin = 0;
         Point projStartPos;
@@ -102,6 +102,9 @@ namespace Barrage
         DispatcherTimer autosaveTimer;
         readonly ImageBrush gridOverlay = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/files/Grid.png")));
         bool isSPSaved;
+
+        //options
+        bool changingMaxRewind;
 
 #if SONG
         readonly MediaPlayer song = new MediaPlayer();
@@ -152,9 +155,12 @@ namespace Barrage
             {
                 checkMouse.IsChecked = GameSettings.useMouse;
                 checkUseGrid.IsChecked = GameSettings.useGrid;
+                textMaxRewind.Text = GameSettings.maxHistFrames.ToString();
+                sliderMaxRewind.Value = Math.Log10(GameSettings.maxHistFrames);
+                textMaxRewind.Text = GameSettings.maxHistFrames.ToString();
             }
 
-            hist[0] = new GameFrame()
+            hist.Add(new GameFrame()
             {
                 bossAngle = bossAngle,
                 bossAngSpd = bossAngSpd,
@@ -169,7 +175,7 @@ namespace Barrage
                 spwnVals = new double[0],
                 time = time,
                 wait = wait,
-            };
+            });
 
             ReadSpawnTxt();
         }
@@ -900,8 +906,17 @@ namespace Barrage
 
         void SaveFrame()
         {
-            if (++histIndex >= hist.Length)
-                histIndex = 0;
+            if (hist.Capacity != GameSettings.maxHistFrames)
+            {
+                if (hist.Count > GameSettings.maxHistFrames)
+                    hist.RemoveRange(GameSettings.maxHistFrames, hist.Count - GameSettings.maxHistFrames);
+                hist.Capacity = GameSettings.maxHistFrames;
+            }
+            if (++histIndex >= hist.Count)
+                if (hist.Count < GameSettings.maxHistFrames)
+                    hist.Add(null);
+                else
+                    histIndex = 0;
             hist[histIndex] = new GameFrame()
             {
                 bossAngle = bossAngle,
@@ -921,7 +936,8 @@ namespace Barrage
             for (int i = 0; i < projectiles.Count; i++)
                 hist[histIndex].projectiles[i] = projectiles[i].Clone();
             if (histIndex == histIndexMin)
-                histIndexMin++;
+                if (++histIndexMin >= GameSettings.maxHistFrames)
+                    histIndexMin = 0;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -1112,10 +1128,10 @@ namespace Barrage
                 if (histIndex < histIndexMin)
                     histIndex = histIndexMin;
                 if (histIndex < 0)
-                    histIndex += hist.Length;
+                    histIndex += hist.Count;
                 while (hist[histIndex] == null)
                     if (--histIndex < 0)
-                        histIndex += hist.Length;
+                        histIndex += hist.Count;
 
                 for (int i = 0; i < projectiles.Count; i++)
                     gridField.Children.Remove(projectiles[i].Sprite);
@@ -1156,7 +1172,7 @@ namespace Barrage
         private void TextEditor_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
-                textEditor.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                labelEditorFocus.Focus();
             textEditKeyPresses++;
         }
         private void TextEditor_TextChanged(object sender, TextChangedEventArgs e)
@@ -1352,6 +1368,36 @@ namespace Barrage
                         projectileImgs[index] = new BitmapImage(new Uri("files/Projectile.png", UriKind.Relative));
                 return projectileImgs[index];
             }
+        }
+
+        private void SliderMaxRewind_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (changingMaxRewind)
+                return;
+            changingMaxRewind = true;
+
+            if (textMaxRewind != null)
+                textMaxRewind.Text = (GameSettings.maxHistFrames = (int)Math.Pow(10, sliderMaxRewind.Value)).ToString();
+
+            changingMaxRewind = false;
+        }
+
+        private void TextMaxRewind_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (changingMaxRewind)
+                return;
+            changingMaxRewind = true;
+
+            if (sliderMaxRewind != null && int.TryParse(textMaxRewind.Text, out int num))
+            {
+                if (num < Math.Pow(10, sliderMaxRewind.Minimum))
+                    num = (int)Math.Pow(10, sliderMaxRewind.Minimum);
+                else if (num > Math.Pow(10, sliderMaxRewind.Maximum))
+                    num = (int)Math.Pow(10, sliderMaxRewind.Maximum);
+                sliderMaxRewind.Value = Math.Log10(GameSettings.maxHistFrames = num);
+                textMaxRewind.Text = num.ToString();
+            }
+            changingMaxRewind = false;
         }
     }
     public static class ExtensionMethods

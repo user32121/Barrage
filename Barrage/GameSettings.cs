@@ -15,12 +15,14 @@ namespace Barrage
         public static bool useMouse;
         //editor
         public static bool useGrid;
+        public static int maxHistFrames = 1000;
 
         public static void Save()
         {
             BinaryWriter bw = new BinaryWriter(new FileStream("files/settings.dat", FileMode.Create));
             bw.Write(useMouse);
             bw.Write(useGrid);
+            bw.Write(maxHistFrames);
         }
 
         public static bool TryLoad()
@@ -30,9 +32,10 @@ namespace Barrage
                 BinaryReader br = new BinaryReader(new FileStream("files/settings.dat", FileMode.Open));
                 useMouse = br.ReadBoolean();
                 useGrid = br.ReadBoolean();
+                maxHistFrames = br.ReadInt32();
                 return true;
             }
-            else 
+            else
                 return false;
         }
     }
