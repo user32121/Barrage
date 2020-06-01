@@ -23,6 +23,7 @@ namespace Barrage
         public string Duration;
         public int TagCount;
         public string ActDelay;
+        public string File;
         public bool IsAlive;
         public bool enabled;
         public int Age;
@@ -52,6 +53,7 @@ namespace Barrage
                 Age = Age,
                 Angle = Angle,
                 Duration = Duration,
+                File = File,
                 IsAlive = IsAlive,
                 Sprite = Sprite,
                 Position = Position,
@@ -83,11 +85,15 @@ namespace Barrage
             {
                 y1 = 50;    //add 50 to y because ...
                 TG.Children.Add(new ScaleTransform(1, 6));
+                Sprite.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(File, typeof(int)), true);
             }
 
             TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle, typeof(double)) - 90));
             if (Tags.Contains("circle"))
+            {
                 TG.Children.Add(new ScaleTransform(VelDir.X, VelDir.Y));
+                Sprite.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(File, typeof(int)), false);
+            }
             TG.Children.Add(new TranslateTransform(Position.X, Position.Y + y1));
             Sprite.RenderTransform = TG;
         }

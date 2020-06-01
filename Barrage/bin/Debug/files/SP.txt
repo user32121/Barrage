@@ -1,1 +1,3 @@
-﻿proj|tags=circle|speed=3|file=MOD t 3
+﻿proj|tags=circle|speed=3|file=RNG 0 3|angle=RNG 60 120
+wait|1
+ifGoto|1|0

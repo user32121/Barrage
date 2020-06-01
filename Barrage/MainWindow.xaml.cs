@@ -80,13 +80,13 @@ namespace Barrage
         static GAMESTATE gamestate = GAMESTATE.MENU;
 
         //image storage
-        readonly BitmapImage[] playPauseImgs = new BitmapImage[]
+        static readonly BitmapImage[] playPauseImgs = new BitmapImage[]
         {
             new BitmapImage(new Uri("files/Play.png", UriKind.Relative)),
             new BitmapImage(new Uri("files/Pause.png", UriKind.Relative)),
         };
-        readonly List<BitmapImage> projectileImgs = new List<BitmapImage>();
-        int laserImgsIndex;
+        static readonly List<BitmapImage> projectileImgs = new List<BitmapImage>();
+        static int laserImgsIndex;
 
         //editor
         bool playing;
@@ -532,7 +532,7 @@ namespace Barrage
                     string duration = "-1";
                     int tagCount = -1;
                     string actDelay = "0";
-                    int file = 0;
+                    string file = "0";
 
                     for (int i = 1; i < line.Length; i++)
                     {
@@ -585,7 +585,7 @@ namespace Barrage
                         else if (line[i].Contains("actDelay"))
                             actDelay = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
                         else if (line[i].Contains("file"))
-                            file = (int)ReadString.Interpret(ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1)), typeof(int));
+                            file = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
                     }
 
                     CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, tagCount, actDelay, file);
@@ -692,7 +692,7 @@ namespace Barrage
         }
 
         public void CreateProj(string size, string startPos, string speed, string angle, string xyPos,
-            string xyVel, List<string> tags, string duration, int tagCount, string actDelay, int file)
+            string xyVel, List<string> tags, string duration, int tagCount, string actDelay, string file)
         {
             ReadString.t = 0;
             ReadString.projVals = null;
@@ -704,20 +704,7 @@ namespace Barrage
             {
                 projImage.Width = r * 2;
                 projImage.Height = r * 2;
-                if (file >= laserImgsIndex || projectileImgs[file] == null)
-                {
-                    while (file >= laserImgsIndex)
-                    {
-                        projectileImgs.Insert(laserImgsIndex, null);
-                        laserImgsIndex++;
-                    }
-                    if (File.Exists("files/Projectile" + file + ".png"))
-                        projectileImgs[file] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Projectile" + file + ".png"));
-                    else
-                        projectileImgs[file] = new BitmapImage(new Uri("files/Projectile.png", UriKind.Relative));
-                }
-                projImage.Source = projectileImgs[file];
-
+                projImage.Source = GetProjectileImage((int)ReadString.Interpret(file, typeof(int)), false);
                 projImage.RenderTransformOrigin = new Point(0.5, 0.5);
             }
             else if (tags.Contains("laser"))
@@ -725,18 +712,8 @@ namespace Barrage
                 projImage.Stretch = Stretch.Fill;
                 projImage.Width = r * 2;
                 projImage.Height = 100;
-                if (file + laserImgsIndex >= projectileImgs.Count || projectileImgs[file + laserImgsIndex] == null)
-                {
-                    while (file + laserImgsIndex >= projectileImgs.Count)
-                        projectileImgs.Add(null);
-
-                    if (File.Exists("files/Laser" + file + ".png"))
-                        projectileImgs[file + laserImgsIndex] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Laser" + file + ".png"));
-                    else
-                        projectileImgs[file + laserImgsIndex] = new BitmapImage(new Uri("files/Laser.png", UriKind.Relative));
-                }
+                projImage.Source = GetProjectileImage((int)ReadString.Interpret(file, typeof(int)), true);
                 projImage.RenderTransformOrigin = new Point(0.5, 0);
-                projImage.Source = projectileImgs[file + laserImgsIndex];
             }
             int temp = (int)ReadString.Interpret(actDelay, typeof(int));
             if (temp >= 0 || temp == -1)
@@ -751,6 +728,7 @@ namespace Barrage
             {
                 Sprite = projImage,
                 Duration = duration,
+                File = file,
                 Position = (Vector)ReadString.Interpret(startPos, typeof(Vector)),
                 Speed = speed,
                 Angle = angle,
@@ -1344,6 +1322,36 @@ namespace Barrage
                     gridField.Background = gridOverlay;
                 else
                     gridField.Background = Brushes.Transparent;
+        }
+
+        public static BitmapImage GetProjectileImage(int index, bool laserImg)
+        {
+            if (laserImg)
+            {
+                while (index + laserImgsIndex >= projectileImgs.Count)
+                    projectileImgs.Add(null);
+
+                if (projectileImgs[index + laserImgsIndex] == null)
+                    if (File.Exists("files/Laser" + index + ".png"))
+                        projectileImgs[index + laserImgsIndex] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Laser" + index + ".png"));
+                    else
+                        projectileImgs[index + laserImgsIndex] = new BitmapImage(new Uri("files/Laser.png", UriKind.Relative));
+                return projectileImgs[index];
+            }
+            else
+            {
+                while (index >= laserImgsIndex)
+                {
+                    projectileImgs.Insert(laserImgsIndex, null);
+                    laserImgsIndex++;
+                }
+                if (projectileImgs[index] == null)
+                    if (File.Exists("files/Projectile" + index + ".png"))
+                        projectileImgs[index] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Projectile" + index + ".png"));
+                    else
+                        projectileImgs[index] = new BitmapImage(new Uri("files/Projectile.png", UriKind.Relative));
+                return projectileImgs[index];
+            }
         }
     }
     public static class ExtensionMethods
