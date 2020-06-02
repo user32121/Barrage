@@ -58,7 +58,7 @@ namespace Barrage
         List<double> spwnVals = new List<double>();
         readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
         Stopwatch SPTimeout = new Stopwatch();
-        static bool stopReadingRequested;
+        public static bool stopGameRequested;
 
         //frame moderation
         DispatcherTimer kickStart;
@@ -69,7 +69,7 @@ namespace Barrage
         readonly int[] fps = new int[5];
         int fpsIndex;
         const int fpsMeasureRate = 5;
-        public static bool stopRequested;
+        public static bool closeRequested;
 
         //gamestate
         enum GAMESTATE
@@ -209,7 +209,7 @@ namespace Barrage
         private void Start()
         {
             stopwatch.Start();
-            while (!stopRequested)
+            while (!closeRequested)
             {
                 if (gamestate == GAMESTATE.PLAY || playing || stepForwards)
                 {
@@ -514,7 +514,7 @@ namespace Barrage
         {
             if ((bool)checkInfiniteLoop.IsChecked)
                 SPTimeout.Restart();
-            while (wait <= 0 && readIndex < spawnPattern.Count && !stopRequested && !stopReadingRequested)
+            while (wait <= 0 && readIndex < spawnPattern.Count && !closeRequested && !stopGameRequested)
             {
                 if ((bool)checkInfiniteLoop.IsChecked && SPTimeout.ElapsedMilliseconds > 3000)
                 {
@@ -702,7 +702,7 @@ namespace Barrage
                 readIndex++;
             }
 
-            stopReadingRequested = false;
+            stopGameRequested = false;
             wait--;
         }
 
@@ -763,7 +763,7 @@ namespace Barrage
             if (MessageBox.Show(useTemplate ? string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, readIndex) : text,
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
-                stopReadingRequested = true;
+                stopGameRequested = true;
                 if (gamestate == GAMESTATE.EDITOR)
                     MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
                 else
@@ -775,7 +775,7 @@ namespace Barrage
             if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, line),
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
-                stopReadingRequested = true;
+                stopGameRequested = true;
                 if (gamestate == GAMESTATE.EDITOR)
                     Main.MainWindow_KeyDown(Main, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
                 else
@@ -787,7 +787,7 @@ namespace Barrage
             if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1} because {2}\n Continue?", text, readIndex, issue),
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
-                stopReadingRequested = true;
+                stopGameRequested = true;
                 if (gamestate == GAMESTATE.EDITOR)
                     MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
                 else
@@ -798,7 +798,7 @@ namespace Barrage
         void MoveProjectiles()
         {
             //move projectiles
-            for (int i = 0; i < projectiles.Count; i++)
+            for (int i = 0; i < projectiles.Count && !stopGameRequested; i++)
             {
                 projectiles[i].Move();
                 if (i < projectiles.Count && !projectiles[i].IsAlive)
@@ -966,7 +966,7 @@ namespace Barrage
         }
         private void Window_Closed(object sender, EventArgs e)
         {
-            stopRequested = true;
+            closeRequested = true;
         }
 
         void SaveSP()

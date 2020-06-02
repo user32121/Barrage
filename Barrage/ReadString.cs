@@ -78,7 +78,7 @@ namespace Barrage
 
             //replaces vals
             int i = input.IndexOf("val");
-            while (i != -1 && !MainWindow.stopRequested)
+            while (i != -1 && !MainWindow.closeRequested)
             {
                 //finds the val's index
                 int j = 1;
@@ -163,7 +163,7 @@ namespace Barrage
             if (input.Count == 0)
                 return 0;
 
-            for (int i = 0; i < input.Count; i++)
+            for (int i = 0; i < input.Count && !MainWindow.stopGameRequested; i++)
             {
                 //1 value operators
                 if ((string)input[i] == "SQRT")

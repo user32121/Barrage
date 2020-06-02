@@ -1,3 +1,4 @@
-proj|tags=circle,wallBounce|speed=3|angle=30|file=2|tagCount=PLYRX - XPOS + 1
+proj|tags=circle,wallBounce|speed=3|angle=30|file=2r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r|tagCount=PLYRX - XPOS + 1
+repeat|0|10
 wait|1
 ifGoto|1|0

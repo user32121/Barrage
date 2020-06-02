@@ -124,9 +124,8 @@ namespace Barrage
 
             //projectiles that have duration have a limited lifespan
             temp = (int)ReadString.Interpret(Duration, typeof(int));
-            if (temp != -1)
-                if (temp < Age)
-                    IsAlive = false;
+            if (temp != -1 && temp < Age)
+                IsAlive = false;
 
             //radius
             int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int)));
