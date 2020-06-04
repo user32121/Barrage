@@ -1364,7 +1364,7 @@ namespace Barrage
                         projectileImgs[index + laserImgsIndex] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Laser" + index + ".png"));
                     else
                         projectileImgs[index + laserImgsIndex] = new BitmapImage(new Uri("files/Laser.png", UriKind.Relative));
-                return projectileImgs[index];
+                return projectileImgs[index + laserImgsIndex];
             }
             else
             {

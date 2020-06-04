@@ -48,26 +48,7 @@ namespace Barrage
 
         public Projectile Clone()
         {
-            Projectile p = new Projectile()
-            {
-                ActDelay = ActDelay,
-                Age = Age,
-                Angle = Angle,
-                Duration = Duration,
-                File = File,
-                IsAlive = IsAlive,
-                Sprite = Sprite,
-                Position = Position,
-                Radius = Radius,
-                RadiusSqr = RadiusSqr,
-                Speed = Speed,
-                TagCount = TagCount,
-                Tags = Tags,
-                VelDir = VelDir,
-                Velocity = Velocity,
-                XyPos = XyPos,
-                XyVel = XyVel,
-            };
+            Projectile p = (Projectile)MemberwiseClone();
             for (int i = 0; i < projVals.Length; i++)
                 p.projVals[i] = projVals[i];
 

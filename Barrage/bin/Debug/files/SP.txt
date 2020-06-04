@@ -1,4 +1,27 @@
-proj|tags=circle,wallBounce|speed=3|angle=30|file=2r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r + r|tagCount=PLYRX - XPOS + 1
-repeat|0|10
-wait|1
+﻿val0|RNG 0 360
+val1|0
+:LASERS
+proj|tags=laser|angle=60 * n + val0 + 30|startPos=100 * COS ( val0 + val1 ),100 * SIN ( val0 + val1 ) - 150|size=5|actDelay=60|duration=360
+repeat|:LASERS|6
+wait|10
+val1|val1 + 60
+repeat|:LASERS|6
+wait|60
+
+:PROJS0
+val0|ATAN ( PLYRY + 100 ) PLYRX - 36
+:PROJS1
+proj|tags=circle|angle=val0|speed=( SQRT ( MAX ( 60 - t ) 0 ) + SQRT ( MAX ( t - 120 ) 0 ) ) / 5|size=10
+val0|val0 + 12
+repeat|:PROJS1|7
+wait|20
+repeat|:PROJS0|2
+wait|60
+
+proj|tags=laser|startPos=-200,PLYRY - 10|duration=180
+proj|tags=laser|startPos=-200,PLYRY + 10|duration=180
+proj|tags=circle|startPos=PLYRX - 13,PLYRY|size=8|duration=180
+proj|tags=circle|startPos=PLYRX + 13,PLYRY|size=8|duration=180
+wait|180
+
 ifGoto|1|0
