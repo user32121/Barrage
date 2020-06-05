@@ -29,8 +29,8 @@ namespace Barrage
         public bool enabled;
         public int Age;
 
-        public readonly double[] projVals = new double[8];
-        public enum VI /*Value Index*/ { XPOS, YPOS, LXPOS, LYPOS, LXVEL, LYVEL, LSPD, LANG }
+        public double[] projVals = new double[(int)VI.Count];
+        public enum VI /*Value Index*/ { XPOS, YPOS, LXPOS, LYPOS, LXVEL, LYVEL, LSPD, LANG, Count }
 
         public Projectile() { }
 
@@ -49,6 +49,7 @@ namespace Barrage
         public Projectile Clone()
         {
             Projectile p = (Projectile)MemberwiseClone();
+            p.projVals = new double[(int)VI.Count];
             for (int i = 0; i < projVals.Length; i++)
                 p.projVals[i] = projVals[i];
 
@@ -78,6 +79,26 @@ namespace Barrage
             }
             TG.Children.Add(new TranslateTransform(Position.X, Position.Y + y1));
             Sprite.RenderTransform = TG;
+
+            if (enabled)
+                Sprite.Opacity = 1;
+            else
+                Sprite.Opacity = 0.3;
+
+            int r = (int)ReadString.Interpret(Radius, typeof(int));
+            if (Sprite.Width / 2 != r)
+            {
+                if (Tags.Contains("circle"))
+                {
+                    Sprite.Width = r * 2;
+                    Sprite.Height = r * 2;
+                }
+                else if (Tags.Contains("laser"))
+                {
+                    Sprite.Width = r * 2;
+                }
+                RadiusSqr = r * r;
+            }
         }
 
         public void Move()
@@ -90,15 +111,9 @@ namespace Barrage
             //ActDelay
             int temp = (int)ReadString.Interpret(ActDelay, typeof(int));
             if (temp > Age || temp == -1)
-            {
                 enabled = false;
-                Sprite.Opacity = 0.3;
-            }
             else
-            {
                 enabled = true;
-                Sprite.Opacity = 1;
-            }
 
             //increase age (for parameters with t)
             Age++;
@@ -147,20 +162,7 @@ namespace Barrage
                     IsAlive = false;
             }
 
-            //radius
-            if (Sprite.Width / 2 != r)
-            {
-                if (Tags.Contains("circle"))
-                {
-                    Sprite.Width = r * 2;
-                    Sprite.Height = r * 2;
-                }
-                else if (Tags.Contains("laser"))
-                {
-                    Sprite.Width = r * 2;
-                }
-                RadiusSqr = r * r;
-            }
+            RadiusSqr = r * r;
 
             double ang, spd;
             //xyVel

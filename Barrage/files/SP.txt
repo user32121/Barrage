@@ -1,27 +1,8 @@
-﻿val0|RNG 0 360
-val1|0
-:LASERS
-proj|tags=laser|angle=60 * n + val0 + 30|startPos=100 * COS ( val0 + val1 ),100 * SIN ( val0 + val1 ) - 150|size=5|actDelay=60|duration=360
-repeat|:LASERS|6
-wait|10
-val1|val1 + 60
-repeat|:LASERS|6
+boss|0|-50|5|-2
 wait|60
-
-:PROJS0
-val0|ATAN ( PLYRY + 100 ) PLYRX - 36
-:PROJS1
-proj|tags=circle|angle=val0|speed=( SQRT ( MAX ( 60 - t ) 0 ) + SQRT ( MAX ( t - 120 ) 0 ) ) / 5|size=10
-val0|val0 + 12
-repeat|:PROJS1|7
-wait|20
-repeat|:PROJS0|2
-wait|60
-
-proj|tags=laser|startPos=-200,PLYRY - 10|duration=180
-proj|tags=laser|startPos=-200,PLYRY + 10|duration=180
-proj|tags=circle|startPos=PLYRX - 13,PLYRY|size=8|duration=180
-proj|tags=circle|startPos=PLYRX + 13,PLYRY|size=8|duration=180
-wait|180
-
-ifGoto|1|0
+:LOOP
+val0|RNG -20 20
+val1|RNG -20 20
+proj|tags=circle,outside|speed=2|angle=123 * n + 180|startPos=COS ( 123 * n ) * 300 + val0,SIN ( 123 * n ) * 300 + val1 - 50|size=3|duration=150|actDelay=t + 625 - ( XPOS * XPOS + ( YPOS + 50 ) ^ 2 )
+wait|3
+ifGoto|1|:LOOP

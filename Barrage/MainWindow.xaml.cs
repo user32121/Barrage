@@ -279,6 +279,7 @@ namespace Barrage
 
                 projectiles.Clear();
                 gridField.Children.RemoveRange(extraUI, gridField.Children.Count);
+                projCount.Content = "0";
 
                 plyrPos = new Vector(0, 100);
                 Player.RenderTransform = new TranslateTransform(plyrPos.X, plyrPos.Y);
@@ -1133,11 +1134,12 @@ namespace Barrage
                 stepForwards = true;
             else if (sender == imageEditorStepBackwards)
             {
+                int prevHistIndex = histIndex;
                 if (e.ChangedButton == MouseButton.Left)
                     histIndex--;
                 else if (e.ChangedButton == MouseButton.Right)
                     histIndex -= 5;
-                if (histIndex < histIndexMin)
+                if (histIndex < histIndexMin && prevHistIndex >= histIndexMin)
                     histIndex = histIndexMin;
                 if (histIndex < 0)
                     histIndex += hist.Count;
@@ -1185,7 +1187,8 @@ namespace Barrage
         {
             if (e.Key == Key.Escape)
                 labelEditorFocus.Focus();
-            textEditKeyPresses++;
+            if (e.Key != Key.S || e.KeyboardDevice.Modifiers != ModifierKeys.Control)
+                textEditKeyPresses++;
         }
         private void TextEditor_TextChanged(object sender, TextChangedEventArgs e)
         {

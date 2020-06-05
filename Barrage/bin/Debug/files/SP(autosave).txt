@@ -1,3 +1,1 @@
-proj|tags=circle,wallBounce|speed=3|angle=30|file=2|tagCount=PLYRX - XPOS + 1
-wait|3
-ifGoto|1|0
+proj|tag=circle|actDelay=10|speed=1
