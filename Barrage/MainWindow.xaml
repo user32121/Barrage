@@ -67,6 +67,7 @@
                 <Label Content="Maximum editor rewind" Margin="0,140,0,0" FontSize="20"/>
                 <Slider x:Name="sliderMaxRewind" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Margin="5,170,0,0" TickPlacement="BottomRight" Foreground="#FFA1A1A1" Maximum="5" Value="3" SmallChange="1" ValueChanged="SliderMaxRewind_ValueChanged"/>
                 <TextBox x:Name="textMaxRewind" HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" Margin="205,170,0,0" TextChanged="TextMaxRewind_TextChanged"/>
+                <Label x:Name="labelVersion" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
                 <Label x:Name="labelOptionsBack" Margin="10,0,0,5" Content="Back" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="100" FontSize="24" MouseEnter="LabelBack_MouseEnter" MouseLeave="LabelBack_MouseLeave" MouseUp="LabelBack_MouseUp"/>
             </Grid>
             <Grid x:Name="gridMenu">

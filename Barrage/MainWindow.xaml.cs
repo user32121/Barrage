@@ -30,6 +30,7 @@ namespace Barrage
     public partial class MainWindow : Window
     {
         static MainWindow Main;
+        const string version = "v0.7.9";
 
         //game
         readonly int extraUI;
@@ -151,6 +152,7 @@ namespace Barrage
 #if SONG
             song.Open(new Uri("files/song.mp3", UriKind.Relative));
 #endif
+            labelVersion.Content = version;
 
             //load settings
             if (GameSettings.TryLoad())
