@@ -24,7 +24,7 @@ proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration        fires a projecti
 
 wait|#1		        waits #1 of frames before spawning projectiles again (including this frame)
 
-ifGoto|#1|#2        if #1 is equal to 1, go to line #2
+ifGoto|#1|#2        if #1 is not 0, go to line #2
 
 repeat|#1|#2	    repeats from line #1, #2 - 1 times
 
