@@ -647,7 +647,7 @@ namespace Barrage
                 }
                 else if (line[0] == "ifGoto")
                 {
-                    if ((double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double)) != 0)
+                    if ((double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double)) == 1)
                     {
                         int lineNum = (int)ReadString.Interpret(ReadString.ToEquation(line[2]), typeof(int)) - 1;
                         //(-1 because there is ++ later on)
