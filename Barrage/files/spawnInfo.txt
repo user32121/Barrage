@@ -56,9 +56,25 @@ LXVEL		velocity from last frame
 LYVEL		
 
 
+Available Operators:
+==		equals
+!=		not equals
+>		greater than
+>=		greater than or equal to
+<		less than
+<=		less than or equal to
++		addition
+-		subtraction
+*		multiplication
+/		division
+^		exponent
+
+
 Available Functions:
 ABS #1		returns the absolute value of #1
-FLR #1		the integer part of #1
+ROUND #1	rounds #1
+FLR #1		rounds #1 down
+CEIL #1		rounds #1 up
 MOD #1 #2	returns the modulus of #1 / #2
 RNG #1 #2	picks a random number between #1 (inclusive) and #2 (exclusive)
 SIGN #1		sign of #1

@@ -15,13 +15,13 @@ namespace Barrage
             //.1 means it is left assosciative (calculation is read left to right)
             { "==", 0.1 }, { "!=", 0.1 }, { ">", 0.1 }, { ">=", 0.1 }, { "<", 0.1 }, { "<=", 0.1 },
             { "+", 1.1 }, { "-", 1.1 },
-            { "*", 2.1 }, { "/", 2.1 }, {"MOD", 2.1},
+            { "*", 2.1 }, { "/", 2.1 },
             { "^", 3   },
             //1 parameter functions
             {"SQRT", 10}, {"SIGN", 10}, {"SIN", 10}, {"COS", 10}, {"TAN", 10}, {"ASIN", 10}, {"ACOS", 10},
-            {"ABS", 10 }, {"FLR", 10 },
+            {"ABS", 10 }, {"FLR", 10 }, {"CEIL", 10 }, {"ROUND", 10 },
             //2 parameter functions
-            {"MIN", 10 }, {"MAX", 10 }, {"RNG", 10}, {"ATAN",10},
+            {"MIN", 10 }, {"MAX", 10 }, {"RNG", 10}, {"ATAN",10}, {"MOD", 10},
         };
 
         public static int n;
@@ -218,6 +218,18 @@ namespace Barrage
                 {
                     double nums = GetVals(ref input, inp, i - 1, 1)[0];
                     input[i] = Math.Floor(nums);
+                    input.RemoveAt(Math.Max(i - 1, 0)); i--;
+                }
+                else if ((string)input[i] == "CEIL")
+                {
+                    double nums = GetVals(ref input, inp, i - 1, 1)[0];
+                    input[i] = Math.Ceiling(nums);
+                    input.RemoveAt(Math.Max(i - 1, 0)); i--;
+                }
+                else if ((string)input[i] == "ROUND")
+                {
+                    double nums = GetVals(ref input, inp, i - 1, 1)[0];
+                    input[i] = Math.Round(nums);
                     input.RemoveAt(Math.Max(i - 1, 0)); i--;
                 }
 
