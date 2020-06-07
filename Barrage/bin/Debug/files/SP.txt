@@ -1,1 +1,15 @@
-proj|tags=circle|speed=3|actDelay=10
+:START
+val0|RNG -200 200
+val1|-200
+val2|ATAN ( PLYRY - val1 ) ( PLYRX - val0 )
+proj|tags=circle|angle=val2|speed=2|startPos=val0,val1
+:LOOP
+val0|val0 + 3 * COS val2
+val1|va11 + 3 * SIN val2
+ifGoto|MOD t 5 != 0|:SKIPSPAWN0
+:BURST0
+proj|tags=circle|speed=4|angle=val2 + 90 * n|startPos=val0,val1z
+repeat|:BURST0|4
+:SKIPSPAWN0
+wait|1
+ifGoto|1|:LOOP

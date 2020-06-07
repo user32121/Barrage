@@ -55,8 +55,8 @@ namespace Barrage
         int readIndex = 0;
         double wait;
         Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
-        int spwnInd;
-        List<double> spwnVals = new List<double>();
+        int spawnInd;
+        List<double> spawnVals = new List<double>();
         readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
         Stopwatch SPTimeout = new Stopwatch();
         public static bool stopGameRequested;
@@ -175,7 +175,7 @@ namespace Barrage
                 projectiles = new Projectile[0],
                 readIndex = readIndex,
                 repeatVals = repeatVals,
-                spwnInd = spwnInd,
+                spwnInd = spawnInd,
                 spwnVals = new double[0],
                 time = time,
                 wait = wait,
@@ -257,9 +257,11 @@ namespace Barrage
             if (e.Key == Key.R)
             {
                 readIndex = 0;
-                spwnInd = 0;
-                spwnVals.Clear();
-                repeatVals.Clear();
+                spawnInd = 0;
+                for (int i = 0; i < spawnVals.Count; i++)
+                    spawnVals[i] = 0;
+                for (int i = 0; i < repeatVals.Count; i++)
+                    repeatVals[i] = 0;
                 wait = 0;
                 time = 0;
 
@@ -525,8 +527,8 @@ namespace Barrage
                     SPTimeout.Restart();
                 }
 
-                ReadString.n = spwnInd;
-                ReadString.numVals = spwnVals;
+                ReadString.n = spawnInd;
+                ReadString.numVals = spawnVals;
                 ReadString.t = time;
                 ReadString.projVals = null;
                 ReadString.line = readIndex;
@@ -606,8 +608,8 @@ namespace Barrage
                     }
 
                     CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, tagCount, actDelay, file);
-                    spwnInd++;
-                    ReadString.n = spwnInd;
+                    spawnInd++;
+                    ReadString.n = spawnInd;
                 }
                 else if (line[0] == "boss")
                 {
@@ -666,15 +668,15 @@ namespace Barrage
                     //sets a value to spwnVals
                     if (int.TryParse(line[0].Substring(3), out int ind))
                     {
-                        while (ind >= spwnVals.Count)
-                            spwnVals.Add(0);
+                        while (ind >= spawnVals.Count)
+                            spawnVals.Add(0);
 
                         if (line.Length < 2)
                             MessageIssue(spawnPattern[readIndex], "val requires an input");
                         else if (ind < 0)
                             MessageIssue(spawnPattern[readIndex], "val# cannot be negative");
-                        else
-                            spwnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double));
+                        else if (!stopGameRequested)
+                            spawnVals[ind] = (double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double));
                     }
                     else
                         MessageIssue(line[0], true);
@@ -943,8 +945,8 @@ namespace Barrage
                 projectiles = new Projectile[projectiles.Count],
                 readIndex = readIndex,
                 repeatVals = new Dictionary<int, int>(repeatVals),
-                spwnInd = spwnInd,
-                spwnVals = spwnVals.ToArray(),
+                spwnInd = spawnInd,
+                spwnVals = spawnVals.ToArray(),
                 time = time,
                 wait = wait,
             };
@@ -1168,8 +1170,8 @@ namespace Barrage
                 readIndex = hist[histIndex].readIndex;
                 wait = hist[histIndex].wait;
                 repeatVals = hist[histIndex].repeatVals;
-                spwnInd = hist[histIndex].spwnInd;
-                spwnVals = new List<double>(hist[histIndex].spwnVals);
+                spawnInd = hist[histIndex].spwnInd;
+                spawnVals = new List<double>(hist[histIndex].spwnVals);
 
                 RenderPlayerAndBoss();
             }

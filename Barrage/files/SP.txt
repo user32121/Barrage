@@ -1,8 +1,15 @@
-boss|0|-50|5|-2
-wait|60
+:START
+val0|RNG -200 200
+val1|-200
+val2|ATAN ( PLYRY - val1 ) ( PLYRX - val0 )
+proj|tags=circle|angle=val2|speed=2|startPos=val0,val1
 :LOOP
-val0|RNG -20 20
-val1|RNG -20 20
-proj|tags=circle,outside|speed=2|angle=123 * n + 180|startPos=COS ( 123 * n ) * 300 + val0,SIN ( 123 * n ) * 300 + val1 - 50|size=3|duration=150|actDelay=t + 625 - ( XPOS * XPOS + ( YPOS + 50 ) ^ 2 )
-wait|3
+val0|val0 + 3 * COS val2
+val1|va11 + 3 * SIN val2
+ifGoto|MOD t 5 != 0|:SKIPSPAWN0
+:BURST0
+proj|tags=circle|speed=4|angle=val2 + 90 * n|startPos=val0,val1z
+repeat|:BURST0|4
+:SKIPSPAWN0
+wait|1
 ifGoto|1|:LOOP
