@@ -163,7 +163,7 @@ namespace Barrage
             if (input.Count == 0)
                 return 0;
 
-            for (int i = 0; i < input.Count && !MainWindow.stopGameRequested; i++)
+            for (int i = 0; i >= 0 && i < input.Count && !MainWindow.stopGameRequested; i++)
             {
                 //1 value operators
                 if ((string)input[i] == "SQRT")
@@ -238,97 +238,97 @@ namespace Barrage
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] == nums[1] ? 1 : 0;
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == "!=")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] != nums[1] ? 1 : 0;
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == ">")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] > nums[1] ? 1 : 0;
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == ">=")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] >= nums[1] ? 1 : 0;
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == "<")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] < nums[1] ? 1 : 0;
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == "<=")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] <= nums[1] ? 1 : 0;
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == "+")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] + nums[1];
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == "-")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] - nums[1];
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == "*")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] * nums[1];
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == "/")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] / nums[1];
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == "^")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = Math.Pow(nums[0], nums[1]);
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == "MOD")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] % nums[1];
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == "MIN")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = Math.Min(nums[0], nums[1]);
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == "MAX")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = Math.Max(nums[0], nums[1]);
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == "RNG")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = nums[0] + rng.NextDouble() * (nums[1] - nums[0]);
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
                 else if ((string)input[i] == "ATAN")
                 {
                     double[] nums = GetVals(ref input, inp, i - 2, 2);
                     input[i] = Math.Atan2(nums[0], nums[1]) / Math.PI * 180;
-                    input.RemoveRange(Math.Max(i - 2, 0), 2); i -= 2;
+                    input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
                 }
             }
             if (input.Count < 1)
