@@ -142,8 +142,11 @@ namespace Barrage
                     Position.X -= 400 * Math.Sign(Position.X);
                     TagUses++;
                 }
-                else if (!Tags.Contains("outside") && Math.Abs(Position.X) > 200 + r)
-                    IsAlive = false;
+                else if (Math.Abs(Position.X) > 200 + r)
+                    if (Tags.Contains("outside") && (temp == -1 || temp > TagUses))
+                        TagUses++;
+                    else
+                        IsAlive = false;
             }
             //checks if offscreen (y)
             if (Math.Abs(Position.Y) > 200)
@@ -160,7 +163,10 @@ namespace Barrage
                     TagUses++;
                 }
                 else if (!Tags.Contains("outside") && Math.Abs(Position.Y) > 200 + r)
-                    IsAlive = false;
+                    if (Tags.Contains("outside") && (temp == -1 || temp > TagUses))
+                        TagUses++;
+                    else
+                        IsAlive = false;
             }
 
             RadiusSqr = r * r;

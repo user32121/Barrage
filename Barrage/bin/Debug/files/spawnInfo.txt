@@ -21,6 +21,7 @@ proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration        fires a projecti
 -tagCount       # times a proj will wallBounce (or similar), -1 is infinity
 -actDelay       # frames before the projectile can collide with the player, -1 is infinity
 -file           a number indicating which image file to use (e.g. 0 will get Projectile0.png)
+-state          an arbitrary number to allow for more complex projectile behavior
 
 wait|#1             waits #1 of frames before spawning projectiles again (including this frame)
 
@@ -54,6 +55,7 @@ LXPOS       position from last frame
 LYPOS       
 LXVEL       velocity from last frame
 LYVEL       
+LSTATE      state from last frame
 
 
 Available Operators:
