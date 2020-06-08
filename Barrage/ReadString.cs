@@ -118,22 +118,22 @@ namespace Barrage
                 Replace("BOSSY", MainWindow.bossPos.Y.ToString());
             if (projVals == null)
                 input = input.
-                    Replace("XPOS", "0").
-                    Replace("YPOS", "0").
-                    Replace("LXPOS", "0").
-                    Replace("LYPOS", "0").
-                    Replace("LXVEL", "0").
-                    Replace("LYVEL", "0").
+                    Replace("POSX", "0").
+                    Replace("POSY", "0").
+                    Replace("LPOSX", "0").
+                    Replace("LPOSY", "0").
+                    Replace("LVELX", "0").
+                    Replace("LVELY", "0").
                     Replace("LSPD", "0").
                     Replace("LANG", "0");
             else
                 input = input.
-                    Replace("XPOS", projVals[(int)Projectile.VI.XPOS].ToString()).
-                    Replace("YPOS", projVals[(int)Projectile.VI.YPOS].ToString()).
-                    Replace("LXPOS", projVals[(int)Projectile.VI.LXPOS].ToString()).
-                    Replace("LYPOS", projVals[(int)Projectile.VI.LYPOS].ToString()).
-                    Replace("LXVEL", projVals[(int)Projectile.VI.LXVEL].ToString()).
-                    Replace("LYVEL", projVals[(int)Projectile.VI.LYVEL].ToString()).
+                    Replace("POSX", projVals[(int)Projectile.VI.XPOS].ToString()).
+                    Replace("POSY", projVals[(int)Projectile.VI.YPOS].ToString()).
+                    Replace("LPOSX", projVals[(int)Projectile.VI.LXPOS].ToString()).
+                    Replace("LPOSY", projVals[(int)Projectile.VI.LYPOS].ToString()).
+                    Replace("LVELX", projVals[(int)Projectile.VI.LXVEL].ToString()).
+                    Replace("LVELY", projVals[(int)Projectile.VI.LYVEL].ToString()).
                     Replace("LSPD", projVals[(int)Projectile.VI.LSPD].ToString()).
                     Replace("LANG", projVals[(int)Projectile.VI.LANG].ToString());
 

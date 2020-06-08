@@ -30,12 +30,19 @@ namespace SPUpdater
                         Replace("plyry", "PLYRY").
                         Replace("bossx", "BOSSX").
                         Replace("bossy", "BOSSY").
-                        Replace("lxPOS", "LXPOS").
-                        Replace("lyPOS", "LYPOS").
-                        Replace("lxVEL", "LXVEL").
-                        Replace("lyVEL", "LYVEL").
+                        Replace("lxPOS", "LPOSX").
+                        Replace("lyPOS", "LPOSY").
+                        Replace("lxVEL", "LVELX").
+                        Replace("lyVEL", "LVELY").
                         Replace("lSPD", "LSPD").
-                        Replace("lANG", "LANG");
+                        Replace("lANG", "LANG").
+
+                        Replace("XPOS", "POSX").
+                        Replace("YPOS", "POSY").
+                        Replace("LXPOS", "LPOSY").
+                        Replace("LYPOS", "LPOSY").
+                        Replace("LXVEL", "LVELX").
+                        Replace("LYVEL", "LVELY");
                     sw.WriteLine(s);
                 }
                 sr.Close();

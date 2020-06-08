@@ -5,7 +5,7 @@ repeat|:LASERS|18
 :BURST0
 val0|100 * COS ( 5 * n )
 val1|100 * SIN ( 5 * n )
-val2|RNG|0 360
+val2|RNG 0 360
 :BURST1
 proj|tags=circle|speed=3|angle=30 * n + val2|startPos=val0,val1 - 100|file=4
 proj|tags=circle|speed=3|angle=30 * n + val2|startPos=val0 * -1,val1 * -1 - 100
