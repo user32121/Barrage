@@ -28,9 +28,10 @@ namespace Barrage
         public bool IsAlive;
         public bool enabled;
         public int Age;
+        public string state;
 
         public double[] projVals = new double[(int)VI.Count];
-        public enum VI /*Value Index*/ { XPOS, YPOS, LXPOS, LYPOS, LXVEL, LYVEL, LSPD, LANG, Count }
+        public enum VI /*Value Index*/ { XPOS, YPOS, LXPOS, LYPOS, LXVEL, LYVEL, LSPD, LANG, LSTATE, Count }
 
         public Projectile() { }
 
@@ -193,6 +194,8 @@ namespace Barrage
 
             Render();
 
+            double lstate = (double)ReadString.Interpret(state, typeof(double));
+
             //sets last projVals
             projVals[(int)VI.LXPOS] = Position.X;
             projVals[(int)VI.LYPOS] = Position.Y;
@@ -200,6 +203,7 @@ namespace Barrage
             projVals[(int)VI.LYVEL] = Velocity.Y;
             projVals[(int)VI.LSPD] = spd;
             projVals[(int)VI.LANG] = ang;
+            projVals[(int)VI.LSTATE] = lstate;
         }
     }
 }

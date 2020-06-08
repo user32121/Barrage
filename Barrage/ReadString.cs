@@ -125,7 +125,8 @@ namespace Barrage
                     Replace("LVELX", "0").
                     Replace("LVELY", "0").
                     Replace("LSPD", "0").
-                    Replace("LANG", "0");
+                    Replace("LANG", "0").
+                    Replace("LSTATE", "0");
             else
                 input = input.
                     Replace("POSX", projVals[(int)Projectile.VI.XPOS].ToString()).
@@ -135,7 +136,8 @@ namespace Barrage
                     Replace("LVELX", projVals[(int)Projectile.VI.LXVEL].ToString()).
                     Replace("LVELY", projVals[(int)Projectile.VI.LYVEL].ToString()).
                     Replace("LSPD", projVals[(int)Projectile.VI.LSPD].ToString()).
-                    Replace("LANG", projVals[(int)Projectile.VI.LANG].ToString());
+                    Replace("LANG", projVals[(int)Projectile.VI.LANG].ToString()).
+                    Replace("LSTATE", projVals[(int)Projectile.VI.LSTATE].ToString());
 
             if (Treturn == typeof(int))
             {

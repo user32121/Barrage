@@ -552,6 +552,7 @@ namespace Barrage
                     string tagCount = "-1";
                     string actDelay = "0";
                     string file = "0";
+                    string state = "0";
 
                     for (int i = 1; i < line.Length; i++)
                     {
@@ -605,9 +606,11 @@ namespace Barrage
                             actDelay = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
                         else if (line[i].Contains("file"))
                             file = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
+                        else if (line[i].Contains("state"))
+                            state = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
                     }
 
-                    CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, tagCount, actDelay, file);
+                    CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, tagCount, actDelay, file, state);
                     spawnInd++;
                     ReadString.n = spawnInd;
                 }
@@ -712,7 +715,7 @@ namespace Barrage
         }
 
         public void CreateProj(string size, string startPos, string speed, string angle, string xyPos,
-            string xyVel, List<string> tags, string duration, string tagCount, string actDelay, string file)
+            string xyVel, List<string> tags, string duration, string tagCount, string actDelay, string file, string state)
         {
             ReadString.t = 0;
             ReadString.projVals = null;
@@ -758,6 +761,7 @@ namespace Barrage
                 TagCount = tagCount,
                 Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * (double)ReadString.Interpret(speed, typeof(double)),
                 ActDelay = actDelay,
+                state = state,
             };
 
             projectiles.Add(tempProjectile);

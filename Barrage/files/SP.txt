@@ -1,15 +1,3 @@
-:LASERS
-proj|tags=laser|angle=20 * n + t / 10|actDelay=60|duration=240|size=4
-repeat|:LASERS|18
-
-:BURST0
-val0|100 * COS ( 5 * n )
-val1|100 * SIN ( 5 * n )
-val2|RNG 0 360
-:BURST1
-proj|tags=circle|speed=3|angle=30 * n + val2|startPos=val0,val1 - 100|file=4
-proj|tags=circle|speed=3|angle=30 * n + val2|startPos=val0 * -1,val1 * -1 - 100
-repeat|:BURST1|6
-wait|15
-repeat|:BURST0|24
+proj|tags=circle|angle=n * 2|speed=3|file=LSTATE|state=MOD ( LSTATE + 1 ) 3
+wait|1
 ifGoto|1|0
