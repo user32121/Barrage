@@ -147,6 +147,10 @@
     <Resource Include="files\Play.png" />
     <Resource Include="files\Arrow.png" />
     <Resource Include="files\Grid.png" />
+    <Content Include="..\SPUpdater\bin\Debug\SPUpdater.exe">
+      <Link>SPUpdater.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="files\presets.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
