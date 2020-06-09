@@ -239,11 +239,6 @@ namespace Barrage
                 this.Refresh(DispatcherPriority.Input);
                 ModerateFrames();
             }
-
-            GameSettings.useMouse = (bool)checkMouse.IsChecked;
-            GameSettings.checkForInfiniteLoop = (bool)checkInfiniteLoop.IsChecked;
-            GameSettings.useGrid = (bool)checkUseGrid.IsChecked;
-            GameSettings.Save();
         }
 
         void MainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -1095,6 +1090,13 @@ namespace Barrage
                 }
                 else
                     canceled = true;
+            }
+            else if(gamestate == GAMESTATE.OPTIONS)
+            {
+                GameSettings.useMouse = (bool)checkMouse.IsChecked;
+                GameSettings.checkForInfiniteLoop = (bool)checkInfiniteLoop.IsChecked;
+                GameSettings.useGrid = (bool)checkUseGrid.IsChecked;
+                GameSettings.Save();
             }
             if (!canceled)
             {
