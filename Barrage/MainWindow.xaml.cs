@@ -347,6 +347,24 @@ namespace Barrage
                 else if (e.Key == Key.S && e.KeyboardDevice.Modifiers == ModifierKeys.Control)
                     SaveSP();
             }
+            else if (gamestate == GAMESTATE.MENU)
+            {
+                if (e.Key == Key.P)
+                {
+                    LabelMenu_MouseUp(labelMenuPlay, null);
+                    LabelMenu_MouseLeave(labelMenuPlay, null);
+                }
+                else if (e.Key == Key.E)
+                {
+                    LabelMenu_MouseUp(labelMenuEditor, null);
+                    LabelMenu_MouseLeave(labelMenuEditor, null);
+                }
+                else if (e.Key == Key.O)
+                {
+                    LabelMenu_MouseUp(labelMenuOptions, null);
+                    LabelMenu_MouseLeave(labelMenuOptions, null);
+                }
+            }
         }
 
         void PlayerMove()
@@ -1091,7 +1109,7 @@ namespace Barrage
                 else
                     canceled = true;
             }
-            else if(gamestate == GAMESTATE.OPTIONS)
+            else if (gamestate == GAMESTATE.OPTIONS)
             {
                 GameSettings.useMouse = (bool)checkMouse.IsChecked;
                 GameSettings.checkForInfiniteLoop = (bool)checkInfiniteLoop.IsChecked;
