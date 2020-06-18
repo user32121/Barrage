@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Barrage", "Barrage\Barrage.csproj", "{DFE5D3E8-19C7-46AB-AB97-B68D24CBC5E7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{753585FF-4B60-4AE6-AF1D-10D1C582ADDF} = {753585FF-4B60-4AE6-AF1D-10D1C582ADDF}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPUpdater", "SPUpdater\SPUpdater.csproj", "{753585FF-4B60-4AE6-AF1D-10D1C582ADDF}"
 EndProject

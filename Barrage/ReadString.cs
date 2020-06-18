@@ -118,8 +118,6 @@ namespace Barrage
                 Replace("BOSSY", MainWindow.bossPos.Y.ToString());
             if (projVals == null)
                 input = input.
-                    Replace("POSX", "0").
-                    Replace("POSY", "0").
                     Replace("LPOSX", "0").
                     Replace("LPOSY", "0").
                     Replace("LVELX", "0").
@@ -129,8 +127,6 @@ namespace Barrage
                     Replace("LSTATE", "0");
             else
                 input = input.
-                    Replace("POSX", projVals[(int)Projectile.VI.XPOS].ToString()).
-                    Replace("POSY", projVals[(int)Projectile.VI.YPOS].ToString()).
                     Replace("LPOSX", projVals[(int)Projectile.VI.LXPOS].ToString()).
                     Replace("LPOSY", projVals[(int)Projectile.VI.LYPOS].ToString()).
                     Replace("LVELX", projVals[(int)Projectile.VI.LXVEL].ToString()).

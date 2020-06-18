@@ -31,7 +31,15 @@ namespace Barrage
         public string state;
 
         public double[] projVals = new double[(int)VI.Count];
-        public enum VI /*Value Index*/ { XPOS, YPOS, LXPOS, LYPOS, LXVEL, LYVEL, LSPD, LANG, LSTATE, Count }
+        public enum VI /*Value Index*/
+        {
+            LXPOS, LYPOS,
+            LXVEL, LYVEL,
+            LSPD,
+            LANG,
+            LSTATE,
+            Count
+        }
 
         public Projectile() { }
 
@@ -39,8 +47,8 @@ namespace Barrage
         {
             Radius = radius;
             ReadString.t = 0;
-            projVals[(int)VI.XPOS] = Position.X;
-            projVals[(int)VI.YPOS] = Position.Y;
+            projVals[(int)VI.LXPOS] = Position.X;
+            projVals[(int)VI.LYPOS] = Position.Y;
             ReadString.projVals = projVals;
             int r = (int)ReadString.Interpret(radius, typeof(int));
             RadiusSqr = r * r;
@@ -61,8 +69,8 @@ namespace Barrage
         {
             int y1 = 0;
             ReadString.t = Age;
-            projVals[(int)VI.XPOS] = Position.X;
-            projVals[(int)VI.YPOS] = Position.Y;
+            projVals[(int)VI.LXPOS] = Position.X;
+            projVals[(int)VI.LYPOS] = Position.Y;
             ReadString.projVals = projVals;
             TransformGroup TG = new TransformGroup();
             if (Tags.Contains("laser"))
@@ -105,8 +113,6 @@ namespace Barrage
         public void Move()
         {
             ReadString.t = Age;
-            projVals[(int)VI.XPOS] = Position.X;
-            projVals[(int)VI.YPOS] = Position.Y;
             ReadString.projVals = projVals;
 
             //ActDelay

@@ -42,7 +42,10 @@ namespace SPUpdater
                         Replace("LXPOS", "LPOSY").
                         Replace("LYPOS", "LPOSY").
                         Replace("LXVEL", "LVELX").
-                        Replace("LYVEL", "LVELY");
+                        Replace("LYVEL", "LVELY").
+
+                        Replace("POSX", "LPOSX").
+                        Replace("POSY", "LPOSY");
                     sw.WriteLine(s);
                 }
                 sr.Close();
