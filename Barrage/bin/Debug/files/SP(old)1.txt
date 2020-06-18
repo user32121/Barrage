@@ -1,0 +1,10 @@
+val0|1
+:LOOP
+
+:BURST
+#proj|tags=circle|duration=540|angle=30 * n + t / 3 * val0|speed=2 * LSTATE|state=( LPOSX > -200 ) * ( LPOSX < 200 ) * ( LPOSY > -200 ) * ( LPOSY < 200 )|size=10
+proj|tags=circle|angle=( 30 * n + 30 + t / 3 * val0 ) * ( LSTATE == 0 ) + ATAN ( PLYRY - LPOSY ) ( PLYRX - LPOSX ) * ( LSTATE == 1 ) + LANG * ( LSTATE == 2 )|speed=2|state=SIGN ( ( LPOSX <= -200 ) * ( LPOSX >= 200 ) * ( LPOSY <= -200 ) * ( LPOSY >= 200 ) ) + SIGN LSTATE
+repeat|:LOOP|1
+wait|180
+val0|val0 * -1
+ifGoto|1|:LOOP

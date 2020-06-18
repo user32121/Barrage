@@ -1,0 +1,28 @@
+ifGoto|1|:P1
+
+boss|0|-150|3|1
+wait|120
+proj|tags=circle|xyPos=-150,LLPOSY * 0.98 + -2 + ( t == 0 ) * -200|size=10
+proj|tags=circle|xyPos=-50,LLPOSY * 0.98 + -1 + ( t == 0 ) * -200|size=10
+proj|tags=circle|xyPos=50,LLPOSY * 0.98 + -1 + ( t == 0 ) * -200|size=10
+proj|tags=circle|xyPos=150,LLPOSY * 0.98 + -2 + ( t == 0 ) * -200|size=10
+wait|180
+:LOOP
+
+ifGoto|MOD t 40 != 0|:S0
+:P0
+proj|tags=circle|angle=val0|speed=2.3|startPos=-150,-100
+proj|tags=circle|angle=val0|speed=2.5|startPos=-150,-100
+val0|val0 + 60
+repeat|:P0|6
+val0|val0 - 35
+:S0
+
+ifGoto|MOD t 30 != 0|:S1
+:P1
+val1|RNG -180 0
+proj|tags=circle|angle=val1 * ( LSTATE == 0 ) + ATAN ( LLPOSY - PLYRY ) ( LLPOSX - PLYRX ) * ( LSTATE == 1 ) + LANG * ( LSTATE >= 2 )|speed=2|startPos=-50,-50|state=LSTATE + SIGN ( ( LPOSX <= -200 ) + ( LPOSX >= 200 ) + ( LPOSY <= -200 ) ) + ( LSTATE == 1 )|file=( LPOSX <= -200 ) + ( LPOSX >= 200 ) + ( LPOSY <= -200 )
+:S1
+
+wait|1
+ifGoto|1|:LOOP

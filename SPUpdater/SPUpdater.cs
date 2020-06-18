@@ -46,10 +46,10 @@ namespace SPUpdater
 
                         Replace("POSX", "LPOSX").
                         Replace("POSY", "LPOSY").
-                        Replace("LLPOSX", "LPOSX").
-                        Replace("LLPOSY", "LPOSY").
                         Replace("LLLPOSX", "LPOSX").
-                        Replace("LLLPOSY", "LPOSY");
+                        Replace("LLLPOSY", "LPOSY").
+                        Replace("LLPOSX", "LPOSX").
+                        Replace("LLPOSY", "LPOSY");
                     sw.WriteLine(s);
                 }
                 sr.Close();
