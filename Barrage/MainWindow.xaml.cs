@@ -1,5 +1,5 @@
 ﻿#define SONG
-#undef TAS
+#define AUTO
 
 using System;
 using System.Collections.Generic;
@@ -112,9 +112,6 @@ namespace Barrage
 #if SONG
         readonly MediaPlayer song = new MediaPlayer();
         bool songPlaying;
-#endif
-#if TAS
-        int TASIndex;
 #endif
 
         public MainWindow()
@@ -266,9 +263,6 @@ namespace Barrage
                 song.Stop();
                 songPlaying = false;
 #endif
-#if TAS
-                TASIndex = 0;
-#endif
                 ReadSpawnTxt();
 
                 gameOver = false;
@@ -380,61 +374,53 @@ namespace Barrage
             }
             else
             {
-#if TAS
-                if (TASIndex < TASInputs.GetLength(0) - 1)
-                    if (TASInputs[TASIndex, 3] > 0)
-                        TASInputs[TASIndex, 3]--;
-                    else
-                        TASIndex += 1;
+#if AUTO
+                Vector mov = new Vector(), dir;
+                for (int p = 0; p < projectiles.Count; p++)
+                {
+                    dir = plyrPos - projectiles[p].Position;
+                    mov += dir / Math.Pow(dir.LengthSquared - projectiles[p].RadiusSqr, 1.5);
+                }
+                double d = plyrPos.X + 200.1;
+                mov.X += 10 / d / d;
+                d = plyrPos.X - 200.1;
+                mov.X -= 10 / d / d;
+                d = plyrPos.Y + 200.1;
+                mov.Y += 10 / d / d;
+                d = plyrPos.Y - 200.1;
+                mov.Y -= 10 / d / d;
+                if (mov.LengthSquared > 0)
+                {
+                    mov.Normalize();
+                    mov *= plyrSpeed;
+                    plyrPos += mov;
+                    moved = true;
+                }
 #endif
-                if ((Keyboard.IsKeyDown(Key.LeftShift)
-#if TAS
-                    || TASInputs[TASIndex, 2] == 1
-#endif
-                    ) && plyrSpeed == plyrFast)
+                if ((Keyboard.IsKeyDown(Key.LeftShift)) && plyrSpeed == plyrFast)
                 {
                     plyrSpeed = plyrSlow;
                 }
-                if (Keyboard.IsKeyUp(Key.LeftShift)
-#if TAS
-                    && TASInputs[TASIndex, 2] != 1
-#endif
-                     && plyrSpeed == plyrSlow)
+                if (Keyboard.IsKeyUp(Key.LeftShift) && plyrSpeed == plyrSlow)
                 {
                     plyrSpeed = plyrFast;
                 }
-                if (Keyboard.IsKeyDown(Key.Left)
-#if TAS
-                    || TASInputs[TASIndex, 0] == -1
-#endif 
-                    )
+                if (Keyboard.IsKeyDown(Key.Left))
                 {
                     plyrPos.X -= plyrSpeed;
                     moved = true;
                 }
-                if (Keyboard.IsKeyDown(Key.Right)
-#if TAS
-                    || TASInputs[TASIndex, 0] == 1
-#endif 
-                    )
+                if (Keyboard.IsKeyDown(Key.Right))
                 {
                     plyrPos.X += plyrSpeed;
                     moved = true;
                 }
-                if (Keyboard.IsKeyDown(Key.Up)
-#if TAS
-                    || TASInputs[TASIndex, 1] == -1
-#endif
-                    )
+                if (Keyboard.IsKeyDown(Key.Up))
                 {
                     plyrPos.Y -= plyrSpeed;
                     moved = true;
                 }
-                if (Keyboard.IsKeyDown(Key.Down)
-#if TAS
-                    || TASInputs[TASIndex, 1] == 1
-#endif
-                    )
+                if (Keyboard.IsKeyDown(Key.Down))
                 {
                     plyrPos.Y += plyrSpeed;
                     moved = true;

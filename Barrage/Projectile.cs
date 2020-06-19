@@ -94,7 +94,7 @@ namespace Barrage
             else
                 Sprite.Opacity = 0.3;
 
-            int r = (int)ReadString.Interpret(Radius, typeof(int));
+            int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int)));
             if (Sprite.Width / 2 != r)
             {
                 if (Tags.Contains("circle"))

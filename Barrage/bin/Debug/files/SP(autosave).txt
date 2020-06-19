@@ -1,10 +1,36 @@
-val0|1
+
 :LOOP
 
-:BURST
-#proj|tags=circle|duration=540|angle=30 * n + t / 3 * val0|speed=2 * LSTATE|state=( POSX > -200 ) * ( POSX < 200 ) * ( POSY > -200 ) * ( POSY < 200 )|size=10
-proj|tags=circle|angle=( 30 * n + 30 + t / 3 * val0 ) * ( LSTATE == 0 ) + ATAN ( PLYRY - POSY ) ( PLYRX - POSX ) * ( LSTATE == 1 ) + LANG * ( LSTATE == 2 )|speed=2|state=SIGN ( ( POSX <= -200 ) * ( POSX >= 200 ) * ( POSY <= -200 ) * ( POSY >= 200 ) ) + SIGN LSTATE
-repeat|:LOOP|1
-wait|180
-val0|val0 * -1
+:SIDES
+proj|tags=circle|speed=2|startPos=-100 + 50 * COS ( -val0 + val1 + 90 ),-150 + 50 * SIN ( -val0 + val1 + 90 )|angle=-val0 + val1 - 75|size=6
+proj|tags=circle|speed=2|startPos=100 + 50 * COS ( val0 + val1 + 90 ),-150 + 50 * SIN ( val0 + val1 + 90 )|angle=val0 + val1 + 255|size=6
+proj|tags=circle|speed=2|startPos=-50 + 50 * COS ( -val0 + val1 + 90 ),-50 + 50 * SIN ( -val0 + val1 + 90 )|angle=-val0 + val1 - 75|size=6
+proj|tags=circle|speed=2|startPos=50 + 50 * COS ( val0 + val1 + 90 ),-50 + 50 * SIN ( val0 + val1 + 90 )|angle=val0 + val1 + 255|size=6
+val1|val1 + 120
+repeat|:SIDES|3
+wait|5
+repeat|:SIDES|3
+:LOOP
+
+:CENTER
+proj|tags=circle|speed=MAX ( 4 - ( ATAN ( t - 60.1 ) 1 ) / ( t - 60.1 ) ) 0|angle=val0 * ( t < 60 ) + ATAN ( PLYRY - POSY ) ( PLYRX - POSX ) * ( t == 60 ) + LANG * ( t > 60 )|size=5
+proj|tags=circle|speed=MAX ( 4 - ( ATAN ( t - 60.1 ) 1 ) / ( t - 60.1 ) ) 0|angle=( val0 + 180 ) * ( t < 60 ) + ATAN ( PLYRY - POSY ) ( PLYRX - POSX ) * ( t == 60 ) + LANG * ( t > 60 )|size=5
+wait|5
+repeat|:CENTER|2
+
+:SIDES
+proj|tags=circle|speed=2|startPos=-100 + 50 * COS ( -val0 + val1 + 90 ),-150 + 50 * SIN ( -val0 + val1 + 90 )|angle=-val0 + val1 - 75|size=6
+proj|tags=circle|speed=2|startPos=100 + 50 * COS ( val0 + val1 + 90 ),-150 + 50 * SIN ( val0 + val1 + 90 )|angle=val0 + val1 + 255|size=6
+proj|tags=circle|speed=2|startPos=-50 + 50 * COS ( -val0 + val1 + 90 ),-50 + 50 * SIN ( -val0 + val1 + 90 )|angle=-val0 + val1 - 75|size=6
+proj|tags=circle|speed=2|startPos=50 + 50 * COS ( val0 + val1 + 90 ),-50 + 50 * SIN ( val0 + val1 + 90 )|angle=val0 + val1 + 255|size=6
+val1|val1 + 120
+repeat|:SIDES|3
+wait|5
+repeat|:SIDES|3
+
+val0|val0 + 20
+ifGoto|1|:LOOP
+
+
+val0|val0 + 20
 ifGoto|1|:LOOP
