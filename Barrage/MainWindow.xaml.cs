@@ -1,5 +1,4 @@
 ﻿#define SONG
-#define AUTO
 
 using System;
 using System.Collections.Generic;
@@ -374,29 +373,31 @@ namespace Barrage
             }
             else
             {
-#if AUTO
-                Vector mov = new Vector(), dir;
-                for (int p = 0; p < projectiles.Count; p++)
+                if (GameSettings.autoPlay)
                 {
-                    dir = plyrPos - projectiles[p].Position;
-                    mov += dir / Math.Pow(dir.LengthSquared - projectiles[p].RadiusSqr, 1.5);
+                    Vector mov = new Vector(), dir;
+                    for (int p = 0; p < projectiles.Count; p++)
+                    {
+                        dir = plyrPos - projectiles[p].Position;
+                        mov += dir / Math.Pow(dir.LengthSquared - projectiles[p].RadiusSqr, 1.5);
+                    }
+                    double d = plyrPos.X + 200.1;
+                    mov.X += 10 / d / d;
+                    d = plyrPos.X - 200.1;
+                    mov.X -= 10 / d / d;
+                    d = plyrPos.Y + 200.1;
+                    mov.Y += 10 / d / d;
+                    d = plyrPos.Y - 200.1;
+                    mov.Y -= 10 / d / d;
+                    if (mov.LengthSquared > 0)
+                    {
+                        mov.Normalize();
+                        mov *= plyrSpeed;
+                        plyrPos += mov;
+                        moved = true;
+                    }
                 }
-                double d = plyrPos.X + 200.1;
-                mov.X += 10 / d / d;
-                d = plyrPos.X - 200.1;
-                mov.X -= 10 / d / d;
-                d = plyrPos.Y + 200.1;
-                mov.Y += 10 / d / d;
-                d = plyrPos.Y - 200.1;
-                mov.Y -= 10 / d / d;
-                if (mov.LengthSquared > 0)
-                {
-                    mov.Normalize();
-                    mov *= plyrSpeed;
-                    plyrPos += mov;
-                    moved = true;
-                }
-#endif
+
                 if ((Keyboard.IsKeyDown(Key.LeftShift)) && plyrSpeed == plyrFast)
                 {
                     plyrSpeed = plyrSlow;

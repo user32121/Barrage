@@ -11,13 +11,11 @@ namespace Barrage
     //used for saving information
     struct GameSettings
     {
-        //game
         public static bool useMouse;
         public static bool checkForInfiniteLoop;
-
-        //editor
         public static bool useGrid;
         public static int maxHistFrames = 1000;
+        public static bool autoPlay;
 
         public static void Save()
         {
@@ -26,6 +24,8 @@ namespace Barrage
             bw.Write(checkForInfiniteLoop);
             bw.Write(useGrid);
             bw.Write(maxHistFrames);
+            bw.Write(autoPlay);
+            bw.Close();
         }
 
         public static bool TryLoad()
@@ -33,10 +33,16 @@ namespace Barrage
             if (File.Exists("files/settings.dat"))
             {
                 BinaryReader br = new BinaryReader(new FileStream("files/settings.dat", FileMode.Open));
-                useMouse = br.ReadBoolean();
-                checkForInfiniteLoop = br.ReadBoolean();
-                useGrid = br.ReadBoolean();
-                maxHistFrames = br.ReadInt32();
+                try
+                {
+                    useMouse = br.ReadBoolean();
+                    checkForInfiniteLoop = br.ReadBoolean();
+                    useGrid = br.ReadBoolean();
+                    maxHistFrames = br.ReadInt32();
+                    autoPlay = br.ReadBoolean();
+                }
+                catch (EndOfStreamException) { }
+                br.Close();
                 return true;
             }
             else
