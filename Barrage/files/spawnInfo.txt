@@ -37,7 +37,9 @@ val#1|#2            sets val#1 to #2 (stored for later usage)
 
 rng|#1              sets the random number generator seed to #1
 
-visual              indicates a visual map (one that is not meant to be played) (player cannot lose)
+visual              indicates a visual map (one that is not meant to be played and the player cannot lose)
+
+freeze|#1           freezes the player for #1 frames
 
 
 Available Values:

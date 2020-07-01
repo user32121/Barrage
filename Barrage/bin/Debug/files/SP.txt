@@ -1,7 +1,4 @@
-val1|RNG 0 360
-proj|tags=circle|speed=SQRT ( SQRT t )|angle=val1 + 180|startPos=COS val1 * 150 + PLYRX,SIN val1 * 150 + PLYRY|size=10
-wait|2
-val1|RNG 0 360
-proj|tags=circle|speed=SQRT ( SQRT t ) * 2|angle=val1 + 180|startPos=COS val1 * 150 + PLYRX,SIN val1 * 150 + PLYRY|size=7
-wait|2
-repeat|0|10000
+freeze|100
+proj|tags=circle|startPos=n * 4 - 200,0
+wait|1
+repeat|1|100

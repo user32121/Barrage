@@ -59,6 +59,7 @@ namespace Barrage
         readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
         Stopwatch SPTimeout = new Stopwatch();
         public static bool stopGameRequested;
+        double plyrFreeze = 0;
 
         //frame moderation
         DispatcherTimer kickStart;
@@ -362,6 +363,12 @@ namespace Barrage
 
         void PlayerMove()
         {
+            if (plyrFreeze > 0)
+            {
+                plyrFreeze--;
+                return;
+            }
+
             bool moved = false;
 
             if (checkMouse.IsChecked == true && IsMouseOver)
@@ -704,6 +711,11 @@ namespace Barrage
                         ReadString.rng = new Random(num);
                     else
                         MessageIssue(line[1], true);
+                }
+                else if (line[0] == "freeze")
+                {
+                    //freeze player
+                    plyrFreeze += (double)ReadString.Interpret(ReadString.ToEquation(line[1]), typeof(double));
                 }
 
                 //next line
