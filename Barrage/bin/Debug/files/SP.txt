@@ -1,4 +1,3 @@
-freeze|100
-proj|tags=circle|startPos=n * 4 - 200,0
-wait|1
-repeat|1|100
+proj|tags=circle|angle=n * 35|sped=3
+wait|3
+ifGoto|1|0

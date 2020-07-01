@@ -615,6 +615,8 @@ namespace Barrage
                             file = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
                         else if (line[i].Contains("state"))
                             state = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
+                        else
+                            MessageIssue(line[i], true);
                     }
 
                     CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, tagCount, actDelay, file, state);
