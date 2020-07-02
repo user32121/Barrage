@@ -156,6 +156,7 @@ namespace Barrage
             {
                 checkMouse.IsChecked = GameSettings.useMouse;
                 checkInfiniteLoop.IsChecked = GameSettings.checkForInfiniteLoop;
+                checkError.IsChecked = GameSettings.checkForErrors;
                 checkUseGrid.IsChecked = GameSettings.useGrid;
                 textMaxRewind.Text = GameSettings.maxHistFrames.ToString();
                 sliderMaxRewind.Value = Math.Log10(GameSettings.maxHistFrames);
@@ -783,7 +784,7 @@ namespace Barrage
 
         void MessageIssue(string text, bool useTemplate)
         {
-            if (MessageBox.Show(useTemplate ? string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, readIndex) : text,
+            if (GameSettings.checkForErrors && MessageBox.Show(useTemplate ? string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, readIndex) : text,
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
                 stopGameRequested = true;
@@ -795,7 +796,7 @@ namespace Barrage
         }
         public static void MessageIssue(string text, int line)
         {
-            if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, line),
+            if (GameSettings.checkForErrors && MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, line),
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
                 stopGameRequested = true;
@@ -807,7 +808,7 @@ namespace Barrage
         }
         void MessageIssue(string text, string issue)
         {
-            if (MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1} because {2}\n Continue?", text, readIndex, issue),
+            if (GameSettings.checkForErrors && MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1} because {2}\n Continue?", text, readIndex, issue),
                 "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
                 stopGameRequested = true;
@@ -1115,6 +1116,7 @@ namespace Barrage
                 GameSettings.useMouse = (bool)checkMouse.IsChecked;
                 GameSettings.checkForInfiniteLoop = (bool)checkInfiniteLoop.IsChecked;
                 GameSettings.useGrid = (bool)checkUseGrid.IsChecked;
+                GameSettings.checkForErrors = (bool)checkError.IsChecked;
                 GameSettings.Save();
             }
             if (!canceled)

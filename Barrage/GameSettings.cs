@@ -11,11 +11,12 @@ namespace Barrage
     //used for saving information
     struct GameSettings
     {
-        public static bool useMouse;
-        public static bool checkForInfiniteLoop;
-        public static bool useGrid;
+        public static bool useMouse = false;
+        public static bool checkForInfiniteLoop = true;
+        public static bool useGrid = true;
         public static int maxHistFrames = 1000;
-        public static bool autoPlay;
+        public static bool autoPlay = false;
+        public static bool checkForErrors = true;
 
         public static void Save()
         {
@@ -25,6 +26,7 @@ namespace Barrage
             bw.Write(useGrid);
             bw.Write(maxHistFrames);
             bw.Write(autoPlay);
+            bw.Write(checkForErrors);
             bw.Close();
         }
 
@@ -40,6 +42,7 @@ namespace Barrage
                     useGrid = br.ReadBoolean();
                     maxHistFrames = br.ReadInt32();
                     autoPlay = br.ReadBoolean();
+                    checkForErrors = br.ReadBoolean();
                 }
                 catch (EndOfStreamException) { }
                 br.Close();
