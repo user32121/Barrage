@@ -1,0 +1,4 @@
+#gravity fun
+proj|tags=circle|xyVel=1000 / ( ( PLYRX - lxPOS ) ^ 2 + ( plyry - lyPOS ) ^ 2 ) * COS ( ATAN ( plyry - lyPOS ) ( plyrx - lxPOS ) ) + lxVEL,1000 / ( ( plyrx - lxPOS ) ^ 2 + ( plyry - lyPOS ) ^ 2 ) * SIN ( ATAN ( plyry - lyPOS ) ( plyrx - lxPOS ) ) + lyVEL
+wait|10
+repeat|0|10000

@@ -30,6 +30,7 @@
                         </Image.RenderTransform>
                     </Image>
                     <Image x:Name="Arrow" Source="files/Arrow.png" Height="50" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-25,0,0" Visibility="Hidden" Stretch="Fill" RenderTransformOrigin="0,0.5" Width="1"/>
+                    <Path x:Name="dirArrow" Fill="Black" Stroke="Black"/>
                 </Grid>
                 <Label x:Name="labelVisual" Content="V i s u a l" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" FontSize="10" Visibility="Hidden"/>
                 <Label x:Name="projCount" Content="projectiles" Margin="0,10,0,0"  VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" Opacity="0.5" Panel.ZIndex="100" FontSize="10"/>

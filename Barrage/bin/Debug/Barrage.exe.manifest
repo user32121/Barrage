@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Barrage.exe" size="257024">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Barrage.exe" size="258560">
       <assemblyIdentity name="Barrage" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>/Qd0qOgROL6cQRsZ+Ln/noO07cDtdbGbgJkwW9GkVC0=</dsig:DigestValue>
+        <dsig:DigestValue>hlVtkpsJH9WzBU9BhxGPljefc8mzeBNKIzCVJiKpmPQ=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
