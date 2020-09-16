@@ -855,6 +855,9 @@ namespace Barrage
 
         void ReadSpawnTxt()
         {
+            if (!File.Exists("files/SP.txt"))
+                MessageBox.Show("files/SP.txt not found");
+
             StreamReader sr = new StreamReader("files/SP.txt");
             string[] lines;
             if (gamestate == GAMESTATE.EDITOR)
