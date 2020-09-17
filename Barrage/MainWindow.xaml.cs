@@ -32,7 +32,6 @@ namespace Barrage
         const string version = "v0.7.9";
 
         //game
-        readonly int extraUI;
         List<Projectile> projectiles = new List<Projectile>();
         bool paused;
         bool gameOver;
@@ -105,7 +104,7 @@ namespace Barrage
         DispatcherTimer autosaveTimer;
         readonly ImageBrush gridOverlay = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/files/Grid.png")));
         bool isSPSaved;
-        int projHovered = -1;
+        private const int projStepsAhead = 30;
 
         //options
         bool changingMaxRewind;
@@ -120,7 +119,6 @@ namespace Barrage
             InitializeComponent();
 
             KeyDown += new KeyEventHandler(MainWindow_KeyDown);
-            extraUI = gridField.Children.Count;
 
             frameLength = Stopwatch.Frequency / 60;  //framerate
 
@@ -181,15 +179,6 @@ namespace Barrage
                 wait = wait,
             });
 
-            //add prediction line points
-            GeometryGroup gg = new GeometryGroup();
-            for (int i = 0; i < 10; i++)
-            {
-                gg.Children.Add(new LineGeometry());
-                gg.Children.Add(new EllipseGeometry(new Point(), 2, 2));
-            }
-            dirArrow.Data = gg;
-
             ReadSpawnTxt();
         }
 
@@ -202,8 +191,6 @@ namespace Barrage
             MinWidth = Width;
             MinHeight = Height;
             minSize = new Size(Width, Height);
-
-            dirArrow.RenderTransform = new TranslateTransform(gridGame.ActualWidth / 2, gridGame.ActualHeight / 2);
 
             kickStart = new DispatcherTimer();
             kickStart.Tick += KickStart_Tick;
@@ -286,10 +273,14 @@ namespace Barrage
                 gridField.Effect = null;
                 gridPause.Visibility = Visibility.Hidden;
 
+                for (int i = 0; i < projectiles.Count; i++)
+                {
+                    gridField.Children.Remove(projectiles[i].img);
+                    if (projectiles[i].path != null)
+                        gridField.Children.Remove(projectiles[i].path);
+                }
                 projectiles.Clear();
-                gridField.Children.RemoveRange(extraUI, gridField.Children.Count);
                 projCount.Content = "0";
-                projHovered = -1;
 
                 plyrPos = new Vector(0, 100);
                 Player.RenderTransform = new TranslateTransform(plyrPos.X, plyrPos.Y);
@@ -779,7 +770,7 @@ namespace Barrage
             double radians = (double)ReadString.Interpret(angle, typeof(double)) * Math.PI / 180;
             Projectile tempProjectile = new Projectile(size)
             {
-                Sprite = projImage,
+                img = projImage,
                 Duration = duration,
                 File = file,
                 Position = (Vector)ReadString.Interpret(startPos, typeof(Vector)),
@@ -799,9 +790,8 @@ namespace Barrage
 
         private void ProjImage_MouseEnter(object sender, MouseEventArgs e)
         {
-            for (int i = 0; i < projectiles.Count; i++)
-                if (projectiles[i].Sprite == sender)
-                    projHovered = i;
+            (sender as Image).Tag = projStepsAhead * 2;
+            DisplayArrow();
         }
 
         void MessageIssue(string text, bool useTemplate)
@@ -849,12 +839,10 @@ namespace Barrage
                 projectiles[i].Move();
                 if (i < projectiles.Count && !projectiles[i].IsAlive)
                 {
-                    gridField.Children.Remove(projectiles[i].Sprite);
+                    if (projectiles[i].path != null)
+                        gridField.Children.Remove(projectiles[i].path);
+                    gridField.Children.Remove(projectiles[i].img);
                     projectiles.RemoveAt(i);
-                    if (i < projHovered)
-                        projHovered--;
-                    else if (i == projHovered)
-                        projHovered = -1;
                     i--;
                 }
             }
@@ -1007,46 +995,82 @@ namespace Barrage
 
         void DisplayArrow()
         {
-            if (gamestate == GAMESTATE.EDITOR && projHovered >= 0)
+            if (gamestate == GAMESTATE.EDITOR)
             {
-                dirArrow.Visibility = Visibility.Visible;
-                Vector pos = projectiles[projHovered].Position;
-                GeometryGroup gg = dirArrow.Data as GeometryGroup;
-                (gg.Children[0] as LineGeometry).StartPoint = (Point)pos;
-
-                //predict 10 steps ahead
-                for (int t = 0; t < 10; t++)
-                {
-                    ReadString.t = projectiles[projHovered].Age + t;
-                    ReadString.projVals = projectiles[projHovered].projVals;
-
-                    Vector vel;
-                    if (projectiles[projHovered].XyVel != "")
-                        vel = (Vector)ReadString.Interpret(projectiles[projHovered].XyVel, typeof(Vector));
-                    //xyPos
-                    else if (projectiles[projHovered].XyPos != "")
-                        vel = (Vector)ReadString.Interpret(projectiles[projHovered].XyPos, typeof(Vector)) - pos;
-                    //speed and angle
-                    else
+                for (int i = 0; i < projectiles.Count; i++)
+                    if (projectiles[i].img.Tag is int ticks)
                     {
-                        double ang = (double)ReadString.Interpret(projectiles[projHovered].Angle, typeof(double));
-                        double spd = (double)ReadString.Interpret(projectiles[projHovered].Speed, typeof(double));
-                        double radians = ang * Math.PI / 180;
-                        vel = new Vector(Math.Cos(radians), Math.Sin(radians)) * spd;
+                        if (ticks > 0)
+                        {
+                            GeometryGroup gg;
+                            System.Windows.Shapes.Path path;
+                            //create geometry group if path is null
+                            if (projectiles[i].path == null)
+                            {
+                                //add prediction line points
+                                gg = new GeometryGroup();
+                                for (int s = 0; s < projStepsAhead; s++)
+                                {
+                                    gg.Children.Add(new LineGeometry());
+                                    gg.Children.Add(new EllipseGeometry(new Point(), 2, 2));
+                                }
+                                gridField.Children.Add(path = projectiles[i].path = new System.Windows.Shapes.Path()
+                                {
+                                    Data = gg,
+                                    Fill = Brushes.Black,
+                                    Stroke = Brushes.Black,
+                                    RenderTransform = new TranslateTransform(gridGame.ActualWidth / 2, gridGame.ActualHeight / 2),
+                                });
+                                Panel.SetZIndex(path, -1);
+                            }
+                            else
+                            {
+                                path = projectiles[i].path;
+                                gg = path.Data as GeometryGroup;
+                            }
+
+                            path.Visibility = Visibility.Visible;
+                            Vector pos = projectiles[i].Position;
+                            (gg.Children[0] as LineGeometry).StartPoint = (Point)pos;
+
+                            //predict steps ahead
+                            for (int t = 0; t < projStepsAhead; t++)
+                            {
+                                ReadString.t = projectiles[i].Age + t;
+                                ReadString.projVals = projectiles[i].projVals;
+
+                                Vector vel;
+                                if (projectiles[i].XyVel != "")
+                                    vel = (Vector)ReadString.Interpret(projectiles[i].XyVel, typeof(Vector));
+                                //xyPos
+                                else if (projectiles[i].XyPos != "")
+                                    vel = (Vector)ReadString.Interpret(projectiles[i].XyPos, typeof(Vector)) - pos;
+                                //speed and angle
+                                else
+                                {
+                                    double ang = (double)ReadString.Interpret(projectiles[i].Angle, typeof(double));
+                                    double spd = (double)ReadString.Interpret(projectiles[i].Speed, typeof(double));
+                                    double radians = ang * Math.PI / 180;
+                                    vel = new Vector(Math.Cos(radians), Math.Sin(radians)) * spd;
+                                }
+
+                                //moves pos by vel
+                                pos += vel.Scale(projectiles[i].VelDir);
+
+                                //set values to geometry
+                                (gg.Children[t * 2] as LineGeometry).EndPoint = (Point)pos;
+                                (gg.Children[t * 2 + 1] as EllipseGeometry).Center = (Point)pos;
+                                if (t < projStepsAhead - 1)
+                                    (gg.Children[t * 2 + 2] as LineGeometry).StartPoint = (Point)pos;
+                            }
+                            projectiles[i].img.Tag = ticks - 1;
+                        }
+                        else
+                        {
+                            projectiles[i].path.Visibility = Visibility.Collapsed;
+                        }
                     }
-
-                    //moves pos by vel
-                    pos += vel.Scale(projectiles[projHovered].VelDir);
-
-                    //set values to geometry
-                    (gg.Children[t * 2] as LineGeometry).EndPoint = (Point)pos;
-                    (gg.Children[t * 2 + 1] as EllipseGeometry).Center = (Point)pos;
-                    if (t < 9)
-                        (gg.Children[t * 2 + 2] as LineGeometry).StartPoint = (Point)pos;
-                }
             }
-            else
-                dirArrow.Visibility = Visibility.Hidden;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -1252,12 +1276,12 @@ namespace Barrage
                         histIndex += hist.Count;
 
                 for (int i = 0; i < projectiles.Count; i++)
-                    gridField.Children.Remove(projectiles[i].Sprite);
+                    gridField.Children.Remove(projectiles[i].img);
                 projectiles = new List<Projectile>(hist[histIndex].projectiles);
                 for (int i = 0; i < projectiles.Count; i++)
                 {
                     projectiles[i] = hist[histIndex].projectiles[i].Clone();
-                    gridField.Children.Add(projectiles[i].Sprite);
+                    gridField.Children.Add(projectiles[i].img);
                     projectiles[i].Render();
                 }
                 plyrPos = hist[histIndex].plyrPos;

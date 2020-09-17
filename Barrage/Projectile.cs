@@ -4,12 +4,13 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace Barrage
 {
     class Projectile
     {
-        public Image Sprite;
+        public Image img;
         public Vector Position;
         public Vector Velocity;
         public Vector VelDir = new Vector(1, 1);
@@ -40,6 +41,8 @@ namespace Barrage
             LSTATE,
             Count
         }
+
+        public Path path;
 
         public Projectile() { }
 
@@ -77,34 +80,34 @@ namespace Barrage
             {
                 y1 = 50;    //add 50 to y because ...
                 TG.Children.Add(new ScaleTransform(1, 6));
-                Sprite.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(File, typeof(int)), true);
+                img.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(File, typeof(int)), true);
             }
 
             TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle, typeof(double)) - 90));
             if (Tags.Contains("circle"))
             {
                 TG.Children.Add(new ScaleTransform(VelDir.X, VelDir.Y));
-                Sprite.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(File, typeof(int)), false);
+                img.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(File, typeof(int)), false);
             }
             TG.Children.Add(new TranslateTransform(Position.X, Position.Y + y1));
-            Sprite.RenderTransform = TG;
+            img.RenderTransform = TG;
 
             if (enabled)
-                Sprite.Opacity = 1;
+                img.Opacity = 1;
             else
-                Sprite.Opacity = 0.3;
+                img.Opacity = 0.3;
 
             int r = Math.Abs((int)ReadString.Interpret(Radius, typeof(int)));
-            if (Sprite.Width / 2 != r)
+            if (img.Width / 2 != r)
             {
                 if (Tags.Contains("circle"))
                 {
-                    Sprite.Width = r * 2;
-                    Sprite.Height = r * 2;
+                    img.Width = r * 2;
+                    img.Height = r * 2;
                 }
                 else if (Tags.Contains("laser"))
                 {
-                    Sprite.Width = r * 2;
+                    img.Width = r * 2;
                 }
                 RadiusSqr = r * r;
             }

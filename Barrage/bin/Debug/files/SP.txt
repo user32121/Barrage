@@ -1,4 +1,4 @@
-#goodLuck2: loop chaos
-proj|tags=circle,screenWrap|angle=n * 10.1|speed=3|tagCount=1
-wait|10 / SQRT ( n / 10 ) + 1
-repeat|0|1000000
+#wave corner
+proj|tags=circle,wallBounce|speed=5|angle=15.1 - t * 5 + n|duration=n|startPos=151,-195
+wait|10
+repeat|0|1000
