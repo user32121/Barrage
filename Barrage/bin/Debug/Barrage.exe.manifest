@@ -50,7 +50,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>sim9GsP3WlCZ09D/iPqpMpDW82hhdzp8azR1WdQqIpc=</dsig:DigestValue>
+        <dsig:DigestValue>xq8tkJxSasbgBLB4Zadcob47r8+u5JwIXp9dRAKH7wA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -63,13 +63,13 @@
       <dsig:DigestValue>rl5/qDc7Jz+tB+BIbOv9iMGPlRe6YJwrjmU09dnlPcs=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\presets.txt" size="3331">
+  <file name="files\presets.txt" size="3378">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>M2kK8n92iRTlnBu9slFoyOgLkjolljb4dnsxPzq+Gg8=</dsig:DigestValue>
+      <dsig:DigestValue>sjuaZUBGlhhsdXHqxOn0DqA0bg3twXSBiQzQTVJjsdI=</dsig:DigestValue>
     </hash>
   </file>
   <file name="files\SP.txt" size="250">

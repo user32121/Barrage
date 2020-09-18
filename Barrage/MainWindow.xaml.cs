@@ -790,7 +790,7 @@ namespace Barrage
 
         private void ProjImage_MouseEnter(object sender, MouseEventArgs e)
         {
-            (sender as Image).Tag = projStepsAhead * 2;
+            (sender as Image).Tag = projStepsAhead * 10;
             DisplayArrow();
         }
 
@@ -1033,23 +1033,34 @@ namespace Barrage
                             Vector pos = projectiles[i].Position;
                             (gg.Children[0] as LineGeometry).StartPoint = (Point)pos;
 
+                            ReadString.projVals = (new double[(int)Projectile.VI.Count]);
+                            Array.Copy(projectiles[i].projVals, ReadString.projVals, (int)Projectile.VI.Count);
+
                             //predict steps ahead
                             for (int t = 0; t < projStepsAhead; t++)
                             {
                                 ReadString.t = projectiles[i].Age + t;
-                                ReadString.projVals = projectiles[i].projVals;
 
                                 Vector vel;
+                                double spd, ang;
                                 if (projectiles[i].XyVel != "")
+                                {
                                     vel = (Vector)ReadString.Interpret(projectiles[i].XyVel, typeof(Vector));
+                                    spd = vel.Length;
+                                    ang = Math.Atan2(vel.Y, vel.X);
+                                }
                                 //xyPos
                                 else if (projectiles[i].XyPos != "")
+                                {
                                     vel = (Vector)ReadString.Interpret(projectiles[i].XyPos, typeof(Vector)) - pos;
+                                    spd = vel.Length;
+                                    ang = Math.Atan2(vel.Y, vel.X);
+                                }
                                 //speed and angle
                                 else
                                 {
-                                    double ang = (double)ReadString.Interpret(projectiles[i].Angle, typeof(double));
-                                    double spd = (double)ReadString.Interpret(projectiles[i].Speed, typeof(double));
+                                    ang = (double)ReadString.Interpret(projectiles[i].Angle, typeof(double));
+                                    spd = (double)ReadString.Interpret(projectiles[i].Speed, typeof(double));
                                     double radians = ang * Math.PI / 180;
                                     vel = new Vector(Math.Cos(radians), Math.Sin(radians)) * spd;
                                 }
@@ -1062,6 +1073,14 @@ namespace Barrage
                                 (gg.Children[t * 2 + 1] as EllipseGeometry).Center = (Point)pos;
                                 if (t < projStepsAhead - 1)
                                     (gg.Children[t * 2 + 2] as LineGeometry).StartPoint = (Point)pos;
+
+                                //set last values
+                                ReadString.projVals[(int)Projectile.VI.LXPOS] = pos.X;
+                                ReadString.projVals[(int)Projectile.VI.LYPOS] = pos.Y;
+                                ReadString.projVals[(int)Projectile.VI.LXVEL] = vel.X;
+                                ReadString.projVals[(int)Projectile.VI.LYVEL] = vel.Y;
+                                ReadString.projVals[(int)Projectile.VI.LSPD] = spd;
+                                ReadString.projVals[(int)Projectile.VI.LANG] = ang;
                             }
                             projectiles[i].img.Tag = ticks - 1;
                         }
