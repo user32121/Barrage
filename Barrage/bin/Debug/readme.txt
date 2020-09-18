@@ -1,4 +1,4 @@
-1. Unzip the folder this file is in
+1. Run the installer (you already did in order to get this file)
 2. Run "Barrage.exe"
 3. To change the patterns, go to "spawnPatterns.txt"
 	-refer to spawnInfo.txt for help

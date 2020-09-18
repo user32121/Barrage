@@ -1,8 +1,8 @@
-1. Run the installer (you already did in order to get this file)
+1. Unzip the folder this file is in
 2. Run "Barrage.exe"
-3. To change the patterns, go to "files\SP.txt"
-	-refer to "files\spawnInfo.txt" for help
-	-there is also a "files\presets.txt" for samples
+3. To change the patterns, go to "spawnPatterns.txt"
+	-refer to spawnInfo.txt for help
+	-there is also a "presets.txt" for samples
 4. There is an in-game editor. It is a work in progress.
 
 Controls are:
