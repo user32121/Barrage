@@ -27,7 +27,7 @@ jobs:
       - name: Upload files to Google Drive
         uses: mkrakowitzer/actions-googledrive@master
         with:
-          skicka-tokencache-json: ${{{"ClientId":"545942973303-q89jn6j5h072thkessud2oidhn10be4t.apps.googleusercontent.com","access_token":"ya29.a0AfH6SMBNwA35bQUoiDsjguggd_B5jah1XPC_NUVAgnYIpyCVScKwjNWqtPiayy5Z5ll3aZswBMainJw3c4AuTas1FXT0W1w3YFthVJYKsrOzei5N-mdjIhddbv4Yd1_okRKf7XTPOMHOIfNcthASWzrbxhidxDDn76g","token_type":"Bearer","refresh_token":"1//06ZJQpIAIqPDyCgYIARAAGAYSNwF-L9IrJ76Z0LtH1_PLgOB5HtCovEe_fHKCN48_PLKXxAWhf6blX-Oj21HJacMt7EHjn6Q0UPQ","expiry":"2020-09-19T09:26:13.3080582Z"}}}
+          skicka-tokencache-json: ${{"ClientId":"545942973303-q89jn6j5h072thkessud2oidhn10be4t.apps.googleusercontent.com","access_token":"ya29.a0AfH6SMBNwA35bQUoiDsjguggd_B5jah1XPC_NUVAgnYIpyCVScKwjNWqtPiayy5Z5ll3aZswBMainJw3c4AuTas1FXT0W1w3YFthVJYKsrOzei5N-mdjIhddbv4Yd1_okRKf7XTPOMHOIfNcthASWzrbxhidxDDn76g","token_type":"Bearer","refresh_token":"1//06ZJQpIAIqPDyCgYIARAAGAYSNwF-L9IrJ76Z0LtH1_PLgOB5HtCovEe_fHKCN48_PLKXxAWhf6blX-Oj21HJacMt7EHjn6Q0UPQ","expiry":"2020-09-19T09:26:13.3080582Z"}}
           upload-from: ./Barrage/Barrage/publish/BarrageInstall.exe
           upload-to: IRL-L2-Support/platform-architecture-docs
           google-client-id: ${{ 545942973303-q89jn6j5h072thkessud2oidhn10be4t.apps.googleusercontent.com }}
