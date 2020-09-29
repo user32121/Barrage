@@ -13,9 +13,9 @@ namespace Barrage
         public Vector plyrPos;
         public Vector bossPos;
         public double bossAngle;
-        public string bossTarget;
-        public string bossMvSpd;
-        public string bossAngSpd;
+        public (object[], object[]) bossTarget;
+        public object[] bossMvSpd;
+        public object[] bossAngSpd;
 
         public int time;
         public int readIndex;

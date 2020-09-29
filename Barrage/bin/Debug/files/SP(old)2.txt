@@ -1,7 +1,0 @@
-#chase spawner
-val1|val1 + ( plyrx - val1 ) * 0.01
-val2|val2 + ( plyry - val2 ) * 0.01
-val3|RNG 0 360
-proj|tags=circle|speed=3|angle=val3|startPos=val1,val2
-wait|1
-repeat|0|10000

@@ -1,0 +1,92 @@
+# is comment (text reader ignores this line)
+note: an unrecognised command will still be counted as a line, but will not have any effect
+| to separate primary parameters
+note2: equations will be in postfix notation when a messagebox displays an error
+
+
+proj|tags|speed|angle|xyPos|xyVel|size|startPos|duration        fires a projectile with the given properties
+-tags
+ +circle        standard circle projectile
+ +laser         laser (cannot have both laser and circle)
+ +wallBounce    bounce off walls, requires duration
+ +screenWrap    wraps screen edges
+ +outside       projectile won't despawn when it goes offscreen
+-angle          angle of projectile movement (degrees)(counterclockwise from right)
+-speed          speed of projectile (pixels/frame)
+-xyPos          position of projectile (overrides angle and speed)
+-xyVel          velocity of projectile (overrides xyPos, angle, and speed)
+-size           radius of projectile (or half of width of laser)
+-startPos       pos to fires projectile (x,y) from
+-duration       # frames a proj will exist, -1 is infinity
+-tagCount       # times a proj will wallBounce (or similar), -1 is infinity
+-actDelay       # frames before the projectile can collide with the player, -1 is infinity
+-file           a number indicating which image file to use (e.g. 0 will get Projectile0.png)
+-state          an arbitrary number to allow for more complex projectile behavior
+
+wait|#1             waits #1 of frames before spawning projectiles again (including this frame)
+
+ifGoto|#1|#2        if #1 is not 0, go to line #2
+
+repeat|#1|#2        repeats from line #1, #2 - 1 times
+
+boss|#1|#2|#3|#4    moves the boss sprite to #1,#2 at #3 pixels/frame and rotates at #4 degrees/frame
+
+val#1|#2            sets val#1 to #2 (stored for later usage)
+
+:name               creates a label "name" that indicates the line it is on
+
+rng|#1              sets the random number generator seed to #1
+
+visual              indicates a visual map (one that is not meant to be played and the player cannot lose)
+
+freeze|#1           freezes the player for #1 frames
+
+
+Available Values:
+n           the number of projectiles created so far
+t           the age of the projectile (or game)
+PLYRX       the player's position
+PLYRY       
+BOSSX       the boss' position
+BOSSY       
+LANG        the angle from the last frame
+LSPD        the speed from the last frame
+LXPOS       position from last frame
+LYPOS       
+LXVEL       velocity from last frame
+LYVEL       
+LSTATE      state from last frame
+
+
+Available Operators:
+==      equals
+!=      not equals
+>       greater than
+>=      greater than or equal to
+<       less than
+<=      less than or equal to
++       addition
+-       subtraction
+*       multiplication
+/       division
+^       exponent
+
+
+Available Functions:
+ABS #1      returns the absolute value of #1
+ROUND #1    rounds #1
+FLR #1      rounds #1 down
+CEIL #1     rounds #1 up
+MOD #1 #2   returns the modulus of #1 / #2
+RNG #1 #2   picks a random number between #1 (inclusive) and #2 (exclusive)
+SIGN #1     sign of #1
+SQRT #1     square root of #1
+MAX #1 #2   the higher of the two values
+MIN #1 #2   the lower of the two values
+
+SIN #1          sine of #1
+COS #1          cosine of #1
+TAN #1          tangent of #1
+ASIN #1         inverse sine of #1
+ACOS #1         inverse cosine of #1
+ATAN #1 #2      inverse tangent of #1/#2
