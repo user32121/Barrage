@@ -7,7 +7,7 @@ name: CI
 on: 
   push:
     paths: 
-      - "Barrage/Barrage/publish/BarrageInstall.exe"
+      - "Barrage/publish/BarrageInstall.exe"
   workflow_dispatch:
   
 
