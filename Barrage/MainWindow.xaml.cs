@@ -1012,7 +1012,7 @@ namespace Barrage
                                 for (int s = 0; s < projStepsAhead; s++)
                                 {
                                     gg.Children.Add(new LineGeometry());
-                                    gg.Children.Add(new EllipseGeometry(new Point(), 2, 2));
+                                    gg.Children.Add(new EllipseGeometry(new Point(), 1, 1));
                                 }
                                 gridField.Children.Add(path = projectiles[i].path = new System.Windows.Shapes.Path()
                                 {
