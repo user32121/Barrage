@@ -30,24 +30,27 @@ namespace Barrage
     {
         static MainWindow Main;
 
-        //game
+        #region game
         List<Projectile> projectiles = new List<Projectile>();
         bool paused;
         bool gameOver;
         bool isVisual;
         int time;
-        //player
+        #endregion
+        #region player
         public static Vector plyrPos;
         double plyrSpeed = 5;
         const double plyrFast = 5;
         const double plyrSlow = 2;
-        //boss
+        #endregion
+        #region boss
         public static Vector bossPos = new Vector(300, -300);
         double bossAngle = 0;
         (object[], object[]) bossTarget = (null, null);
         object[] bossMvSpd = null;
         object[] bossAngSpd = null;
-        //spawn pattern
+        #endregion
+        #region spawn pattern
         List<string> spawnPattern;
         int readIndex = 0;
         double wait;
@@ -58,8 +61,9 @@ namespace Barrage
         Stopwatch SPTimeout = new Stopwatch();
         public static bool stopGameRequested;
         double plyrFreeze = 0;
+        #endregion
 
-        //frame moderation
+        #region frame moderation
         DispatcherTimer kickStart;
         readonly Stopwatch stopwatch = new Stopwatch();
         readonly long frameLength;
@@ -69,8 +73,9 @@ namespace Barrage
         int fpsIndex;
         const int fpsMeasureRate = 5;
         public static bool closeRequested;
+        #endregion
 
-        //gamestate
+        #region  gamestate
         enum GAMESTATE
         {
             MENU,
@@ -79,8 +84,9 @@ namespace Barrage
             OPTIONS,
         }
         static GAMESTATE gamestate = GAMESTATE.MENU;
+        #endregion
 
-        //image storage
+        #region image storage
         static readonly BitmapImage[] playPauseImgs = new BitmapImage[]
         {
             new BitmapImage(new Uri("files/Play.png", UriKind.Relative)),
@@ -88,8 +94,9 @@ namespace Barrage
         };
         static readonly List<BitmapImage> projectileImgs = new List<BitmapImage>();
         static int laserImgsIndex;
+        #endregion
 
-        //editor
+        #region editor
         bool playing;
         bool stepForwards;
         Size minSize;
@@ -104,14 +111,16 @@ namespace Barrage
         readonly ImageBrush gridOverlay = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/files/Grid.png")));
         bool isSPSaved;
         private const int projStepsAhead = 30;
+        #endregion
 
-        //options
-        bool changingMaxRewind;
+        #region misc
+        bool changingMaxRewind;  //if a different section of code is changing the maxRewind, ignore it
 
 #if SONG
         readonly MediaPlayer song = new MediaPlayer();
         bool songPlaying;
 #endif
+        #endregion
 
         public MainWindow()
         {
@@ -147,7 +156,8 @@ namespace Barrage
 #if SONG
             song.Open(new Uri("files/song.mp3", UriKind.Relative));
 #endif
-            labelVersion.Content = "";
+            if (System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed)
+                labelVersion.Content = "v" + System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion;
 
             //load settings
             if (GameSettings.TryLoad())
