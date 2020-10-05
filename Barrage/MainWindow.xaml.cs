@@ -127,6 +127,7 @@ namespace Barrage
         public static readonly char[] charVBar = { '|' };
         public static readonly char[] charSpace = { ' ' };
         public static readonly char[] charComma = { ',' };
+        public static readonly Type strObjTup = typeof((string, object));
         #endregion
 
         public MainWindow()
@@ -586,6 +587,12 @@ namespace Barrage
 
                         for (int i = 1; i < line.Length; i++)
                         {
+                            if (line[i].GetType() != strObjTup)
+                            {
+                                MessageIssue(spText[readIndex], true);
+                                continue;
+                            }
+
                             (string, object) prop = ((string, object))line[i];
                             object[] expr = prop.Item2 as object[];
 

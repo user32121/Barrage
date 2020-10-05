@@ -188,7 +188,8 @@ namespace Barrage
                                 input[i] = projVals == null ? 0 : projVals[(int)Projectile.VI.LSTATE];
                                 break;
                             default:
-                                throw new NotImplementedException();
+                                MainWindow.MessageIssue(s, line);
+                                break;
                         }
                         break;
 
