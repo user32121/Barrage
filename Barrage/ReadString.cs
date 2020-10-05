@@ -58,8 +58,10 @@ namespace Barrage
         public static int line;
         public static string lineStr;
 
-        private static object[] ToPostfix(Queue<string> input)
+        //converts from infix/prefix notation to postfix notation
+        public static object[] ToPostfix(string inp)
         {
+            Queue<string> input = new Queue<string>(inp.Split(MainWindow.charSpace, StringSplitOptions.RemoveEmptyEntries));
             Stack<OPERATORS> opStack = new Stack<OPERATORS>();
             Queue<object> output = new Queue<object>();
 
@@ -94,44 +96,43 @@ namespace Barrage
             return output.ToArray();
         }
 
-        public static object[] ToEquation(string input)
+        //inserts n and val#
+        public static object[] InsertValues(object[] input)
         {
             //null check
             if (input == null)
                 return null;
 
-            //replaces n
-            input = input.Replace("n", n.ToString());
+            input = (object[])input.Clone();
 
-            //replaces vals
-            int i = input.IndexOf("val");
-            while (i != -1 && !MainWindow.closeRequested)
+            for (int i = 0; i < input.Length && !MainWindow.closeRequested; i++)
             {
-                //finds the val's index
-                int j = 1;
-                while (i + 3 + j < input.Length && char.IsDigit(input[i + 3 + j]))
-                    j++;
-
-                //substitutes the value
-                if (i + 3 + j > input.Length)
-                    MainWindow.MessageIssue(input, line);
-                else
                 {
-                    int.TryParse(input.Substring(i + 3, j), out int valId);
-                    if (valId < numVals.Count && valId >= 0)
-                        input = input.Replace(input.Substring(i, j + 3), numVals[valId].ToString());
-                    else
-                        input = input.Replace(input.Substring(i, j + 3), "0");
+                    //replace n
+                    if (input[i] is string s && s == "n")
+                        input[i] = n;
                 }
-
-                //next val
-                i = input.IndexOf("val");
+                {
+                    //replace vals
+                    if (input[i] is string s && s.StartsWith("val"))
+                        if (int.TryParse(s.Substring(3), out int ind))
+                            if (ind >= 0 && ind < numVals.Count)
+                                input[i] = numVals[ind];
+                            else
+                                input[i] = 0;
+                        else
+                            MainWindow.MessageIssue(s, line);
+                }
             }
 
-            //convert to postfix notation
-            return ToPostfix(new Queue<string>(input.Split(' ')));
+            return input;
+        }
+        public static (object[], object[]) InsertValues((object[], object[]) input)
+        {
+            return (InsertValues(input.Item1), InsertValues(input.Item2));
         }
 
+        //evaluates the expression
         public static double Interpret(object[] inp)
         {
             //null value check (returns default value of 0)

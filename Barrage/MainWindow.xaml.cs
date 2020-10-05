@@ -37,12 +37,14 @@ namespace Barrage
         bool isVisual;
         int time;
         #endregion
+
         #region player
         public static Vector plyrPos;
         double plyrSpeed = 5;
         const double plyrFast = 5;
         const double plyrSlow = 2;
         #endregion
+
         #region boss
         public static Vector bossPos = new Vector(300, -300);
         double bossAngle = 0;
@@ -50,8 +52,10 @@ namespace Barrage
         object[] bossMvSpd = null;
         object[] bossAngSpd = null;
         #endregion
+
         #region spawn pattern
-        List<string> spawnPattern;
+        List<object[]> spawnPattern;  //[line: [either expr, ("", expr), or ("", (expr, expr))]]
+        List<string> spText = new List<string>();
         int readIndex = 0;
         double wait;
         Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
@@ -120,6 +124,9 @@ namespace Barrage
         readonly MediaPlayer song = new MediaPlayer();
         bool songPlaying;
 #endif
+        public static readonly char[] charVBar = { '|' };
+        public static readonly char[] charSpace = { ' ' };
+        public static readonly char[] charComma = { ',' };
         #endregion
 
         public MainWindow()
@@ -557,185 +564,179 @@ namespace Barrage
                 ReadString.projVals = null;
                 ReadString.line = readIndex;
 
-                //keeps reading lines untill text says to wait
-                string[] line = spawnPattern[readIndex].Split('|');
-                for (int i = 0; i < line.Length; i++)
-                    line[i] = line[i].Trim();
+                //keeps reading lines until text says to wait
+                object[] line = spawnPattern[readIndex];
 
-                if (line[0] == "proj")
-                {
-                    //finds parameters
-                    List<string> tags = new List<string>();
-                    object[] size = { 7 };
-                    object[] speed = null;
-                    object[] angle = null;
-                    (object[], object[])? xyPos = null;
-                    (object[], object[])? xyVel = null;
-                    (object[], object[])? startPos = (null, new object[] { -100 });
-                    object[] duration = { -1 };
-                    object[] tagCount = { -1 };
-                    object[] actDelay = null;
-                    object[] file = null;
-                    object[] state = null;
-
-                    for (int i = 1; i < line.Length; i++)
+                if ((line[0] as object[])[0] is string command)
+                    if (command == "proj")
                     {
-                        if (line[i].Contains("size"))
-                            size = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
-                        else if (line[i].Contains("startPos"))
+                        //finds parameters
+                        List<string> tags = new List<string>();
+                        object[] size = { 7 };
+                        object[] speed = null;
+                        object[] angle = null;
+                        (object[], object[])? xyPos = null;
+                        (object[], object[])? xyVel = null;
+                        (object[], object[])? startPos = (null, new object[] { -100 });
+                        object[] duration = { -1 };
+                        object[] tagCount = { -1 };
+                        object[] actDelay = null;
+                        object[] file = null;
+                        object[] state = null;
+
+                        for (int i = 1; i < line.Length; i++)
                         {
-                            string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
-                            if (str.Length < 2)
+                            (string, object) prop = ((string, object))line[i];
+                            object[] expr = prop.Item2 as object[];
+
+                            if (prop.Item1 == "size")
+                                size = prop.Item2 as object[];
+                            else if (prop.Item1 == "startPos")
                             {
-                                MessageIssue(line[i], true);
-                                str = new string[2] { null, null };
+                                if (expr != null)
+                                {
+                                    MessageIssue(spText[readIndex], true);
+                                    startPos = null;
+                                }
+                                else
+                                    startPos = ReadString.InsertValues(((object[], object[]))prop.Item2);
                             }
-                            startPos = (ReadString.ToEquation(str[0]), ReadString.ToEquation(str[1]));
-                        }
-                        else if (line[i].Contains("speed"))
-                            speed = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
-                        else if (line[i].Contains("angle"))
-                            angle = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
-                        else if (line[i].Contains("xyPos"))
-                        {
-                            string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
-                            if (str.Length < 2)
+                            else if (prop.Item1 == "speed")
+                                speed = ReadString.InsertValues(expr);
+                            else if (prop.Item1 == "angle")
+                                angle = ReadString.InsertValues(expr);
+                            else if (prop.Item1 == "xyPos")
                             {
-                                MessageIssue(line[i], true);
-                                str = new string[2] { null, null };
+                                if (expr != null)
+                                {
+                                    MessageIssue(spText[readIndex], true);
+                                    xyPos = null;
+                                }
+                                xyPos = ReadString.InsertValues(((object[], object[]))prop.Item2);
                             }
-                            xyPos = (ReadString.ToEquation(str[0]), ReadString.ToEquation(str[1]));
-                        }
-                        else if (line[i].Contains("xyVel"))
-                        {
-                            string[] str = line[i].Substring(line[i].IndexOf('=') + 1).Split(',');
-                            if (str.Length < 2)
+                            else if (prop.Item1 == "xyVel")
                             {
-                                MessageIssue(line[i], true);
-                                str = new string[2] { null, null };
+                                if (expr != null)
+                                {
+                                    MessageIssue(spText[readIndex], true);
+                                    xyVel = null;
+                                }
+                                xyVel = ReadString.InsertValues(((object[], object[]))prop.Item2);
                             }
-                            xyVel = (ReadString.ToEquation(str[0]), ReadString.ToEquation(str[1]));
+                            else if (prop.Item1 == "tags")
+                                tags = string.Join(",", ReadString.InsertValues(expr)).Split(charComma, StringSplitOptions.RemoveEmptyEntries).ToList();
+                            else if (prop.Item1 == "duration")
+                                duration = ReadString.InsertValues(expr);
+                            else if (prop.Item1 == "tagCount")
+                                tagCount = ReadString.InsertValues(expr);
+                            else if (prop.Item1 == "actDelay")
+                                actDelay = ReadString.InsertValues(expr);
+                            else if (prop.Item1 == "file")
+                                file = ReadString.InsertValues(expr);
+                            else if (prop.Item1 == "state")
+                                state = ReadString.InsertValues(expr);
+                            else
+                                MessageIssue(spText[readIndex], true);
                         }
-                        else if (line[i].Contains("tags"))
+
+                        CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, tagCount, actDelay, file, state);
+                        spawnInd++;
+                        ReadString.n = spawnInd;
+                    }
+                    else if (command == "boss")
+                    {
+                        //set movement and rotation of boss
+                        bossTarget = (ReadString.InsertValues(line[1] as object[]), ReadString.InsertValues(line[2] as object[]));
+                        bossMvSpd = ReadString.InsertValues(line[3] as object[]);
+                        bossAngSpd = ReadString.InsertValues(line[4] as object[]);
+                    }
+                    else if (command == "wait")
+                    {
+                        //waits # of frames untill spawns again
+                        wait += ReadString.Interpret(ReadString.InsertValues(line[1] as object[]));
+                    }
+                    else if (command == "repeat")
+                    {
+                        //sets repeats left
+                        if (repeatVals[readIndex] <= 0)
                         {
-                            tags = line[i].Substring(line[i].IndexOf('=') + 1).Split(',').ToList();
-                            for (int t = 0; t < tags.Count; t++)
-                                tags[t] = tags[t].Trim();
+                            if (line.Length < 3)
+                                MessageIssue(spText[readIndex], "repeat requires 2 inputs");
+                            else
+                                repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.InsertValues(line[2] as object[]));
                         }
-                        else if (line[i].Contains("duration"))
-                            duration = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
-                        else if (line[i].Contains("tagCount"))
-                            tagCount = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
-                        else if (line[i].Contains("actDelay"))
-                            actDelay = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
-                        else if (line[i].Contains("file"))
-                            file = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
-                        else if (line[i].Contains("state"))
-                            state = ReadString.ToEquation(line[i].Substring(line[i].IndexOf('=') + 1));
-                        else
-                            MessageIssue(line[i], true);
-                    }
 
-                    CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, tagCount, actDelay, file, state);
-                    spawnInd++;
-                    ReadString.n = spawnInd;
-                }
-                else if (line[0] == "boss")
-                {
-                    //set movement and rotation of boss
-                    bossTarget = (ReadString.ToEquation(line[1]), ReadString.ToEquation(line[2]));
-                    bossMvSpd = ReadString.ToEquation(line[3]);
-                    bossAngSpd = ReadString.ToEquation(line[4]);
-                }
-                else if (line[0] == "wait")
-                {
-                    //waits # of frames untill spawns again
-                    wait += ReadString.Interpret(ReadString.ToEquation(line[1]));
-                }
-                else if (line[0] == "repeat")
-                {
-                    //sets repeats left
-                    if (repeatVals[readIndex] <= 0)
-                    {
-                        if (line.Length < 3)
-                            MessageIssue(spawnPattern[readIndex], "repeat requires 2 inputs");
-                        else
-                            repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.ToEquation(line[2]));
-                    }
-
-                    //repeats (stops at 1 since that will be the last repeat)
-                    repeatVals[readIndex]--;
-                    if (repeatVals[readIndex] >= 1)
-                    {
-                        int lineNum = (int)ReadString.Interpret(ReadString.ToEquation(line[1])) - 1;
-                        //(-1 because there is ++ later on)
-
-                        if (lineNum < -1)
-                            MessageIssue(line[1], "line number cannot be negative");
-                        else
-                            readIndex = lineNum;
-                    }
-                }
-                else if (line[0] == "ifGoto")
-                {
-                    if (ReadString.Interpret(ReadString.ToEquation(line[1])) != 0)
-                    {
-                        int lineNum = (int)ReadString.Interpret(ReadString.ToEquation(line[2])) - 1;
-                        //(-1 because there is ++ later on)
-
-                        if (lineNum < -1)
+                        //repeats (stops at 1 since that will be the last repeat)
+                        repeatVals[readIndex]--;
+                        if (repeatVals[readIndex] >= 1)
                         {
-                            MessageIssue(line[2], "line number cannot be negative");
-                            readIndex = -1;
+                            int lineNum = (int)ReadString.Interpret(ReadString.InsertValues(line[1] as object[])) - 1;
+                            //(-1 because there is ++ later on)
+
+                            if (lineNum < -1)
+                                MessageIssue(string.Join(" ", line[1] as object[]), "line number cannot be negative");
+                            else
+                                readIndex = lineNum;
+                        }
+                    }
+                    else if (command == "ifGoto")
+                    {
+                        if (ReadString.Interpret(ReadString.InsertValues(line[1] as object[])) != 0)
+                        {
+                            int lineNum = (int)ReadString.Interpret(ReadString.InsertValues(line[2] as object[])) - 1;
+                            //(-1 because there is ++ later on)
+
+                            if (lineNum < -1)
+                            {
+                                MessageIssue(string.Join(" ", line[1] as object[]), "line number cannot be negative");
+                                readIndex = -1;
+                            }
+                            else
+                                readIndex = lineNum;
+                        }
+                    }
+                    else if (command.StartsWith("val"))
+                    {
+                        //sets a value to spwnVals
+                        if (int.TryParse(command.Substring(3), out int ind))
+                        {
+                            while (ind >= spawnVals.Count)
+                                spawnVals.Add(0);
+
+                            if (line.Length < 2)
+                                MessageIssue(spText[readIndex], "val requires an input");
+                            else if (ind < 0)
+                                MessageIssue(spText[readIndex], "val# cannot be negative");
+                            else if (!stopGameRequested)
+                                spawnVals[ind] = ReadString.Interpret(ReadString.InsertValues(line[1] as object[]));
                         }
                         else
-                            readIndex = lineNum;
+                            MessageIssue(spText[readIndex], true);
                     }
-                }
-                else if (line[0].Length >= 3 && line[0].Substring(0, 3) == "val")
-                {
-                    //sets a value to spwnVals
-                    if (int.TryParse(line[0].Substring(3), out int ind))
-                    {
-                        while (ind >= spawnVals.Count)
-                            spawnVals.Add(0);
-
-                        if (line.Length < 2)
-                            MessageIssue(spawnPattern[readIndex], "val requires an input");
-                        else if (ind < 0)
-                            MessageIssue(spawnPattern[readIndex], "val# cannot be negative");
-                        else if (!stopGameRequested)
-                            spawnVals[ind] = ReadString.Interpret(ReadString.ToEquation(line[1]));
-                    }
-                    else
-                        MessageIssue(line[0], true);
-                }
 #if SONG
-                else if (line[0] == "music")
-                {
-                    if (line.Length > 1)
+                    else if (command == "music")
                     {
-                        if (double.TryParse(line[1], out double result) && result >= 0)
-                            song.Position = TimeSpan.FromMilliseconds(result);
+                        if (line.Length > 1)
+                        {
+                            if (double.TryParse((line[1] as object[])[0] as string, out double result) && result >= 0)
+                                song.Position = TimeSpan.FromMilliseconds(result);
+                        }
+                        else
+                            song.Stop();
+                        song.Play();
+                        songPlaying = true;
                     }
-                    else
-                        song.Stop();
-                    song.Play();
-                    songPlaying = true;
-                }
 #endif
-                else if (line[0] == "rng")
-                {
-                    if (int.TryParse(line[1], out int num))
-                        ReadString.rng = new Random(num);
-                    else
-                        MessageIssue(line[1], true);
-                }
-                else if (line[0] == "freeze")
-                {
-                    //freeze player
-                    plyrFreeze += ReadString.Interpret(ReadString.ToEquation(line[1]));
-                }
+                    else if (command == "rng")
+                    {
+                        //set rng seed
+                        ReadString.rng = new Random((int)ReadString.Interpret(ReadString.InsertValues(line[1] as object[])));
+                    }
+                    else if (command == "freeze")
+                    {
+                        //freeze player
+                        plyrFreeze += ReadString.Interpret(ReadString.InsertValues(line[1] as object[]));
+                    }
 
                 //next line
                 readIndex++;
@@ -897,7 +898,7 @@ namespace Barrage
             sr.Close();
             sr.Dispose();
 
-            List<string> readFile = new List<string>();
+            spText.Clear();
             labels.Clear();
 
             //loads files into readFile and removes comments and empty spaces
@@ -911,33 +912,57 @@ namespace Barrage
                 }
                 else if (lines[i] == "" || lines[i].Substring(0, 1) == "#")
                 {
-                    readFile.Add("");
+                    spText.Add("");
                 }
                 else
                 {
-                    readFile.Add(lines[i]);
+                    spText.Add(lines[i]);
 
                     //repeat
-                    if (lines[i].Contains("repeat") && !repeatVals.ContainsKey(readFile.Count - 1))
-                        repeatVals.Add(readFile.Count - 1, 0);
+                    if (lines[i].Contains("repeat") && !repeatVals.ContainsKey(spText.Count - 1))
+                        repeatVals.Add(spText.Count - 1, 0);
 
                     //label
                     if (lines[i][0] == ':')
                         if (labels.ContainsKey(lines[i]))
                             MessageBox.Show("\"" + lines[i] + "\" is already a label", "", MessageBoxButton.OK, MessageBoxImage.Warning);
                         else
-                            labels.Add(lines[i], readFile.Count - 1);
+                            labels.Add(lines[i], spText.Count - 1);
                 }
             }
 
             //insert labels
             string[] keys = labels.Keys.ToArray();
-            for (int i = 0; i < readFile.Count; i++)
+            for (int i = 0; i < spText.Count; i++)
                 for (int j = 0; j < labels.Count; j++)
-                    readFile[i] = readFile[i].Replace(keys[j], labels[keys[j]].ToString());
+                    spText[i] = spText[i].Replace(keys[j], labels[keys[j]].ToString());
 
             //transfers lines into spawnPattern
-            spawnPattern = readFile;
+            spawnPattern = new List<object[]>(spText.Count);
+            for (int i = 0; i < spText.Count; i++)
+            {
+                string[] line = spText[i].Split(charVBar, StringSplitOptions.RemoveEmptyEntries);
+                spawnPattern.Add(new object[line.Length]);
+
+                for (int l = 0; l < line.Length; l++)
+                {
+                    int eqInd = line[l].IndexOf('=');
+                    int eqEqInd = line[l].IndexOf("==");
+                    if (eqInd == eqEqInd)
+                        //normal expression
+                        spawnPattern[i][l] = ReadString.ToPostfix(line[l]);
+                    else
+                    {
+                        //contains assignment
+                        int comInd = line[l].IndexOf(',');
+                        if (comInd != -1)
+                            //vector assignment
+                            spawnPattern[i][l] = (line[l].Substring(0, eqInd).Trim(), (ReadString.ToPostfix(line[l].Substring(eqInd + 1, comInd - eqInd - 1)), ReadString.ToPostfix(line[l].Substring(comInd + 1))) as object);
+                        else
+                            spawnPattern[i][l] = (line[l].Substring(0, eqInd).Trim(), ReadString.ToPostfix(line[l].Substring(eqInd + 1)) as object);
+                    }
+                }
+            }
         }
 
         void ModerateFrames()
@@ -946,6 +971,7 @@ namespace Barrage
             while (stopwatch.ElapsedTicks < nextFrame) ;
             long ticksPassed = stopwatch.ElapsedTicks;
             nextFrame = ticksPassed / frameLength * frameLength + frameLength;
+            //nextFrame += frameLength;
 
             //display fps
             ticksPassed = stopwatch.ElapsedTicks;
