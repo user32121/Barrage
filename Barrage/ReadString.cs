@@ -81,9 +81,14 @@ namespace Barrage
                     opStack.Push(OPERATORS.PARENLEFT);
                 else if (token == ")")  //right parentheses
                 {
-                    while (opStack.Peek() != OPERATORS.PARENLEFT)   //move from operator stack to output until close parentheses
-                        output.Enqueue(opStack.Pop());
-                    opStack.Pop();
+                    if (opStack.Count == 0)
+                        MainWindow.MessageIssue(inp, line);
+                    else
+                    {
+                        while (opStack.Peek() != OPERATORS.PARENLEFT)   //move from operator stack to output until close parentheses
+                            output.Enqueue(opStack.Pop());
+                        opStack.Pop();
+                    }
                 }
                 else if (double.TryParse(token, out double val))   //token is a number
                     output.Enqueue(val);

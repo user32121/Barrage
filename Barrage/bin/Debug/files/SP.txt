@@ -1,3 +1,4 @@
-proj|tags=circle|speed=3|angle=10 * n
+#Hardcore Sign:7 Circles
+proj|tags=circle|speed=t / 10 - 5|angle=n * 50|startPos=0,-50
 wait|1
 ifGoto|1|0

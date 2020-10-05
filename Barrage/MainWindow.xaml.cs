@@ -568,7 +568,7 @@ namespace Barrage
                 //keeps reading lines until text says to wait
                 object[] line = spawnPattern[readIndex];
 
-                if ((line[0] as object[])[0] is string command)
+                if (line != null && line.Length > 0 && (line[0] as object[])[0] is string command)
                     if (command == "proj")
                     {
                         //finds parameters
@@ -597,7 +597,7 @@ namespace Barrage
                             object[] expr = prop.Item2 as object[];
 
                             if (prop.Item1 == "size")
-                                size = prop.Item2 as object[];
+                                size = ReadString.InsertValues(expr);
                             else if (prop.Item1 == "startPos")
                             {
                                 if (expr != null)
@@ -962,7 +962,7 @@ namespace Barrage
                     {
                         //contains assignment
                         int comInd = line[l].IndexOf(',');
-                        if (comInd != -1)
+                        if (comInd != -1 && !line[l].Contains("tags"))
                             //vector assignment
                             spawnPattern[i][l] = (line[l].Substring(0, eqInd).Trim(), (ReadString.ToPostfix(line[l].Substring(eqInd + 1, comInd - eqInd - 1)), ReadString.ToPostfix(line[l].Substring(comInd + 1))) as object);
                         else
