@@ -954,8 +954,9 @@ namespace Barrage
                 for (int l = 0; l < line.Length; l++)
                 {
                     int eqInd = line[l].IndexOf('=');
-                    int eqEqInd = line[l].IndexOf("==");
-                    if (eqInd == eqEqInd)
+                    char prevChar = eqInd == -1 ? '=' : line[l][eqInd - 1];
+
+                    if (prevChar == '=' || prevChar == '!' || prevChar == '<' || prevChar == '>' || eqInd < line[l].Length - 1 && line[l][eqInd + 1] == '=')
                         //normal expression
                         spawnPattern[i][l] = ReadString.ToPostfix(line[l]);
                     else
