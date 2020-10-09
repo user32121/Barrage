@@ -97,7 +97,10 @@ namespace Barrage
             else
                 img.Opacity = 0.3;
 
-            int r = Math.Abs((int)ReadString.Interpret(Radius));
+            double dr = ReadString.Interpret(Radius);
+            if (double.IsNaN(dr))
+                dr = 0;
+            int r = Math.Abs((int)dr);
             if (img.Width / 2 != r)
             {
                 if (Tags.Contains("circle"))

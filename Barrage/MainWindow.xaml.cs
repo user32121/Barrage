@@ -893,14 +893,14 @@ namespace Barrage
             StreamReader sr = new StreamReader("files/SP.txt");
             string[] lines;
             if (gamestate == GAMESTATE.EDITOR)
-                lines = textEditor.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                lines = textEditor.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
             else
             {
                 string temp = sr.ReadToEnd();
                 textEditor.Text = temp;
                 isSPSaved = true;
                 Title = "Barrage";
-                lines = temp.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                lines = temp.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
             }
             sr.Close();
             sr.Dispose();
@@ -917,7 +917,7 @@ namespace Barrage
                     labelVisual.Visibility = Visibility.Visible;
 
                 }
-                else if (lines[i] == "" || lines[i].Substring(0, 1) == "#")
+                else if (lines[i] == "" || lines[i].StartsWith("#"))
                 {
                     spText.Add("");
                 }
