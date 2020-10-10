@@ -951,8 +951,15 @@ namespace Barrage
                 string[] line = spText[i].Split(charVBar, StringSplitOptions.RemoveEmptyEntries);
                 spawnPattern.Add(new object[line.Length]);
 
+                ReadString.line = i;
+                ReadString.lineStr = spText[i];
+
                 for (int l = 0; l < line.Length; l++)
                 {
+                    int hashInd = line[l].IndexOf('#');
+                    if (hashInd != -1)
+                        line[l] = line[l].Substring(0, hashInd);
+
                     int eqInd = line[l].IndexOf('=');
                     char prevChar = eqInd == -1 ? '=' : line[l][eqInd - 1];
 

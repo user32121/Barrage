@@ -438,16 +438,17 @@ proj|tags=circle|speed=( t > 34 ) * ( SQRT t / 2 ) - 1|angle=12 * n|actDelay=34|
 repeat|:p072|10
 wait|110
 
-:dev
 #grid
 #then left side bounce and collapse, then right side same
 val1|-200
 val3|85
 :p073
 val0|-200
+#horizontal
 :p074
 val2|RNG 0 3
-ifGoto|( MOD ( val0 + 200 ) 150 < 75 ) + ( MOD ( val1 + 200 ) 150 < 75 )|:p075
+#create gaps
+ifGoto|( MOD ( val0 + 200 ) 150 < 75 ) + ( MOD ( val1 + 200 ) 150 < 75 ) == 1|:p075
 proj|tags=circle|startPos=val0,val1|xyVel=( t > val3 + ( val0 > 15 ) * 40 ) * val2 * SIGN ( val0 - 15 ),( t > val3 + ( val0 > 15 ) * 40 ) * ( t - val3 - ( val0 > 15 ) * 40 - 10 ) / 3
 :p075
 val0|val0 + 15
@@ -470,9 +471,9 @@ wait|130
 val0|RNG 0 360
 val1|RNG 100 180
 :p078
-proj|tags=circle|xyPos=lxPOS * 0.9 + COS val0 * val1 * 0.1,lyPOS * 0.9 + SIN val0 * val1 * 0.1|duration=40
+proj|tags=circle|xyPos=LPOSX * 0.9 + COS val0 * val1 * 0.1,LPOSY * 0.9 + SIN val0 * val1 * 0.1|duration=40
 :p079
-proj|tags=circle|xyPos=lxPOS * 0.9 + COS val0 * val1 * 0.1 + COS ( n * 60 ) * ( t > 17 ) * 5,lyPOS * 0.9 + SIN val0 * val1 * 0.1 + SIN ( n * 60 ) * ( t > 17 ) * 5|duration=40
+proj|tags=circle|xyPos=LPOSX * 0.9 + COS val0 * val1 * 0.1 + COS ( n * 60 ) * ( t > 17 ) * 5,LPOSY * 0.9 + SIN val0 * val1 * 0.1 + SIN ( n * 60 ) * ( t > 17 ) * 5|duration=40
 repeat|:p079|6
 val0|val0 + 120
 repeat|:p078|3
@@ -489,40 +490,40 @@ wait|5
 repeat|:p080|15
 
 #approaching disappearing walls (horizontal)
-val1|plyry
-proj|tags=laser|xyPos=-200,MAX ( t * 10 - 400 + val1 ) -213|duration=39
-proj|tags=laser|xyPos=-200,MIN ( 400 - t * 10 + val1 ) 213|duration=39
+val1|PLYRY
+proj|tags=laser,outside|xyPos=-200,t * 10 - 400 + val1|duration=40
+proj|tags=laser,outside|xyPos=-200,400 - t * 10 + val1|duration=40
 wait|17
 #approaching disappearing walls (vertical)
-val0|plyrx
-proj|tags=laser|angle=90|xyPos=MAX ( t * 10 - 400 + val0 ) -202,-200|duration=39
-proj|tags=laser|angle=90|xyPos=MIN ( 400 - t * 10 + val0 ) 202,-200|duration=39
+val0|PLYRX
+proj|tags=laser,outside|angle=90|xyPos=t * 10 - 400 + val0,-200|duration=40
+proj|tags=laser,outside|angle=90|xyPos=400 - t * 10 + val0,-200|duration=40
 wait|17
 #approaching disappearing walls (square)
-val0|plyrx
-val1|plyry
-proj|tags=laser|angle=37 - t|xyPos=MAX ( val0 - 25 ) -202,MIN ( 400 - t * 10 + val1 ) 213|duration=38
-proj|tags=laser|angle=217 - t|xyPos=MIN ( val0 + 25 ) 202,MAX ( t * 10 - 400 + val1 ) -213|duration=38
-proj|tags=laser|angle=127 - t|xyPos=MAX ( t * 10 - 400 + val0 ) -202,MAX ( val1 - 25 ) -213|duration=38
-proj|tags=laser|angle=-53 - t|xyPos=MIN ( 400 - t * 10 + val0 ) 202,MIN ( val1 + 25 ) 213|duration=38
+val0|PLYRX
+val1|PLYRY
+proj|tags=laser,outside|angle=37 - t|xyPos=val0 - 25,400 - t * 10 + val1|duration=40
+proj|tags=laser,outside|angle=217 - t|xyPos=val0 + 25,t * 10 - 400 + val1|duration=40
+proj|tags=laser,outside|angle=127 - t|xyPos=t * 10 - 400 + val0,val1 - 25|duration=40
+proj|tags=laser,outside|angle=-53 - t|xyPos=400 - t * 10 + val0,val1 + 25|duration=40
 wait|50
 
 #approaching disappearing circle (small)
-val0|plyrx
-val1|plyry
+val0|PLYRX
+val1|PLYRY
 :p081
-proj|tags=circle|xyPos=MIN ( MAX ( COS ( n * 10 ) * ( 150 - t * 10 ) + val0 ) -202 ) 202,MIN ( MAX ( SIN ( n * 10 ) * ( 150 - t * 10 ) + val1 ) -213 ) 213|duration=14
+proj|tags=circle,outside|xyPos=COS ( n * 10 ) * ( 150 - t * 10 ) + val0,SIN ( n * 10 ) * ( 150 - t * 10 ) + val1|duration=15
 repeat|:p081|36
 wait|17
 #approaching disappearing circle (large)
 :p082
-proj|tags=circle|xyPos=MIN ( MAX ( COS ( n * 10 ) * ( 200 - t * 10 ) + val0 ) -215 ) 215,MIN ( MAX ( SIN ( n * 10 ) * ( 200 - t * 10 ) + val1 ) -226 ) 226|duration=18|size=20
+proj|tags=circle,outside|xyPos=COS ( n * 10 ) * ( 200 - t * 10 ) + val0,SIN ( n * 10 ) * ( 200 - t * 10 ) + val1|duration=18|size=20
 repeat|:p082|36
 wait|10
 #approaching disappearing wave (full)
 :p083
 val2|RNG 0 360
-proj|tags=circle|xyPos=MIN ( MAX ( COS val2 * ( 300 - t * 10 ) + val0 ) -202 ) 202,MIN ( MAX ( SIN val2 * ( 300 - t * 10 ) + val1 ) -213 ) 213|duration=29
+proj|tags=circle,outside|xyPos=COS val2 * ( 300 - t * 10 ) + val0,SIN val2 * ( 300 - t * 10 ) + val1|duration=30
 repeat|:p083|7
 wait|1
 repeat|:p083|34
@@ -545,7 +546,7 @@ val1|RNG -200 200
 ifGoto|val0 > 50|:p086
 val0|val0 - 100
 :p086
-proj|tags=circle|startPos=val0,val1|size=MIN ( t / 2 ) 7|xyVel=lxVEL * 0.9 + ( t == 1 ) * -5 + ( t == 34 ) * 5 + ( t > 68 ) * ( lyPOS / 200 ),lyVEL * 0.9 + ( t > 68 ) * ( lxPOS / -200 )
+proj|tags=circle|startPos=val0,val1|size=MIN ( t / 2 ) 7|xyVel=LVELX * 0.9 + ( t == 1 ) * -5 + ( t == 34 ) * 5 + ( t > 68 ) * ( LPOSY / 200 ),LVELY * 0.9 + ( t > 68 ) * ( LPOSX / -200 )
 repeat|:p085|100
 wait|130
 
@@ -712,22 +713,22 @@ val3|0
 :p109
 val0|RNG -10 10
 val1|RNG -10 10
-val2|ATAN ( plyry + 150 - val1 ) ( plyrx + 150 - val0 )
+val2|ATAN ( PLYRY + 150 - val1 ) ( PLYRX + 150 - val0 )
 proj|tags=circle|angle=val2|speed=5|startPos=val0 - 150,val1 - 150
 ifGoto|val3 < 50|:p110
 val0|RNG -10 10
 val1|RNG -10 10
-val2|ATAN ( plyry + 150 - val1 ) ( plyrx - 150 - val0 )
+val2|ATAN ( PLYRY + 150 - val1 ) ( PLYRX - 150 - val0 )
 proj|tags=circle|angle=val2|speed=5|startPos=val0 + 150,val1 - 150
 ifGoto|val3 < 100|:p110
 val0|RNG -10 10
 val1|RNG -10 10
-val2|ATAN ( plyry + 150 - val1 ) ( plyrx - val0 )
+val2|ATAN ( PLYRY + 150 - val1 ) ( PLYRX - val0 )
 proj|tags=circle|angle=val2|speed=5|startPos=val0,val1 - 150
 ifGoto|( ( val3 < 110 ) + MOD val3 30 ) != 0|:p110
 val4|-200
 :p111
-val2|ATAN ( plyry + 200 ) ( plyrx - val4 )
+val2|ATAN ( PLYRY + 200 ) ( PLYRX - val4 )
 proj|tags=circle|angle=val2|speed=5|startPos=val4,-200
 val4|val4 + 10
 repeat|:p111|40
@@ -812,10 +813,10 @@ wait|37.5
 
 #linear multispeed multishot
 val0|3
-val1|ATAN ( plyry + 200 ) ( plyrx + 200 )
-val2|ATAN ( plyry - 200 ) ( plyrx + 200 )
-val3|ATAN ( plyry + 200 ) ( plyrx - 200 )
-val4|ATAN ( plyry - 200 ) ( plyrx - 200 )
+val1|ATAN ( PLYRY + 200 ) ( PLYRX + 200 )
+val2|ATAN ( PLYRY - 200 ) ( PLYRX + 200 )
+val3|ATAN ( PLYRY + 200 ) ( PLYRX - 200 )
+val4|ATAN ( PLYRY - 200 ) ( PLYRX - 200 )
 :p118
 proj|tags=circle|startPos=-200,-200|angle=val1|speed=val0
 proj|tags=circle|startPos=-200,200|angle=val2|speed=val0
@@ -1000,7 +1001,7 @@ ifGoto|1|:pp008
 #top tri burst function (13 return) (using 14 x, 15 dir)
 :f006
 val14|RNG -150 150
-val15|ATAN ( plyry + 200 ) ( plyrx - val14 )
+val15|ATAN ( PLYRY + 200 ) ( PLYRX - val14 )
 proj|tags=circle|speed=( t > 70 ) * 3|angle=val15|startPos=val14,-200|size=5
 proj|tags=circle|speed=( t > 70 ) * 3|angle=val15 + 30|startPos=val14,-200|size=5
 proj|tags=circle|speed=( t > 70 ) * 3|angle=val15 - 30|startPos=val14,-200|size=5
@@ -1218,7 +1219,7 @@ val2|1
 :p153
 val0|RNG -200 -100
 val1|RNG -200 200
-proj|tags=circle|xyPos=( t == 1 ) * val0 * val2 + lxPOS * 0.8,( t == 1 ) * val1 + lyPOS * 0.8 - 20|duration=30 + ( val2 == 1 ) * 15
+proj|tags=circle|xyPos=( t == 1 ) * val0 * val2 + LPOSX * 0.8,( t == 1 ) * val1 + LPOSY * 0.8 - 20|duration=30 + ( val2 == 1 ) * 15
 val1|val1 + 20
 repeat|:p153|50
 val2|val2 * -1
@@ -1252,7 +1253,7 @@ val0|val0 - 5
 wait|0.5
 repeat|:p154|42
 wait|29
-proj|tags=laser|angle=-90|xyPos=0,MIN ( t * 10 ) 210|duration=51
+proj|tags=laser,outside|angle=-90|xyPos=0,MIN ( t * 10 ) 210|duration=50
 wait|50
 
 #rotate 180
@@ -1410,10 +1411,10 @@ repeat|:p169|8
 proj|tags=laser|startPos=100,-200|angle=90|actDelay=1000|duration=50|size=100
 val0|-195
 :p170
-proj|tags=circle,screenWrap|angle=90|speed=5|duration=1|startPos=val0,-200
-proj|tags=circle,screenWrap|angle=90|speed=5|duration=1|startPos=val0 + 100,-200
-proj|tags=circle,screenWrap|angle=90|speed=5|duration=1|startPos=val0 + 200,-200
-proj|tags=circle,screenWrap|angle=90|speed=5|duration=1|startPos=val0 + 300,-200
+proj|tags=circle,screenWrap|angle=90|speed=5|tagCount=1|startPos=val0,-200
+proj|tags=circle,screenWrap|angle=90|speed=5|tagCount=1|startPos=val0 + 100,-200
+proj|tags=circle,screenWrap|angle=90|speed=5|tagCount=1|startPos=val0 + 200,-200
+proj|tags=circle,screenWrap|angle=90|speed=5|tagCount=1|startPos=val0 + 300,-200
 val0|val0 + 2.4
 wait|2
 repeat|:p170|42
@@ -1432,9 +1433,9 @@ repeat|:p171|2
 val1|0
 val2|-150
 :p172
-val0|ATAN ( plyry + 200 ) ( plyrx + 200 )
+val0|ATAN ( PLYRY + 200 ) ( PLYRX + 200 )
 proj|tags=circle|angle=val0|speed=4|startPos=-200,-200
-val0|ATAN ( plyry + 200 ) ( plyrx - 200 )
+val0|ATAN ( PLYRY + 200 ) ( PLYRX - 200 )
 proj|tags=circle|angle=val0|speed=4|startPos=200,-200
 
 #large circle bursts, change to small
@@ -1476,26 +1477,26 @@ wait|100
 repeat|:p176|2
 
 #lasers following player, then shrinking away
-val0|plyrx
-val1|plyrx
-val2|plyrx
-val3|plyrx
-val4|plyrx
-val5|plyrx
-val6|plyrx
-val7|plyrx
-val8|plyrx
-val9|plyrx
-val10|plyry
-val11|plyry
-val12|plyry
-val13|plyry
-val14|plyry
-val15|plyry
-val16|plyry
-val17|plyry
-val18|plyry
-val19|plyry
+val0|PLYRX
+val1|PLYRX
+val2|PLYRX
+val3|PLYRX
+val4|PLYRX
+val5|PLYRX
+val6|PLYRX
+val7|PLYRX
+val8|PLYRX
+val9|PLYRX
+val10|PLYRY
+val11|PLYRY
+val12|PLYRY
+val13|PLYRY
+val14|PLYRY
+val15|PLYRY
+val16|PLYRY
+val17|PLYRY
+val18|PLYRY
+val19|PLYRY
 val21|0
 :p178
 val0|val1
@@ -1507,7 +1508,7 @@ val5|val6
 val6|val7
 val7|val8
 val8|val9
-val9|plyrx
+val9|PLYRX
 val10|val11
 val11|val12
 val12|val13
@@ -1517,7 +1518,7 @@ val15|val16
 val16|val17
 val17|val18
 val18|val19
-val19|plyry
+val19|PLYRY
 val20|ATAN ( val10 - SIN val21 * 100 ) ( val0 - COS val21 * 100 )
 proj|tags=laser|angle=val20|duration=3|startPos=COS val21 * 100,SIN val21 * 100|actDelay=( val21 < 100 ) * 1000
 val20|ATAN ( val10 - SIN ( val21 + 120 ) * 100 ) ( val0 - COS ( val21 + 120 ) * 100 )
@@ -1535,13 +1536,14 @@ wait|1
 repeat|:p179|500
 wait|320
 
+:dev
 #different shapes collapsing
 val0|3
 val1|0
 :p180
 val2|RNG 0.5 1
 val3|RNG 0 360
-proj|tags=circle|speed=val2 - 3 / t + t / 100|angle=val3|size=5|startPos=50 * COS val1 / COS ( 2 / val0 * ASIN ( SIN ( val1 * val0 / 2 ) ) ),50 * SIN val1 / COS ( 2 / val0 * ASIN ( SIN ( val1 * val0 / 2 ) ) )
+proj|tags=circle|speed=val2 - 3 / ( t + 1 ) + t / 100|angle=val3|size=5|startPos=50 * COS val1 / COS ( 2 / val0 * ASIN ( SIN ( val1 * val0 / 2 ) ) ),50 * SIN val1 / COS ( 2 / val0 * ASIN ( SIN ( val1 * val0 / 2 ) ) )
 val1|val1 + 6
 repeat|:p180|60
 val0|val0 + 1
@@ -1553,10 +1555,10 @@ val0|-1
 :p181
 val1|RNG -100 100 + val0 * 100
 val2|RNG -100 100 + 30
-proj|tags=circle|xyPos=( t == 1 ) * val1 + lxPOS * 0.99 + val0,( t == 1 ) * val2 + lyPOS * 0.99 + 0.3
-proj|tags=circle|xyPos=( t == 1 ) * val2 + lxPOS * 0.99 + 0.3 + val0 * -0.2,( t == 1 ) * val1 + lyPOS * 0.99 + val0
+proj|tags=circle|xyPos=( t == 1 ) * val1 + LPOSX * 0.99 + val0,( t == 1 ) * val2 + LPOSY * 0.99 + 0.3
+proj|tags=circle|xyPos=( t == 1 ) * val2 + LPOSX * 0.99 + 0.3 + val0 * -0.2,( t == 1 ) * val1 + LPOSY * 0.99 + val0
 val2|val2 * -1
-proj|tags=circle|xyPos=( t == 1 ) * val1 + lxPOS * 0.99 + val0,( t == 1 ) * val2 + lyPOS * 0.99 - 0.3
-proj|tags=circle|xyPos=( t == 1 ) * val1 + lxPOS * 0.99 - 0.3 + val0 * -0.2,( t == 1 ) * val2 + lyPOS * 0.99 + val0
+proj|tags=circle|xyPos=( t == 1 ) * val1 + LPOSX * 0.99 + val0,( t == 1 ) * val2 + LPOSY * 0.99 - 0.3
+proj|tags=circle|xyPos=( t == 1 ) * val1 + LPOSX * 0.99 - 0.3 + val0 * -0.2,( t == 1 ) * val2 + LPOSY * 0.99 + val0
 val0|val0 + 0.04
 repeat|:p181|50
