@@ -112,7 +112,7 @@ namespace Barrage
         Point projEndPos;
         int textEditKeyPresses;
         DispatcherTimer autosaveTimer;
-        readonly ImageBrush gridOverlay = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/files/Grid.png")));
+        readonly ImageBrush gridUnderlay = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/files/Grid.png")));
         bool isSPSaved;
         private const int projStepsAhead = 30;
         #endregion
@@ -160,7 +160,7 @@ namespace Barrage
             if (File.Exists("files/Arrow.png"))
                 Arrow.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Arrow.png"));
             if (File.Exists("files/Grid.png"))
-                gridOverlay = new ImageBrush(new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Grid.png")));
+                gridUnderlay = new ImageBrush(new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Grid.png")));
 #if SONG
             song.Open(new Uri("files/song.mp3", UriKind.Relative));
 #endif
@@ -176,6 +176,7 @@ namespace Barrage
                 checkUseGrid.IsChecked = GameSettings.useGrid;
                 textMaxRewind.Text = GameSettings.maxHistFrames.ToString();
                 sliderMaxRewind.Value = Math.Log10(GameSettings.maxHistFrames);
+                checkPredict.IsChecked = GameSettings.predictProjectile;
             }
 
             //initial history frame
@@ -763,7 +764,8 @@ namespace Barrage
             //displays projectile
             int r = Math.Abs((int)ReadString.Interpret(size));
             Image projImage = new Image();
-            projImage.MouseEnter += ProjImage_MouseEnter;
+            if (GameSettings.predictProjectile)
+                projImage.MouseEnter += ProjImage_MouseEnter;
             if (tags.Contains("circle"))
             {
                 projImage.Width = r * 2;
@@ -1217,7 +1219,7 @@ namespace Barrage
                 gridEditor.Visibility = Visibility.Visible;
                 gridGame.Visibility = Visibility.Visible;
                 if ((bool)checkUseGrid.IsChecked)
-                    gridField.Background = gridOverlay;
+                    gridField.Background = gridUnderlay;
                 else
                     gridField.Background = Brushes.Transparent;
             }
@@ -1284,6 +1286,7 @@ namespace Barrage
                 GameSettings.checkForInfiniteLoop = (bool)checkInfiniteLoop.IsChecked;
                 GameSettings.useGrid = (bool)checkUseGrid.IsChecked;
                 GameSettings.checkForErrors = (bool)checkError.IsChecked;
+                GameSettings.predictProjectile = (bool)checkPredict.IsChecked;
                 GameSettings.Save();
             }
             if (!canceled)
@@ -1548,7 +1551,7 @@ namespace Barrage
         {
             if (sender == checkUseGrid)
                 if ((bool)checkUseGrid.IsChecked)
-                    gridField.Background = gridOverlay;
+                    gridField.Background = gridUnderlay;
                 else
                     gridField.Background = Brushes.Transparent;
         }

@@ -17,6 +17,7 @@ namespace Barrage
         public static int maxHistFrames = 1000;
         public static bool autoPlay = false;
         public static bool checkForErrors = true;
+        public static bool predictProjectile = false;
 
         public static void Save()
         {
@@ -27,6 +28,7 @@ namespace Barrage
             bw.Write(maxHistFrames);
             bw.Write(autoPlay);
             bw.Write(checkForErrors);
+            bw.Write(predictProjectile);
             bw.Close();
         }
 
@@ -43,6 +45,7 @@ namespace Barrage
                     maxHistFrames = br.ReadInt32();
                     autoPlay = br.ReadBoolean();
                     checkForErrors = br.ReadBoolean();
+                    predictProjectile = br.ReadBoolean();
                 }
                 catch (EndOfStreamException) { }
                 br.Close();
