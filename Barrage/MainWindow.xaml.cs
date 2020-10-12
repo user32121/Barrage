@@ -168,16 +168,14 @@ namespace Barrage
                 labelVersion.Content = "v" + System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion;
 
             //load settings
-            if (GameSettings.TryLoad())
-            {
-                checkMouse.IsChecked = GameSettings.useMouse;
-                checkInfiniteLoop.IsChecked = GameSettings.checkForInfiniteLoop;
-                checkError.IsChecked = GameSettings.checkForErrors;
-                checkUseGrid.IsChecked = GameSettings.useGrid;
-                textMaxRewind.Text = GameSettings.maxHistFrames.ToString();
-                sliderMaxRewind.Value = Math.Log10(GameSettings.maxHistFrames);
-                checkPredict.IsChecked = GameSettings.predictProjectile;
-            }
+            GameSettings.TryLoad();
+            checkMouse.IsChecked = GameSettings.useMouse;
+            checkInfiniteLoop.IsChecked = GameSettings.checkForInfiniteLoop;
+            checkError.IsChecked = GameSettings.checkForErrors;
+            checkUseGrid.IsChecked = GameSettings.useGrid;
+            textMaxRewind.Text = GameSettings.maxHistFrames.ToString();
+            sliderMaxRewind.Value = Math.Log10(GameSettings.maxHistFrames);
+            checkPredict.IsChecked = GameSettings.predictProjectile;
 
             //initial history frame
             hist.Add(new GameFrame()
