@@ -133,18 +133,15 @@ namespace Barrage
 
         //evaluates the expression
         //also inserts variable values
-        public static double Interpret(object[] inp)
+        public static double Interpret(object[] input)
         {
             //null value check (returns default value of 0)
-            if (inp == null)
+            if (input == null)
                 return 0;
 
-            List<object> input = new List<object>(inp);
+            Stack<double> operands = new Stack<double>();
 
-            if (input.Count == 0)
-                return 0;
-
-            for (int i = 0; i >= 0 && i < input.Count && !MainWindow.stopGameRequested; i++)
+            for (int i = 0; i >= 0 && i < input.Length && !MainWindow.stopGameRequested; i++)
             {
                 switch (input[i])
                 {
@@ -152,22 +149,22 @@ namespace Barrage
                         switch (gVar)
                         {
                             case MainWindow.GLOBALVARS.N:
-                                input[i] = projVars == null ? gameVars[(int)MainWindow.GLOBALVARS.N] : projVars[(int)MainWindow.PROJVARS.N];
+                                operands.Push(projVars == null ? gameVars[(int)MainWindow.GLOBALVARS.N] : projVars[(int)MainWindow.PROJVARS.N]);
                                 break;
                             case MainWindow.GLOBALVARS.T:
-                                input[i] = projVars == null ? gameVars[(int)MainWindow.GLOBALVARS.T] : projVars[(int)MainWindow.PROJVARS.T];
+                                operands.Push(projVars == null ? gameVars[(int)MainWindow.GLOBALVARS.T] : projVars[(int)MainWindow.PROJVARS.T]);
                                 break;
                             case MainWindow.GLOBALVARS.PLYRX:
-                                input[i] = MainWindow.plyrPos.X;
+                                operands.Push(MainWindow.plyrPos.X);
                                 break;
                             case MainWindow.GLOBALVARS.PLYRY:
-                                input[i] = MainWindow.plyrPos.Y;
+                                operands.Push(MainWindow.plyrPos.Y);
                                 break;
                             case MainWindow.GLOBALVARS.BOSSX:
-                                input[i] = MainWindow.bossPos.X;
+                                operands.Push(MainWindow.bossPos.X);
                                 break;
                             case MainWindow.GLOBALVARS.BOSSY:
-                                input[i] = MainWindow.bossPos.Y;
+                                operands.Push(MainWindow.bossPos.Y);
                                 break;
                             default:
                                 throw new NotImplementedException();
@@ -178,31 +175,31 @@ namespace Barrage
                         switch (pVar)
                         {
                             case MainWindow.PROJVARS.N:
-                                input[i] = projVars == null ? gameVars[(int)MainWindow.GLOBALVARS.N] : projVars[(int)MainWindow.PROJVARS.N];
+                                operands.Push(projVars == null ? gameVars[(int)MainWindow.GLOBALVARS.N] : projVars[(int)MainWindow.PROJVARS.N]);
                                 break;
                             case MainWindow.PROJVARS.T:
-                                input[i] = projVars == null ? gameVars[(int)MainWindow.GLOBALVARS.T] : projVars[(int)MainWindow.PROJVARS.T];
+                                operands.Push(projVars == null ? gameVars[(int)MainWindow.GLOBALVARS.T] : projVars[(int)MainWindow.PROJVARS.T]);
                                 break;
                             case MainWindow.PROJVARS.LXPOS:
-                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LXPOS];
+                                operands.Push(projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LXPOS]);
                                 break;
                             case MainWindow.PROJVARS.LYPOS:
-                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LYPOS];
+                                operands.Push(projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LYPOS]);
                                 break;
                             case MainWindow.PROJVARS.LXVEL:
-                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LXVEL];
+                                operands.Push(projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LXVEL]);
                                 break;
                             case MainWindow.PROJVARS.LYVEL:
-                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LYVEL];
+                                operands.Push(projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LYVEL]);
                                 break;
                             case MainWindow.PROJVARS.LSPD:
-                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LSPD];
+                                operands.Push(projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LSPD]);
                                 break;
                             case MainWindow.PROJVARS.LANG:
-                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LANG];
+                                operands.Push(projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LANG]);
                                 break;
                             case MainWindow.PROJVARS.LSTATE:
-                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LSTATE];
+                                operands.Push(projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LSTATE]);
                                 break;
                             default:
                                 throw new NotImplementedException();
@@ -210,7 +207,11 @@ namespace Barrage
                         break;
 
                     case MainWindow.ValIndex valIndex:
-                        input[i] = numVals[valIndex.index];
+                        operands.Push(numVals[valIndex.index]);
+                        break;
+
+                    case double d:
+                        operands.Push(d);
                         break;
 
                     case ReadString.OPERATORS op:
@@ -220,151 +221,141 @@ namespace Barrage
                         {
                             //1 value operators
                             case OPERATORS.SQRT:
-                                num1 = GetVal(ref input, i -= 1);
-                                input[i] = Math.Sqrt(num1);
+                                num1 = operands.Pop();
+                                operands.Push(Math.Sqrt(num1));
                                 break;
                             case OPERATORS.SIGN:
-                                num1 = GetVal(ref input, i -= 1);
-                                input[i] = (double)Math.Sign(num1);
+                                num1 = operands.Pop();
+                                operands.Push((double)Math.Sign(num1));
                                 break;
                             case OPERATORS.SIN:
-                                num1 = GetVal(ref input, i -= 1);
-                                input[i] = Math.Sin(num1 * Math.PI / 180);
+                                num1 = operands.Pop();
+                                operands.Push(Math.Sin(num1 * Math.PI / 180));
                                 break;
                             case OPERATORS.COS:
-                                num1 = GetVal(ref input, i -= 1);
-                                input[i] = Math.Cos(num1 * Math.PI / 180);
+                                num1 = operands.Pop();
+                                operands.Push(Math.Cos(num1 * Math.PI / 180));
                                 break;
                             case OPERATORS.TAN:
-                                num1 = GetVal(ref input, i -= 1);
-                                input[i] = Math.Tan(num1 * Math.PI / 180);
+                                num1 = operands.Pop();
+                                operands.Push(Math.Tan(num1 * Math.PI / 180));
                                 break;
                             case OPERATORS.ASIN:
-                                num1 = GetVal(ref input, i -= 1);
-                                input[i] = Math.Asin(num1) / Math.PI * 180;
+                                num1 = operands.Pop();
+                                operands.Push(Math.Asin(num1) / Math.PI * 180);
                                 break;
                             case OPERATORS.ACOS:
-                                num1 = GetVal(ref input, i -= 1);
-                                input[i] = Math.Acos(num1) / Math.PI * 180;
+                                num1 = operands.Pop();
+                                operands.Push(Math.Acos(num1) / Math.PI * 180);
                                 break;
                             case OPERATORS.ABS:
-                                num1 = GetVal(ref input, i -= 1);
-                                input[i] = Math.Abs(num1);
+                                num1 = operands.Pop();
+                                operands.Push(Math.Abs(num1));
                                 break;
                             case OPERATORS.FLR:
-                                num1 = GetVal(ref input, i -= 1);
-                                input[i] = Math.Floor(num1);
+                                num1 = operands.Pop();
+                                operands.Push(Math.Floor(num1));
                                 break;
                             case OPERATORS.CEIL:
-                                num1 = GetVal(ref input, i -= 1);
-                                input[i] = Math.Ceiling(num1);
+                                num1 = operands.Pop();
+                                operands.Push(Math.Ceiling(num1));
                                 break;
                             case OPERATORS.ROUND:
-                                num1 = GetVal(ref input, i -= 1);
-                                input[i] = Math.Round(num1);
+                                num1 = operands.Pop();
+                                operands.Push(Math.Round(num1));
                                 break;
                             //2 value operators
                             case OPERATORS.EQUAL:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = num1 == num2 ? 1 : 0;
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(num1 == num2 ? 1 : 0);
                                 break;
                             case OPERATORS.NOTEQUAL:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = num1 != num2 ? 1 : 0;
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(num1 != num2 ? 1 : 0);
                                 break;
                             case OPERATORS.GREATER:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = num1 > num2 ? 1 : 0;
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(num1 > num2 ? 1 : 0);
                                 break;
                             case OPERATORS.GREATEREQUAL:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = num1 >= num2 ? 1 : 0;
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(num1 >= num2 ? 1 : 0);
                                 break;
                             case OPERATORS.LESS:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = num1 < num2 ? 1 : 0;
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(num1 < num2 ? 1 : 0);
                                 break;
                             case OPERATORS.LESSEQUAL:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = num1 <= num2 ? 1 : 0;
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(num1 <= num2 ? 1 : 0);
                                 break;
                             case OPERATORS.ADD:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = num1 + num2;
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(num1 + num2);
                                 break;
                             case OPERATORS.SUBTRACT:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = num1 - num2;
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(num1 - num2);
                                 break;
                             case OPERATORS.MULTIPLY:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = num1 * num2;
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(num1 * num2);
                                 break;
                             case OPERATORS.DIVIDE:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = num1 / num2;
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(num1 / num2);
                                 break;
                             case OPERATORS.POW:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = Math.Pow(num1, num2);
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(Math.Pow(num1, num2));
                                 break;
                             case OPERATORS.MOD:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = num1 % num2;
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(num1 % num2);
                                 break;
                             case OPERATORS.MIN:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = Math.Min(num1, num2);
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(Math.Min(num1, num2));
                                 break;
                             case OPERATORS.MAX:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = Math.Max(num1, num2);
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(Math.Max(num1, num2));
                                 break;
                             case OPERATORS.RNG:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = num1 + rng.NextDouble() * (num2 - num1);
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(num1 + rng.NextDouble() * (num2 - num1));
                                 break;
                             case OPERATORS.ATAN:
-                                (num1, num2) = Get2Vals(ref input, i -= 2);
-                                input[i] = Math.Atan2(num1, num2) / Math.PI * 180;
+                                num2 = operands.Pop();
+                                num1 = operands.Pop();
+                                operands.Push(Math.Atan2(num1, num2) / Math.PI * 180);
                                 break;
                         }
                         break;
                 }
             }
-            if (input.Count < 1)
-                return 0;
-            else if (input[0] is double) //double
-                return (double)input[0];
-            else
-                MainWindow.MessageIssue(MainWindow.spText[line], line, "Equation resulted in a value of " + input[0].GetType() + "\n Expecting a double");
-            return 0;
-        }
-
-        private static (double, double) Get2Vals(ref List<object> input, int start)
-        {
-            return (GetVal(ref input, start), GetVal(ref input, start));
-        }
-        private static double GetVal(ref List<object> input, int index)
-        {
-            //gets a number of values from the input list
-            double output = 0;
-
-            if (index < 0)
-                MainWindow.MessageIssue(MainWindow.spText[line], line, "Not enough operands for operators");
-
-            if (index < 0)  //out of range
-                output = 0;
-            else
+            if (operands.Count < 1)
             {
-                if (input[index] is double) //double
-                    output = (double)input[index];
-                else
-                    MainWindow.MessageIssue(MainWindow.spText[line], line, "Cannot perform math on an operator");
-                input.RemoveAt(index);
+                MainWindow.MessageIssue(MainWindow.spText[line], line, "Not enough operands for operators");
+                return 0;
             }
-
-            return output;
+            else
+                return (double)operands.Pop();
         }
     }
 }

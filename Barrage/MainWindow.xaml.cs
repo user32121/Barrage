@@ -243,10 +243,6 @@ namespace Barrage
         private const int projStepsAhead = 30;
         #endregion
 
-        #region misc
-        bool changingMaxRewind;  //if a different section of code is changing the maxRewind, ignore it
-        #endregion
-
         public MainWindow()
         {
             InitializeComponent();
