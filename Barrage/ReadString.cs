@@ -7,7 +7,7 @@ using System.Windows;
 
 namespace Barrage
 {
-    class ReadString
+    public class ReadString
     {
         public static Random rng = new Random();
         static readonly Dictionary<string, OPERATORS> strToOp = new Dictionary<string, OPERATORS>() {
@@ -33,7 +33,7 @@ namespace Barrage
             {OPERATORS.RNG, 10}, {OPERATORS.MIN, 10}, {OPERATORS.MAX, 10},
             {OPERATORS.SIN, 10}, {OPERATORS.COS, 10}, {OPERATORS.TAN, 10}, {OPERATORS.ASIN, 10}, {OPERATORS.ACOS, 10}, {OPERATORS.ATAN,10},
         };
-        enum OPERATORS
+        public enum OPERATORS
         {
             PARENLEFT = -1, PARENRIGHT = -2,
             EQUAL = 0, NOTEQUAL, GREATER, GREATEREQUAL, LESS, LESSEQUAL,
@@ -47,21 +47,19 @@ namespace Barrage
         }
 
         //global values
-        public static int n;
-        public static List<double> numVals;
+        public static double[] gameVars;
 
         //projectile specific values
-        public static int t;
-        public static double[] projVals;
+        public static double[] projVars;
+        public static Dictionary<int, double> numVals;
 
         //debug info
         public static int line;
-        public static string lineStr;
 
-        //converts from infix/prefix notation to postfix notation
+        //converts from infix/prefix notation (string) to postfix notation (object[])
         public static object[] ToPostfix(string inp)
         {
-            Queue<string> input = new Queue<string>(inp.Split(MainWindow.charSpace, StringSplitOptions.RemoveEmptyEntries));
+            Queue<string> input = new Queue<string>(inp.Split(' '));
             Stack<OPERATORS> opStack = new Stack<OPERATORS>();
             Queue<object> output = new Queue<object>();
 
@@ -82,7 +80,7 @@ namespace Barrage
                 else if (token == ")")  //right parentheses
                 {
                     if (opStack.Count == 0)
-                        MainWindow.MessageIssue(inp, line);
+                        MainWindow.MessageIssue(inp, line, "Unbalanced parentheses");
                     else
                     {
                         while (opStack.Peek() != OPERATORS.PARENLEFT)   //move from operator stack to output until close parentheses
@@ -90,7 +88,7 @@ namespace Barrage
                             output.Enqueue(opStack.Pop());
                             if (opStack.Count == 0)
                             {
-                                MainWindow.MessageIssue(inp, line);
+                                MainWindow.MessageIssue(inp, line, "Unbalanced parentheses");
                                 goto BREAKOPSTACKLOOP;
                             }
                         }
@@ -98,10 +96,19 @@ namespace Barrage
                     BREAKOPSTACKLOOP:;
                     }
                 }
+                else if (MainWindow.strToPVar.TryGetValue(token, out MainWindow.PROJVARS pVar))   //token is a projectile variable
+                    output.Enqueue(pVar);
+                else if (MainWindow.strToGVar.TryGetValue(token, out MainWindow.GLOBALVARS gVar))   //token is a global variable
+                    output.Enqueue(gVar);
+                else if (token.StartsWith("val"))   //token is a num value
+                    if (int.TryParse(token.Substring(3), out int index))
+                        output.Enqueue(new MainWindow.ValIndex(index));
+                    else
+                        MainWindow.MessageIssue(token, line, "Invalid val index");
                 else if (double.TryParse(token, out double val))   //token is a number
                     output.Enqueue(val);
-                else    //token must be a string
-                    output.Enqueue(token);
+                else
+                    MainWindow.MessageIssue(token, line, "Not a number or a variable");
             }
             while (opStack.Count > 0)
                 output.Enqueue(opStack.Pop());  //move remaining operators to ouput
@@ -109,43 +116,23 @@ namespace Barrage
             return output.ToArray();
         }
 
-        //inserts n and val#
-        public static object[] InsertValues(object[] input)
+        //converts from a string of tags separated by commas to a TAGS enum
+        public static MainWindow.TAGS ToTags(string s)
         {
-            //null check
-            if (input == null)
-                return null;
-
-            input = (object[])input.Clone();
-
-            for (int i = 0; i < input.Length && !MainWindow.closeRequested; i++)
+            string[] tagsStr = s.Split(',');
+            MainWindow.TAGS tags = MainWindow.TAGS.NONE;
+            for (int i = 0; i < tagsStr.Length; i++)
             {
-                {
-                    //replace n
-                    if (input[i] is string s && s == "n")
-                        input[i] = n;
-                }
-                {
-                    //replace vals
-                    if (input[i] is string s && s.StartsWith("val"))
-                        if (int.TryParse(s.Substring(3), out int ind))
-                            if (ind >= 0 && ind < numVals.Count)
-                                input[i] = numVals[ind];
-                            else
-                                input[i] = 0;
-                        else
-                            MainWindow.MessageIssue(s, line);
-                }
+                if (MainWindow.strToTag.TryGetValue(tagsStr[i], out MainWindow.TAGS tag))
+                    tags |= tag;
+                else
+                    MainWindow.MessageIssue(tagsStr[i], line, "Not a tag");
             }
-
-            return input;
-        }
-        public static (object[], object[]) InsertValues((object[], object[]) input)
-        {
-            return (InsertValues(input.Item1), InsertValues(input.Item2));
+            return tags;
         }
 
         //evaluates the expression
+        //also inserts variable values
         public static double Interpret(object[] inp)
         {
             //null value check (returns default value of 0)
@@ -161,190 +148,185 @@ namespace Barrage
             {
                 switch (input[i])
                 {
-                    case string s:
-                        switch (s)
+                    case MainWindow.GLOBALVARS gVar:
+                        switch (gVar)
                         {
-                            case "t":
-                                input[i] = t;
+                            case MainWindow.GLOBALVARS.N:
+                                input[i] = projVars == null ? gameVars[(int)MainWindow.GLOBALVARS.N] : projVars[(int)MainWindow.PROJVARS.N];
                                 break;
-                            case "PLYRX":
+                            case MainWindow.GLOBALVARS.T:
+                                input[i] = projVars == null ? gameVars[(int)MainWindow.GLOBALVARS.T] : projVars[(int)MainWindow.PROJVARS.T];
+                                break;
+                            case MainWindow.GLOBALVARS.PLYRX:
                                 input[i] = MainWindow.plyrPos.X;
                                 break;
-                            case "PLYRY":
+                            case MainWindow.GLOBALVARS.PLYRY:
                                 input[i] = MainWindow.plyrPos.Y;
                                 break;
-                            case "BOSSX":
+                            case MainWindow.GLOBALVARS.BOSSX:
                                 input[i] = MainWindow.bossPos.X;
                                 break;
-                            case "BOSSY":
+                            case MainWindow.GLOBALVARS.BOSSY:
                                 input[i] = MainWindow.bossPos.Y;
                                 break;
-                            case "LPOSX":
-                                input[i] = projVals == null ? 0 : projVals[(int)Projectile.VI.LXPOS];
-                                break;
-                            case "LPOSY":
-                                input[i] = projVals == null ? 0 : projVals[(int)Projectile.VI.LYPOS];
-                                break;
-                            case "LVELX":
-                                input[i] = projVals == null ? 0 : projVals[(int)Projectile.VI.LXVEL];
-                                break;
-                            case "LVELY":
-                                input[i] = projVals == null ? 0 : projVals[(int)Projectile.VI.LYVEL];
-                                break;
-                            case "LSPD":
-                                input[i] = projVals == null ? 0 : projVals[(int)Projectile.VI.LSPD];
-                                break;
-                            case "LANG":
-                                input[i] = projVals == null ? 0 : projVals[(int)Projectile.VI.LANG];
-                                break;
-                            case "LSTATE":
-                                input[i] = projVals == null ? 0 : projVals[(int)Projectile.VI.LSTATE];
-                                break;
                             default:
-                                MainWindow.MessageIssue(s, line);
-                                break;
+                                throw new NotImplementedException();
                         }
                         break;
 
-                    case OPERATORS op:
+                    case MainWindow.PROJVARS pVar:
+                        switch (pVar)
+                        {
+                            case MainWindow.PROJVARS.N:
+                                input[i] = projVars == null ? gameVars[(int)MainWindow.GLOBALVARS.N] : projVars[(int)MainWindow.PROJVARS.N];
+                                break;
+                            case MainWindow.PROJVARS.T:
+                                input[i] = projVars == null ? gameVars[(int)MainWindow.GLOBALVARS.T] : projVars[(int)MainWindow.PROJVARS.T];
+                                break;
+                            case MainWindow.PROJVARS.LXPOS:
+                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LXPOS];
+                                break;
+                            case MainWindow.PROJVARS.LYPOS:
+                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LYPOS];
+                                break;
+                            case MainWindow.PROJVARS.LXVEL:
+                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LXVEL];
+                                break;
+                            case MainWindow.PROJVARS.LYVEL:
+                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LYVEL];
+                                break;
+                            case MainWindow.PROJVARS.LSPD:
+                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LSPD];
+                                break;
+                            case MainWindow.PROJVARS.LANG:
+                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LANG];
+                                break;
+                            case MainWindow.PROJVARS.LSTATE:
+                                input[i] = projVars == null ? 0 : projVars[(int)MainWindow.PROJVARS.LSTATE];
+                                break;
+                            default:
+                                throw new NotImplementedException();
+                        }
+                        break;
+
+                    case MainWindow.ValIndex valIndex:
+                        input[i] = numVals[valIndex.index];
+                        break;
+
+                    case ReadString.OPERATORS op:
+                        double num1, num2;
+
                         switch (op)
                         {
                             //1 value operators
                             case OPERATORS.SQRT:
-                                double[] nums = GetVals(ref input, i - 1, 1);
-                                input[i] = Math.Sqrt(nums[0]);
-                                input.RemoveAt(Math.Max(i - 1, 0)); i--;
+                                num1 = GetVal(ref input, i -= 1);
+                                input[i] = Math.Sqrt(num1);
                                 break;
                             case OPERATORS.SIGN:
-                                nums = GetVals(ref input, i - 1, 1);
-                                input[i] = (double)Math.Sign(nums[0]);
-                                input.RemoveAt(Math.Max(i - 1, 0)); i--;
+                                num1 = GetVal(ref input, i -= 1);
+                                input[i] = (double)Math.Sign(num1);
                                 break;
                             case OPERATORS.SIN:
-                                nums = GetVals(ref input, i - 1, 1);
-                                input[i] = Math.Sin(nums[0] * Math.PI / 180);
-                                input.RemoveAt(Math.Max(i - 1, 0)); i--;
+                                num1 = GetVal(ref input, i -= 1);
+                                input[i] = Math.Sin(num1 * Math.PI / 180);
                                 break;
                             case OPERATORS.COS:
-                                nums = GetVals(ref input, i - 1, 1);
-                                input[i] = Math.Cos(nums[0] * Math.PI / 180);
-                                input.RemoveAt(Math.Max(i - 1, 0)); i--;
+                                num1 = GetVal(ref input, i -= 1);
+                                input[i] = Math.Cos(num1 * Math.PI / 180);
                                 break;
                             case OPERATORS.TAN:
-                                nums = GetVals(ref input, i - 1, 1);
-                                input[i] = Math.Tan(nums[0] * Math.PI / 180);
-                                input.RemoveAt(Math.Max(i - 1, 0)); i--;
+                                num1 = GetVal(ref input, i -= 1);
+                                input[i] = Math.Tan(num1 * Math.PI / 180);
                                 break;
                             case OPERATORS.ASIN:
-                                nums = GetVals(ref input, i - 1, 1);
-                                input[i] = Math.Asin(nums[0]) / Math.PI * 180;
-                                input.RemoveAt(Math.Max(i - 1, 0)); i--;
+                                num1 = GetVal(ref input, i -= 1);
+                                input[i] = Math.Asin(num1) / Math.PI * 180;
                                 break;
                             case OPERATORS.ACOS:
-                                nums = GetVals(ref input, i - 1, 1);
-                                input[i] = Math.Acos(nums[0]) / Math.PI * 180;
-                                input.RemoveAt(Math.Max(i - 1, 0)); i--;
+                                num1 = GetVal(ref input, i -= 1);
+                                input[i] = Math.Acos(num1) / Math.PI * 180;
                                 break;
                             case OPERATORS.ABS:
-                                nums = GetVals(ref input, i - 1, 1);
-                                input[i] = Math.Abs(nums[0]);
-                                input.RemoveAt(Math.Max(i - 1, 0)); i--;
+                                num1 = GetVal(ref input, i -= 1);
+                                input[i] = Math.Abs(num1);
                                 break;
                             case OPERATORS.FLR:
-                                nums = GetVals(ref input, i - 1, 1);
-                                input[i] = Math.Floor(nums[0]);
-                                input.RemoveAt(Math.Max(i - 1, 0)); i--;
+                                num1 = GetVal(ref input, i -= 1);
+                                input[i] = Math.Floor(num1);
                                 break;
                             case OPERATORS.CEIL:
-                                nums = GetVals(ref input, i - 1, 1);
-                                input[i] = Math.Ceiling(nums[0]);
-                                input.RemoveAt(Math.Max(i - 1, 0)); i--;
+                                num1 = GetVal(ref input, i -= 1);
+                                input[i] = Math.Ceiling(num1);
                                 break;
                             case OPERATORS.ROUND:
-                                nums = GetVals(ref input, i - 1, 1);
-                                input[i] = Math.Round(nums[0]);
-                                input.RemoveAt(Math.Max(i - 1, 0)); i--;
+                                num1 = GetVal(ref input, i -= 1);
+                                input[i] = Math.Round(num1);
                                 break;
                             //2 value operators
                             case OPERATORS.EQUAL:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = nums[0] == nums[1] ? 1 : 0;
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = num1 == num2 ? 1 : 0;
                                 break;
                             case OPERATORS.NOTEQUAL:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = nums[0] != nums[1] ? 1 : 0;
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = num1 != num2 ? 1 : 0;
                                 break;
                             case OPERATORS.GREATER:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = nums[0] > nums[1] ? 1 : 0;
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = num1 > num2 ? 1 : 0;
                                 break;
                             case OPERATORS.GREATEREQUAL:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = nums[0] >= nums[1] ? 1 : 0;
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = num1 >= num2 ? 1 : 0;
                                 break;
                             case OPERATORS.LESS:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = nums[0] < nums[1] ? 1 : 0;
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = num1 < num2 ? 1 : 0;
                                 break;
                             case OPERATORS.LESSEQUAL:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = nums[0] <= nums[1] ? 1 : 0;
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = num1 <= num2 ? 1 : 0;
                                 break;
                             case OPERATORS.ADD:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = nums[0] + nums[1];
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = num1 + num2;
                                 break;
                             case OPERATORS.SUBTRACT:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = nums[0] - nums[1];
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = num1 - num2;
                                 break;
                             case OPERATORS.MULTIPLY:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = nums[0] * nums[1];
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = num1 * num2;
                                 break;
                             case OPERATORS.DIVIDE:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = nums[0] / nums[1];
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = num1 / num2;
                                 break;
                             case OPERATORS.POW:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = Math.Pow(nums[0], nums[1]);
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = Math.Pow(num1, num2);
                                 break;
                             case OPERATORS.MOD:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = nums[0] % nums[1];
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = num1 % num2;
                                 break;
                             case OPERATORS.MIN:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = Math.Min(nums[0], nums[1]);
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = Math.Min(num1, num2);
                                 break;
                             case OPERATORS.MAX:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = Math.Max(nums[0], nums[1]);
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = Math.Max(num1, num2);
                                 break;
                             case OPERATORS.RNG:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = nums[0] + rng.NextDouble() * (nums[1] - nums[0]);
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = num1 + rng.NextDouble() * (num2 - num1);
                                 break;
                             case OPERATORS.ATAN:
-                                nums = GetVals(ref input, i - 2, 2);
-                                input[i] = Math.Atan2(nums[0], nums[1]) / Math.PI * 180;
-                                input.RemoveRange(Math.Max(i - 2, 0), Math.Min(2, input.Count - 1)); i -= 2;
+                                (num1, num2) = Get2Vals(ref input, i -= 2);
+                                input[i] = Math.Atan2(num1, num2) / Math.PI * 180;
                                 break;
                         }
                         break;
@@ -354,31 +336,32 @@ namespace Barrage
                 return 0;
             else if (input[0] is double) //double
                 return (double)input[0];
-            else if (input[0] is int) //integer
-                return (int)input[0];
             else
-                MainWindow.MessageIssue(lineStr, line);
+                MainWindow.MessageIssue(MainWindow.spText[line], line, "Equation resulted in a value of " + input[0].GetType() + "\n Expecting a double");
             return 0;
         }
 
-        private static double[] GetVals(ref List<object> input, int start, int count)
+        private static (double, double) Get2Vals(ref List<object> input, int start)
+        {
+            return (GetVal(ref input, start), GetVal(ref input, start));
+        }
+        private static double GetVal(ref List<object> input, int index)
         {
             //gets a number of values from the input list
-            double[] output = new double[count];
+            double output = 0;
 
-            if (start < 0)
-                MainWindow.MessageIssue(lineStr, line);
+            if (index < 0)
+                MainWindow.MessageIssue(MainWindow.spText[line], line, "Not enough operands for operators");
 
-            for (int i = 0; i < count; i++)
+            if (index < 0)  //out of range
+                output = 0;
+            else
             {
-                if (i + start < 0)  //out of range
-                    output[i] = 0;
-                else if (input[i + start] is double) //double
-                    output[i] = (double)input[i + start];
-                else if (input[i + start] is int) //integer
-                    output[i] = (int)input[i + start];
-                else  //something went wrong
-                    MainWindow.MessageIssue(lineStr, line);
+                if (input[index] is double) //double
+                    output = (double)input[index];
+                else
+                    MainWindow.MessageIssue(MainWindow.spText[line], line, "Cannot perform math on an operator");
+                input.RemoveAt(index);
             }
 
             return output;

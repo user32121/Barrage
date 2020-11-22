@@ -1,6 +1,4 @@
-﻿#define SONG
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -48,20 +46,151 @@ namespace Barrage
         #region boss
         public static Vector bossPos = new Vector(300, -300);
         double bossAngle = 0;
-        (object[], object[]) bossTarget = (null, null);
+        object[] bossTargetX = null;
+        object[] bossTargetY = null;
         object[] bossMvSpd = null;
         object[] bossAngSpd = null;
         #endregion
 
+        #region enums
+        public enum COMMANDS
+        {
+            NONE,
+            PROJ,
+            WAIT,
+            GOTOIF,
+            REPEAT,
+            BOSS,
+            VAL,
+            RNG,
+            VISUAL,
+            FREEZE,
+        }
+        public static readonly Dictionary<string, COMMANDS> strToCmd = new Dictionary<string, COMMANDS>()
+        {
+            { "proj",   COMMANDS.PROJ   },
+            { "wait",   COMMANDS.WAIT   },
+            { "gotoIf", COMMANDS.GOTOIF },
+            { "repeat", COMMANDS.REPEAT },
+            { "boss",   COMMANDS.BOSS   },
+            { "val",    COMMANDS.VAL    },
+            { "rng",    COMMANDS.RNG    },
+            { "visual", COMMANDS.VISUAL },
+            { "freeze", COMMANDS.FREEZE },
+        };
+        public enum GLOBALVARS
+        {
+            N,
+            T,
+            PLYRX, PLYRY,
+            BOSSX, BOSSY,
+            Count
+        }
+        public static readonly Dictionary<string, GLOBALVARS> strToGVar = new Dictionary<string, GLOBALVARS>()
+        {
+            { "n",      GLOBALVARS.N      },
+            { "t",      GLOBALVARS.T      },
+            { "PLYRX",  GLOBALVARS.PLYRX  },
+            { "PLYRY",  GLOBALVARS.PLYRY  },
+            { "BOSSX",  GLOBALVARS.BOSSX  },
+            { "BOSSY",  GLOBALVARS.BOSSY  },
+        };
+        public enum PROJVARS
+        {
+            N,
+            T,
+            LANG,
+            LSPD,
+            LXPOS, LYPOS,
+            LXVEL, LYVEL,
+            LSTATE,
+            Count
+        }
+        public static readonly Dictionary<string, PROJVARS> strToPVar = new Dictionary<string, PROJVARS>()
+        {
+            { "n",      PROJVARS.N      },
+            { "t",      PROJVARS.T      },
+            { "LPOSX",  PROJVARS.LXPOS  },
+            { "LPOSY",  PROJVARS.LYPOS  },
+            { "LVELX",  PROJVARS.LXVEL  },
+            { "LVELY",  PROJVARS.LYVEL  },
+            { "LSPD",   PROJVARS.LSPD   },
+            { "LANG",   PROJVARS.LANG   },
+            { "LSTATE", PROJVARS.LSTATE },
+        };
+        public struct ValIndex
+        {
+            public int index;
+            public ValIndex(int index)
+            {
+                this.index = index;
+            }
+        }
+        public enum PROPERTIES
+        {
+            TAGS,
+            SPEED,
+            ANGLE,
+            XPOS,
+            YPOS,
+            XVEL,
+            YVEL,
+            SIZE,
+            STARTX,
+            STARTY,
+            DURATION,
+            TAGCOUNT,
+            ACTDELAY,
+            FILE,
+            STATE,
+        }
+        public static readonly Dictionary<string, PROPERTIES> strToProp = new Dictionary<string, PROPERTIES>()
+        {
+            { "tags",       PROPERTIES.TAGS     },
+            { "speed",      PROPERTIES.SPEED    },
+            { "angle",      PROPERTIES.ANGLE    },
+            { "xPos",       PROPERTIES.XPOS     },
+            { "yPos",       PROPERTIES.YPOS     },
+            { "xVel",       PROPERTIES.XVEL     },
+            { "yVel",       PROPERTIES.YVEL     },
+            { "size",       PROPERTIES.SIZE     },
+            { "startX",     PROPERTIES.STARTX   },
+            { "startY",     PROPERTIES.STARTY   },
+            { "duration",   PROPERTIES.DURATION },
+            { "tagCount",   PROPERTIES.TAGCOUNT },
+            { "actDelay",   PROPERTIES.ACTDELAY },
+            { "file",       PROPERTIES.FILE     },
+            { "state",      PROPERTIES.STATE    },
+        };
+        public enum TAGS
+        {
+            NONE = 0b00000000,
+            CIRCLE = 0b00000001,
+            LASER = 0b00000010,
+            WALLBOUNCE = 0b00000100,
+            SCREENWRAP = 0b00001000,
+            OUTSIDE = 0b00010000,
+        };
+        public static readonly Dictionary<string, TAGS> strToTag = new Dictionary<string, TAGS>()
+        {
+            { "circle",     TAGS.CIRCLE     },
+            { "laser",      TAGS.LASER      },
+            { "wallBounce", TAGS.WALLBOUNCE },
+            { "screenWrap", TAGS.SCREENWRAP },
+            { "outside",    TAGS.OUTSIDE    },
+        };
+        #endregion
+
         #region spawn pattern
-        List<object[]> spawnPattern;  //[line: [either expr, ("", expr), or ("", (expr, expr))]]
-        List<string> spText = new List<string>();
+        List<(COMMANDS, object)> spawnPattern = new List<(COMMANDS, object)>();  //object is either (object[],...) or (property, object[])[]
+        public static List<string> spText = new List<string>();
         int readIndex = 0;
         double wait;
         Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
         int spawnInd;
-        List<double> spawnVals = new List<double>();
-        readonly Dictionary<string, int> labels = new Dictionary<string, int>();    //label, line
+        Dictionary<int, double> spawnVals = new Dictionary<int, double>();
+        double[] spawnVars = new double[(int)GLOBALVARS.Count];
+        readonly Dictionary<string, int> labelToInt = new Dictionary<string, int>();    //label, line #
         Stopwatch SPTimeout = new Stopwatch();
         public static bool stopGameRequested;
         double plyrFreeze = 0;
@@ -105,9 +234,6 @@ namespace Barrage
         bool stepForwards;
         Size minSize;
         readonly LinearGradientBrush hitIndicatorBrush = new LinearGradientBrush(Colors.Transparent, Colors.Transparent, new Point(0, 0.5), new Point(1, 0.5));
-        readonly List<GameFrame> hist = new List<GameFrame>();
-        int histIndex = 0;
-        int histIndexMin = 0;
         Point projStartPos;
         Point projEndPos;
         int textEditKeyPresses;
@@ -119,22 +245,11 @@ namespace Barrage
 
         #region misc
         bool changingMaxRewind;  //if a different section of code is changing the maxRewind, ignore it
-
-#if SONG
-        readonly MediaPlayer song = new MediaPlayer();
-        bool songPlaying;
-#endif
-        public static readonly char[] charVBar = { '|' };
-        public static readonly char[] charSpace = { ' ' };
-        public static readonly char[] charComma = { ',' };
-        public static readonly Type strObjTup = typeof((string, object));
         #endregion
 
         public MainWindow()
         {
             InitializeComponent();
-
-            KeyDown += new KeyEventHandler(MainWindow_KeyDown);
 
             frameLength = Stopwatch.Frequency / 60;  //framerate
 
@@ -153,17 +268,11 @@ namespace Barrage
             if (File.Exists("files/Pause.png"))
                 playPauseImgs[1] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Pause.png"));
             if (File.Exists("files/Step.png"))
-            {
                 imageEditorStepForwards.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Step.png"));
-                imageEditorStepBackwards.Source = imageEditorStepForwards.Source;
-            }
             if (File.Exists("files/Arrow.png"))
                 Arrow.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Arrow.png"));
             if (File.Exists("files/Grid.png"))
                 gridUnderlay = new ImageBrush(new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Grid.png")));
-#if SONG
-            song.Open(new Uri("files/song.mp3", UriKind.Relative));
-#endif
             if (System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed)
                 labelVersion.Content = "v" + System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion;
 
@@ -173,29 +282,9 @@ namespace Barrage
             checkInfiniteLoop.IsChecked = GameSettings.checkForInfiniteLoop;
             checkError.IsChecked = GameSettings.checkForErrors;
             checkUseGrid.IsChecked = GameSettings.useGrid;
-            textMaxRewind.Text = GameSettings.maxHistFrames.ToString();
-            sliderMaxRewind.Value = Math.Log10(GameSettings.maxHistFrames);
             checkPredict.IsChecked = GameSettings.predictProjectile;
 
-            //initial history frame
-            hist.Add(new GameFrame()
-            {
-                bossAngle = bossAngle,
-                bossAngSpd = bossAngSpd,
-                bossMvSpd = bossMvSpd,
-                bossPos = bossPos,
-                bossTarget = bossTarget,
-                plyrPos = plyrPos,
-                projectiles = new Projectile[0],
-                readIndex = readIndex,
-                repeatVals = repeatVals,
-                spwnInd = spawnInd,
-                spwnVals = new double[0],
-                time = time,
-                wait = wait,
-            });
-
-            ReadSpawnTxt();
+            ReadSPTxt();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -227,33 +316,37 @@ namespace Barrage
             stopwatch.Start();
             while (!closeRequested)
             {
-                if (gamestate == GAMESTATE.PLAY || playing || stepForwards)
-                {
-                    if (!paused)
-                    {
-                        time++;
+                RunFrame();
 
-                        if (!gameOver)
-                        {
-                            PlayerMove();
-                            ReadNextLine();
-                        }
-
-                        MoveProjectiles();
-
-                        if (!gameOver && !isVisual)
-                            CheckPlayerHit();
-                        RenderPlayerAndBoss();
-
-                        if (gamestate == GAMESTATE.EDITOR)
-                            SaveFrame();
-                        DisplayArrow();
-
-                        stepForwards = false;
-                    }
-                }
                 this.Refresh(DispatcherPriority.Input);
                 ModerateFrames();
+            }
+        }
+
+        void RunFrame()
+        {
+            if (gamestate == GAMESTATE.PLAY || playing || stepForwards)
+            {
+                if (!paused)
+                {
+                    time++;
+
+                    if (!gameOver)
+                    {
+                        PlayerMove();
+                        SPStep();
+                    }
+
+                    MoveProjectiles();
+
+                    if (!gameOver && !isVisual)
+                        CheckPlayerHit();
+                    RenderPlayerAndBoss();
+
+                    DisplayArrow();
+
+                    stepForwards = false;
+                }
             }
         }
 
@@ -278,11 +371,8 @@ namespace Barrage
 
                 isVisual = false;
                 labelVisual.Visibility = Visibility.Hidden;
-#if SONG
-                song.Stop();
-                songPlaying = false;
-#endif
-                ReadSpawnTxt();
+
+                ReadSPTxt();
 
                 gameOver = false;
                 paused = false;
@@ -303,7 +393,8 @@ namespace Barrage
 
                 bossPos = new Vector(300, -300);
                 Boss.RenderTransform = new TranslateTransform(bossPos.X, bossPos.Y);
-                bossTarget = (null, null);
+                bossTargetX = null;
+                bossTargetY = null;
                 bossMvSpd = null;
                 bossAngSpd = null;
                 bossAngle = 0;
@@ -317,28 +408,15 @@ namespace Barrage
                         gridField.Effect = new BlurEffect { Radius = 10 };
                         gridPause.Visibility = Visibility.Visible;
                         labelPause.Content = "Paused";
-#if SONG
-                        song.Pause();
-#endif
                         paused = true;
                     }
                     else
                     {
                         gridField.Effect = null;
                         gridPause.Visibility = Visibility.Hidden;
-#if SONG
-                        if (songPlaying)
-                            song.Play();
-#endif
                         paused = false;
                     }
                 }
-#if SONG
-                else if (e.Key == Key.Q)
-                    song.Position -= TimeSpan.FromSeconds(0.1);
-                else if (e.Key == Key.W)
-                    song.Position += TimeSpan.FromSeconds(0.1);
-#endif
             }
             else if (gamestate == GAMESTATE.EDITOR)
             {
@@ -351,16 +429,6 @@ namespace Barrage
                 {
                     ImageEditor_MouseUp(imageEditorStepForwards, null);
                     ImageEditor_MouseLeave(imageEditorStepForwards, null);
-                }
-                else if (e.Key == Key.J)
-                {
-                    ImageEditor_MouseUp(imageEditorStepBackwards, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
-                    ImageEditor_MouseLeave(imageEditorStepBackwards, null);
-                }
-                else if (e.Key == Key.H)
-                {
-                    ImageEditor_MouseUp(imageEditorStepBackwards, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right));
-                    ImageEditor_MouseLeave(imageEditorStepBackwards, null);
                 }
                 else if (e.Key == Key.S && e.KeyboardDevice.Modifiers == ModifierKeys.Control)
                     SaveSP();
@@ -492,16 +560,17 @@ namespace Barrage
                     continue;
 
                 //collision detection
-                if (item.Tags.Contains("circle"))
+                if (item.Tags.HasFlag(TAGS.CIRCLE))
                 {
                     //distance is less than radius
                     if (Math.Pow(plyrPos.X - item.Position.X, 2) + Math.Pow(plyrPos.Y - item.Position.Y, 2) < item.RadiusSqr)
                         hit = true;
                 }
-                else if (item.Tags.Contains("laser"))
+                else if (item.Tags.HasFlag(TAGS.LASER))
                 {
                     //dist to line is less than radius, also checks if plyr is behind laser
-                    ReadString.t = item.Age; ReadString.projVals = item.projVals;
+                    ReadString.projVars = item.projVars;
+                    ReadString.numVals = item.numValues;
                     double ang = ReadString.Interpret(item.Angle),
                         radians = ang * Math.PI / 180,
                         m1 = Math.Sin(radians) / Math.Cos(radians), m2 = -1 / m1;
@@ -546,7 +615,7 @@ namespace Barrage
             }
         }
 
-        void ReadNextLine()
+        void SPStep()
         {
             if ((bool)checkInfiniteLoop.IsChecked)
                 SPTimeout.Restart();
@@ -554,195 +623,115 @@ namespace Barrage
             {
                 if ((bool)checkInfiniteLoop.IsChecked && SPTimeout.ElapsedMilliseconds > 3000)
                 {
-                    MessageIssue("The SP might be stuck in a infinite loop\nContinue?", false);
+                    MessageIssue("The SP might be stuck in a infinite loop\nContinue?");
                     SPTimeout.Restart();
                 }
 
-                ReadString.n = spawnInd;
+                ReadString.gameVars = spawnVars;
                 ReadString.numVals = spawnVals;
-                ReadString.t = time;
-                ReadString.projVals = null;
+                ReadString.projVars = null;
                 ReadString.line = readIndex;
 
                 //keeps reading lines until text says to wait
-                object[] line = spawnPattern[readIndex];
+                (COMMANDS cmd, object args) = spawnPattern[readIndex];
 
-                if (line != null && line.Length > 0 && (line[0] as object[])[0] is string command)
-                    if (command == "proj")
-                    {
-                        //finds parameters
-                        List<string> tags = new List<string>();
-                        object[] size = { 7 };
-                        object[] speed = null;
-                        object[] angle = null;
-                        (object[], object[])? xyPos = null;
-                        (object[], object[])? xyVel = null;
-                        (object[], object[])? startPos = (null, new object[] { -100 });
-                        object[] duration = { -1 };
-                        object[] tagCount = { -1 };
-                        object[] actDelay = null;
-                        object[] file = null;
-                        object[] state = null;
+                switch (cmd)
+                {
+                    case COMMANDS.NONE:
+                        break;
+                    case COMMANDS.PROJ:
+                        Dictionary<PROPERTIES, object> oldProps = (Dictionary<PROPERTIES, object>)args;
+                        Dictionary<PROPERTIES, object[]> newProps = new Dictionary<PROPERTIES, object[]>();
+                        TAGS tags = TAGS.NONE;
 
-                        for (int i = 1; i < line.Length; i++)
-                        {
-                            if (line[i].GetType() != strObjTup)
+                        foreach (var prop in oldProps)
+                            switch (prop.Key)
                             {
-                                MessageIssue(spText[readIndex], true);
-                                continue;
+                                case PROPERTIES.TAGS:
+                                    tags = (TAGS)prop.Value;
+                                    break;
+                                default:
+                                    newProps[prop.Key] = (object[])prop.Value;
+                                    break;
                             }
 
-                            (string, object) prop = ((string, object))line[i];
-                            object[] expr = prop.Item2 as object[];
+                        CreateProj(newProps, tags, spawnInd, spawnVals);
+                        spawnInd++;
+                        spawnVars[(int)GLOBALVARS.N] = spawnInd;
+                        break;
+                    case COMMANDS.WAIT:
+                        //waits # of frames untill spawns again
+                        wait += ReadString.Interpret(args as object[]);
+                        break;
+                    case COMMANDS.GOTOIF:
+                        {
+                            (object[] line, object[] condition) = ((object[], object[]))args;
 
-                            if (prop.Item1 == "size")
-                                size = ReadString.InsertValues(expr);
-                            else if (prop.Item1 == "startPos")
+                            if (ReadString.Interpret(condition) != 0)
                             {
-                                if (expr != null)
+                                int lineNum = (int)ReadString.Interpret(line) - 1;
+                                //(-1 because there is ++ later on)
+
+                                if (lineNum < -1)
                                 {
-                                    MessageIssue(spText[readIndex], true);
-                                    startPos = null;
+                                    MessageIssue(string.Join(" ", line[1]), spawnInd, "Line number cannot be negative");
+                                    readIndex = -1;
                                 }
                                 else
-                                    startPos = ReadString.InsertValues(((object[], object[]))prop.Item2);
+                                    readIndex = lineNum;
                             }
-                            else if (prop.Item1 == "speed")
-                                speed = ReadString.InsertValues(expr);
-                            else if (prop.Item1 == "angle")
-                                angle = ReadString.InsertValues(expr);
-                            else if (prop.Item1 == "xyPos")
-                            {
-                                if (expr != null)
-                                {
-                                    MessageIssue(spText[readIndex], true);
-                                    xyPos = null;
-                                }
-                                xyPos = ReadString.InsertValues(((object[], object[]))prop.Item2);
-                            }
-                            else if (prop.Item1 == "xyVel")
-                            {
-                                if (expr != null)
-                                {
-                                    MessageIssue(spText[readIndex], true);
-                                    xyVel = null;
-                                }
-                                xyVel = ReadString.InsertValues(((object[], object[]))prop.Item2);
-                            }
-                            else if (prop.Item1 == "tags")
-                                tags = string.Join(",", ReadString.InsertValues(expr)).Split(charComma, StringSplitOptions.RemoveEmptyEntries).ToList();
-                            else if (prop.Item1 == "duration")
-                                duration = ReadString.InsertValues(expr);
-                            else if (prop.Item1 == "tagCount")
-                                tagCount = ReadString.InsertValues(expr);
-                            else if (prop.Item1 == "actDelay")
-                                actDelay = ReadString.InsertValues(expr);
-                            else if (prop.Item1 == "file")
-                                file = ReadString.InsertValues(expr);
-                            else if (prop.Item1 == "state")
-                                state = ReadString.InsertValues(expr);
-                            else
-                                MessageIssue(spText[readIndex], true);
                         }
+                        break;
+                    case COMMANDS.REPEAT:
+                        {
+                            (object[] line, object[] times) = ((object[], object[]))args;
 
-                        CreateProj(size, startPos, speed, angle, xyPos, xyVel, tags, duration, tagCount, actDelay, file, state);
-                        spawnInd++;
-                        ReadString.n = spawnInd;
-                    }
-                    else if (command == "boss")
-                    {
+                            //sets repeats left
+                            if (repeatVals[readIndex] <= 0)
+                                repeatVals[readIndex] = (int)ReadString.Interpret(times);
+
+                            //repeats (stops at 1 since that will be the last repeat)
+                            repeatVals[readIndex]--;
+                            if (repeatVals[readIndex] >= 1)
+                            {
+                                int lineNum = (int)ReadString.Interpret(line) - 1;
+                                //(-1 because there is ++ later on)
+
+                                if (lineNum < -1)
+                                    MessageIssue(string.Join(" ", line), spawnInd, "Line number cannot be negative");
+                                else
+                                    readIndex = lineNum;
+                            }
+                        }
+                        break;
+                    case COMMANDS.BOSS:
                         //set movement and rotation of boss
-                        bossTarget = (ReadString.InsertValues(line[1] as object[]), ReadString.InsertValues(line[2] as object[]));
-                        bossMvSpd = ReadString.InsertValues(line[3] as object[]);
-                        bossAngSpd = ReadString.InsertValues(line[4] as object[]);
-                    }
-                    else if (command == "wait")
-                    {
-                        //waits # of frames untill spawns again
-                        wait += ReadString.Interpret(ReadString.InsertValues(line[1] as object[]));
-                    }
-                    else if (command == "repeat")
-                    {
-                        //sets repeats left
-                        if (repeatVals[readIndex] <= 0)
-                        {
-                            if (line.Length < 3)
-                                MessageIssue(spText[readIndex], "repeat requires 2 inputs");
-                            else
-                                repeatVals[readIndex] = (int)ReadString.Interpret(ReadString.InsertValues(line[2] as object[]));
-                        }
+                        (bossTargetX, bossTargetY, bossMvSpd, bossAngSpd) = ((object[], object[], object[], object[]))args;
+                        break;
+                    case COMMANDS.VAL:
+                        (object[] indexArr, object[] value) = ((object[], object[]))args;
 
-                        //repeats (stops at 1 since that will be the last repeat)
-                        repeatVals[readIndex]--;
-                        if (repeatVals[readIndex] >= 1)
-                        {
-                            int lineNum = (int)ReadString.Interpret(ReadString.InsertValues(line[1] as object[])) - 1;
-                            //(-1 because there is ++ later on)
-
-                            if (lineNum < -1)
-                                MessageIssue(string.Join(" ", line[1] as object[]), "line number cannot be negative");
-                            else
-                                readIndex = lineNum;
-                        }
-                    }
-                    else if (command == "ifGoto")
-                    {
-                        if (ReadString.Interpret(ReadString.InsertValues(line[1] as object[])) != 0)
-                        {
-                            int lineNum = (int)ReadString.Interpret(ReadString.InsertValues(line[2] as object[])) - 1;
-                            //(-1 because there is ++ later on)
-
-                            if (lineNum < -1)
-                            {
-                                MessageIssue(string.Join(" ", line[1] as object[]), "line number cannot be negative");
-                                readIndex = -1;
-                            }
-                            else
-                                readIndex = lineNum;
-                        }
-                    }
-                    else if (command.StartsWith("val"))
-                    {
                         //sets a value to spwnVals
-                        if (int.TryParse(command.Substring(3), out int ind))
-                        {
-                            while (ind >= spawnVals.Count)
-                                spawnVals.Add(0);
-
-                            if (line.Length < 2)
-                                MessageIssue(spText[readIndex], "val requires an input");
-                            else if (ind < 0)
-                                MessageIssue(spText[readIndex], "val# cannot be negative");
-                            else if (!stopGameRequested)
-                                spawnVals[ind] = ReadString.Interpret(ReadString.InsertValues(line[1] as object[]));
-                        }
-                        else
-                            MessageIssue(spText[readIndex], true);
-                    }
-#if SONG
-                    else if (command == "music")
-                    {
-                        if (line.Length > 1)
-                        {
-                            if (double.TryParse((line[1] as object[])[0] as string, out double result) && result >= 0)
-                                song.Position = TimeSpan.FromMilliseconds(result);
-                        }
-                        else
-                            song.Stop();
-                        song.Play();
-                        songPlaying = true;
-                    }
-#endif
-                    else if (command == "rng")
-                    {
+                        int index = (int)ReadString.Interpret(indexArr);
+                        if (index < 0)
+                            MessageIssue(spText[readIndex], spawnInd, "Val# cannot be negative");
+                        else if (!stopGameRequested)
+                            spawnVals[index] = ReadString.Interpret(value);
+                        break;
+                    case COMMANDS.RNG:
                         //set rng seed
-                        ReadString.rng = new Random((int)ReadString.Interpret(ReadString.InsertValues(line[1] as object[])));
-                    }
-                    else if (command == "freeze")
-                    {
+                        ReadString.rng = new Random((int)ReadString.Interpret(args as object[]));
+                        break;
+                    case COMMANDS.VISUAL:
+                        isVisual = true;
+                        break;
+                    case COMMANDS.FREEZE:
                         //freeze player
-                        plyrFreeze += ReadString.Interpret(ReadString.InsertValues(line[1] as object[]));
-                    }
+                        plyrFreeze += ReadString.Interpret(args as object[]);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
 
                 //next line
                 readIndex++;
@@ -752,55 +741,62 @@ namespace Barrage
             wait--;
         }
 
-        public void CreateProj(object[] size, (object[], object[])? startPos, object[] speed, object[] angle,
-                               (object[], object[])? xyPos, (object[], object[])? xyVel, List<string> tags,
-                               object[] duration, object[] tagCount, object[] actDelay, object[] file, object[] state)
+        public void CreateProj(Dictionary<PROPERTIES, object[]> props, TAGS tags, int projIndex, Dictionary<int, double> numValues)
         {
-            ReadString.t = 0;
-            ReadString.projVals = null;
+            //add properties that don't exist
+            foreach (KeyValuePair<PROPERTIES, object[]> defProp in Projectile.defaultProps)
+                if (!props.ContainsKey(defProp.Key))
+                    props.Add(defProp.Key, defProp.Value);
+
+            double[] projVars = new double[(int)MainWindow.PROJVARS.Count];
+            projVars[(int)PROJVARS.T] = 0;
+            ReadString.projVars = projVars;
 
             //displays projectile
-            int r = Math.Abs((int)ReadString.Interpret(size));
+            int r = Math.Abs((int)ReadString.Interpret(props[PROPERTIES.SIZE]));
             Image projImage = new Image();
             if (GameSettings.predictProjectile)
                 projImage.MouseEnter += ProjImage_MouseEnter;
-            if (tags.Contains("circle"))
+            if (tags.HasFlag(TAGS.CIRCLE))
             {
                 projImage.Width = r * 2;
                 projImage.Height = r * 2;
-                projImage.Source = GetProjectileImage((int)ReadString.Interpret(file), false);
+                projImage.Source = GetProjectileImage((int)ReadString.Interpret(props[PROPERTIES.FILE]), false);
                 projImage.RenderTransformOrigin = new Point(0.5, 0.5);
             }
-            else if (tags.Contains("laser"))
+            else if (tags.HasFlag(TAGS.LASER))
             {
                 projImage.Stretch = Stretch.Fill;
                 projImage.Width = r * 2;
                 projImage.Height = 100;
-                projImage.Source = GetProjectileImage((int)ReadString.Interpret(file), true);
+                projImage.Source = GetProjectileImage((int)ReadString.Interpret(props[PROPERTIES.FILE]), true);
                 projImage.RenderTransformOrigin = new Point(0.5, 0);
             }
-            int temp = (int)ReadString.Interpret(actDelay);
+            int temp = (int)ReadString.Interpret(props[PROPERTIES.ACTDELAY]);
             if (temp >= 0 || temp == -1)
                 projImage.Opacity = 0.3;
             gridField.Children.Add(projImage);
 
             //creates projectile
-            double radians = ReadString.Interpret(angle) * Math.PI / 180;
-            Projectile tempProjectile = new Projectile(size)
+            double radians = ReadString.Interpret(props[PROPERTIES.ANGLE]) * Math.PI / 180;
+            Projectile tempProjectile = new Projectile(props[PROPERTIES.SIZE], projVars)
             {
                 img = projImage,
-                Duration = duration,
-                File = file,
-                Position = new Vector(ReadString.Interpret(startPos.Value.Item1), ReadString.Interpret(startPos.Value.Item2)),
-                Speed = speed,
-                Angle = angle,
-                XyPos = xyPos,
-                XyVel = xyVel,
+                Duration = props[PROPERTIES.DURATION],
+                File = props[PROPERTIES.FILE],
+                Position = new Vector(ReadString.Interpret(props[PROPERTIES.STARTX]), ReadString.Interpret(props[PROPERTIES.STARTY])),
+                Speed = props[PROPERTIES.SPEED],
+                Angle = props[PROPERTIES.ANGLE],
+                XPos = props[PROPERTIES.XPOS],
+                YPos = props[PROPERTIES.YPOS],
+                XVel = props[PROPERTIES.XVEL],
+                YVel = props[PROPERTIES.YVEL],
                 Tags = tags,
-                TagCount = tagCount,
-                Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * ReadString.Interpret(speed),
-                ActDelay = actDelay,
-                state = state,
+                TagCount = props[PROPERTIES.TAGCOUNT],
+                Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * ReadString.Interpret(props[PROPERTIES.SPEED]),
+                ActDelay = props[PROPERTIES.ACTDELAY],
+                state = props[PROPERTIES.STATE],
+                numValues = new Dictionary<int, double>(spawnVals),
             };
 
             projectiles.Add(tempProjectile);
@@ -812,22 +808,10 @@ namespace Barrage
             DisplayArrow();
         }
 
-        void MessageIssue(string text, bool useTemplate)
+        //display a message box with the error message, also gives an option to stop the program
+        public static void MessageIssue(string text)
         {
-            if (GameSettings.checkForErrors && MessageBox.Show(useTemplate ? string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, readIndex) : text,
-                "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
-            {
-                stopGameRequested = true;
-                if (gamestate == GAMESTATE.EDITOR)
-                    MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
-                else
-                    LabelBack_MouseUp(labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
-            }
-        }
-        public static void MessageIssue(string text, int line)
-        {
-            if (GameSettings.checkForErrors && MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n Continue?", text, line),
-                "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            if (GameSettings.checkForErrors && MessageBox.Show(text, "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
                 stopGameRequested = true;
                 if (gamestate == GAMESTATE.EDITOR)
@@ -836,16 +820,17 @@ namespace Barrage
                     Main.LabelBack_MouseUp(Main.labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
             }
         }
-        void MessageIssue(string text, string issue)
+        //similar to above function, can be called from anywhere, provides a template for incorrect text, line number, and error message
+        public static void MessageIssue(string text, int line, string issue)
         {
-            if (GameSettings.checkForErrors && MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1} because {2}\n Continue?", text, readIndex, issue),
-                "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            if (GameSettings.checkForErrors && MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n{2}\n Continue?", text, line, issue),
+                "An error occurred", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
                 stopGameRequested = true;
                 if (gamestate == GAMESTATE.EDITOR)
-                    MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
+                    Main.MainWindow_KeyDown(Main, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
                 else
-                    LabelBack_MouseUp(labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
+                    Main.LabelBack_MouseUp(Main.labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
             }
         }
 
@@ -869,9 +854,8 @@ namespace Barrage
             projCount.Content = projectiles.Count.ToString();
 
             //move the boss
-            ReadString.t = time;
-            ReadString.projVals = null;
-            Vector target = new Vector(ReadString.Interpret(bossTarget.Item1), ReadString.Interpret(bossTarget.Item2));
+            ReadString.projVars = null;
+            Vector target = new Vector(ReadString.Interpret(bossTargetX), ReadString.Interpret(bossTargetY));
             Vector offset = target - bossPos;
             double mvSpd = ReadString.Interpret(bossMvSpd);
             double angSpd = ReadString.Interpret(bossAngSpd);
@@ -885,97 +869,99 @@ namespace Barrage
             bossAngle += angSpd;
         }
 
-        void ReadSpawnTxt()
+        void ReadSPTxt()
         {
             if (!File.Exists("files/SP.txt"))
                 MessageBox.Show("files/SP.txt not found");
 
-            StreamReader sr = new StreamReader("files/SP.txt");
             string[] lines;
             if (gamestate == GAMESTATE.EDITOR)
                 lines = textEditor.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
             else
             {
+                StreamReader sr = new StreamReader("files/SP.txt");
                 string temp = sr.ReadToEnd();
                 textEditor.Text = temp;
                 isSPSaved = true;
                 Title = "Barrage";
                 lines = temp.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+                sr.Close();
+                sr.Dispose();
             }
-            sr.Close();
-            sr.Dispose();
 
             spText.Clear();
-            labels.Clear();
+            labelToInt.Clear();
 
             //loads files into readFile and removes comments and empty spaces
             for (int i = 0; i < lines.Length; i++)
             {
-                if (lines[i] == "visual")
-                {
-                    isVisual = true;
-                    labelVisual.Visibility = Visibility.Visible;
+                spText.Add(lines[i]);
 
-                }
-                else if (lines[i] == "" || lines[i].StartsWith("#"))
+                string[] lineSplt = lines[i].Split('|');
+
+                if (lines[i].Length == 0 || lineSplt[0][0] == '#')  // empty/comment, ignored
+                    spawnPattern.Add((COMMANDS.NONE, null));
+                else if (lineSplt[0][0] == ':')  //label
                 {
-                    spText.Add("");
+                    spawnPattern.Add((COMMANDS.NONE, null));
+                    if (labelToInt.ContainsKey(lines[i]))
+                        MessageBox.Show("\"" + lines[i] + "\" is already a label", "", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    else
+                        labelToInt.Add(lines[i], spText.Count - 1);
                 }
                 else
                 {
-                    spText.Add(lines[i]);
-
-                    //repeat
-                    if (lines[i].Contains("repeat") && !repeatVals.ContainsKey(spText.Count - 1))
-                        repeatVals.Add(spText.Count - 1, 0);
-
-                    //label
-                    if (lines[i][0] == ':')
-                        if (labels.ContainsKey(lines[i]))
-                            MessageBox.Show("\"" + lines[i] + "\" is already a label", "", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        else
-                            labels.Add(lines[i], spText.Count - 1);
-                }
-            }
-
-            //insert labels
-            string[] keys = labels.Keys.ToArray();
-            for (int i = 0; i < spText.Count; i++)
-                for (int j = 0; j < labels.Count; j++)
-                    spText[i] = spText[i].Replace(keys[j], labels[keys[j]].ToString());
-
-            //transfers lines into spawnPattern
-            spawnPattern = new List<object[]>(spText.Count);
-            for (int i = 0; i < spText.Count; i++)
-            {
-                string[] line = spText[i].Split(charVBar, StringSplitOptions.RemoveEmptyEntries);
-                spawnPattern.Add(new object[line.Length]);
-
-                ReadString.line = i;
-                ReadString.lineStr = spText[i];
-
-                for (int l = 0; l < line.Length; l++)
-                {
-                    int hashInd = line[l].IndexOf('#');
-                    if (hashInd != -1)
-                        line[l] = line[l].Substring(0, hashInd);
-
-                    int eqInd = line[l].IndexOf('=');
-                    char prevChar = eqInd == -1 ? '=' : line[l][eqInd - 1];
-
-                    if (prevChar == '=' || prevChar == '!' || prevChar == '<' || prevChar == '>' || eqInd < line[l].Length - 1 && line[l][eqInd + 1] == '=')
-                        //normal expression
-                        spawnPattern[i][l] = ReadString.ToPostfix(line[l]);
-                    else
+                    if (strToCmd.TryGetValue(lineSplt[0], out COMMANDS cmd))
                     {
-                        //contains assignment
-                        int comInd = line[l].IndexOf(',');
-                        if (comInd != -1 && !line[l].Contains("tags"))
-                            //vector assignment
-                            spawnPattern[i][l] = (line[l].Substring(0, eqInd).Trim(), (ReadString.ToPostfix(line[l].Substring(eqInd + 1, comInd - eqInd - 1)), ReadString.ToPostfix(line[l].Substring(comInd + 1))) as object);
-                        else
-                            spawnPattern[i][l] = (line[l].Substring(0, eqInd).Trim(), ReadString.ToPostfix(line[l].Substring(eqInd + 1)) as object);
+                        ReadString.line = i;
+
+                        switch (cmd)
+                        {
+                            case COMMANDS.PROJ:
+                                Dictionary<PROPERTIES, object> props = new Dictionary<PROPERTIES, object>();
+                                string[] propPair;
+                                for (int p = 1; p < lineSplt.Length; p++)
+                                {
+                                    propPair = lineSplt[p].Split('=');
+                                    if (strToProp.TryGetValue(propPair[0], out PROPERTIES prop))
+                                        switch (prop)
+                                        {
+                                            case PROPERTIES.TAGS:
+                                                props[prop] = ReadString.ToTags(propPair[1]);
+                                                break;
+                                            default:
+                                                props[prop] = ReadString.ToPostfix(propPair[1]);
+                                                break;
+                                        }
+                                    else
+                                        MessageIssue(propPair[0], spawnInd, "Not a property name");
+                                }
+                                spawnPattern.Add((cmd, props));
+                                break;
+                            case COMMANDS.REPEAT:
+                                repeatVals[i] = 0;
+                                goto case COMMANDS.GOTOIF;
+                            case COMMANDS.GOTOIF:
+                            case COMMANDS.VAL:
+                                spawnPattern.Add((cmd, (ReadString.ToPostfix(lineSplt[1]), ReadString.ToPostfix(lineSplt[2]))));
+                                break;
+                            case COMMANDS.BOSS:
+                                spawnPattern.Add((cmd, (ReadString.ToPostfix(lineSplt[1]), ReadString.ToPostfix(lineSplt[2]), ReadString.ToPostfix(lineSplt[3]), ReadString.ToPostfix(lineSplt[4]))));
+                                break;
+                            case COMMANDS.WAIT:
+                            case COMMANDS.RNG:
+                            case COMMANDS.FREEZE:
+                                spawnPattern.Add((cmd, ReadString.ToPostfix(lineSplt[1])));
+                                break;
+                            case COMMANDS.VISUAL:
+                                spawnPattern.Add((cmd, null));
+                                break;
+                            default:
+                                throw new NotImplementedException();
+                        }
                     }
+                    else
+                        MessageIssue(lineSplt[0], spawnInd, "Not a command");
                 }
             }
         }
@@ -1006,42 +992,6 @@ namespace Barrage
             avg *= fpsMeasureRate;
             avg = Math.Round(avg, 1);
             labelFps.Content = (int)avg == avg ? avg + ".0" : avg.ToString();
-        }
-
-        void SaveFrame()
-        {
-            if (hist.Capacity != GameSettings.maxHistFrames)
-            {
-                if (hist.Count > GameSettings.maxHistFrames)
-                    hist.RemoveRange(GameSettings.maxHistFrames, hist.Count - GameSettings.maxHistFrames);
-                hist.Capacity = GameSettings.maxHistFrames;
-            }
-            if (++histIndex >= hist.Count)
-                if (hist.Count < GameSettings.maxHistFrames)
-                    hist.Add(null);
-                else
-                    histIndex = 0;
-            hist[histIndex] = new GameFrame()
-            {
-                bossAngle = bossAngle,
-                bossAngSpd = bossAngSpd,
-                bossMvSpd = bossMvSpd,
-                bossPos = bossPos,
-                bossTarget = bossTarget,
-                plyrPos = plyrPos,
-                projectiles = new Projectile[projectiles.Count],
-                readIndex = readIndex,
-                repeatVals = new Dictionary<int, int>(repeatVals),
-                spwnInd = spawnInd,
-                spwnVals = spawnVals.ToArray(),
-                time = time,
-                wait = wait,
-            };
-            for (int i = 0; i < projectiles.Count; i++)
-                hist[histIndex].projectiles[i] = projectiles[i].Clone();
-            if (histIndex == histIndexMin)
-                if (++histIndexMin >= GameSettings.maxHistFrames)
-                    histIndexMin = 0;
         }
 
         void DisplayArrow()
@@ -1084,26 +1034,26 @@ namespace Barrage
                             Vector pos = projectiles[i].Position;
                             (gg.Children[0] as LineGeometry).StartPoint = (Point)pos;
 
-                            ReadString.projVals = (new double[(int)Projectile.VI.Count]);
-                            Array.Copy(projectiles[i].projVals, ReadString.projVals, (int)Projectile.VI.Count);
+                            ReadString.projVars = (new double[(int)PROJVARS.Count]);
+                            Array.Copy(projectiles[i].projVars, ReadString.projVars, (int)PROJVARS.Count);
 
                             //predict steps ahead
                             for (int t = 0; t < projStepsAhead; t++)
                             {
-                                ReadString.t = projectiles[i].Age + t;
+                                ReadString.projVars[(int)PROJVARS.T] = projectiles[i].Age + t;
 
                                 Vector vel;
                                 double spd, ang;
-                                if (projectiles[i].XyVel != null)
+                                if (projectiles[i].XVel != null && projectiles[i].YVel != null)
                                 {
-                                    vel = new Vector(ReadString.Interpret(projectiles[i].XyVel.Value.Item1), ReadString.Interpret(projectiles[i].XyVel.Value.Item2));
+                                    vel = new Vector(ReadString.Interpret(projectiles[i].XVel), ReadString.Interpret(projectiles[i].YVel));
                                     spd = vel.Length;
                                     ang = Math.Atan2(vel.Y, vel.X);
                                 }
                                 //xyPos
-                                else if (projectiles[i].XyPos != null)
+                                else if (projectiles[i].XPos != null && projectiles[i].YPos != null)
                                 {
-                                    vel = new Vector(ReadString.Interpret(projectiles[i].XyPos.Value.Item1), ReadString.Interpret(projectiles[i].XyPos.Value.Item2)) - pos;
+                                    vel = new Vector(ReadString.Interpret(projectiles[i].XPos), ReadString.Interpret(projectiles[i].YPos)) - pos;
                                     spd = vel.Length;
                                     ang = Math.Atan2(vel.Y, vel.X);
                                 }
@@ -1126,12 +1076,12 @@ namespace Barrage
                                     (gg.Children[t * 2 + 2] as LineGeometry).StartPoint = (Point)pos;
 
                                 //set last values
-                                ReadString.projVals[(int)Projectile.VI.LXPOS] = pos.X;
-                                ReadString.projVals[(int)Projectile.VI.LYPOS] = pos.Y;
-                                ReadString.projVals[(int)Projectile.VI.LXVEL] = vel.X;
-                                ReadString.projVals[(int)Projectile.VI.LYVEL] = vel.Y;
-                                ReadString.projVals[(int)Projectile.VI.LSPD] = spd;
-                                ReadString.projVals[(int)Projectile.VI.LANG] = ang;
+                                ReadString.projVars[(int)PROJVARS.LXPOS] = pos.X;
+                                ReadString.projVars[(int)PROJVARS.LYPOS] = pos.Y;
+                                ReadString.projVars[(int)PROJVARS.LXVEL] = vel.X;
+                                ReadString.projVars[(int)PROJVARS.LYVEL] = vel.Y;
+                                ReadString.projVars[(int)PROJVARS.LSPD] = spd;
+                                ReadString.projVars[(int)PROJVARS.LANG] = ang;
                             }
                             projectiles[i].img.Tag = ticks - 1;
                         }
@@ -1331,45 +1281,6 @@ namespace Barrage
             }
             else if (sender == imageEditorStepForwards)
                 stepForwards = true;
-            else if (sender == imageEditorStepBackwards)
-            {
-                int prevHistIndex = histIndex;
-                if (e.ChangedButton == MouseButton.Left)
-                    histIndex--;
-                else if (e.ChangedButton == MouseButton.Right)
-                    histIndex -= 5;
-                if (histIndex < histIndexMin && prevHistIndex >= histIndexMin)
-                    histIndex = histIndexMin;
-                if (histIndex < 0)
-                    histIndex += hist.Count;
-                while (hist[histIndex] == null)
-                    if (--histIndex < 0)
-                        histIndex += hist.Count;
-
-                for (int i = 0; i < projectiles.Count; i++)
-                    gridField.Children.Remove(projectiles[i].img);
-                projectiles = new List<Projectile>(hist[histIndex].projectiles);
-                for (int i = 0; i < projectiles.Count; i++)
-                {
-                    projectiles[i] = hist[histIndex].projectiles[i].Clone();
-                    gridField.Children.Add(projectiles[i].img);
-                    projectiles[i].Render();
-                }
-                plyrPos = hist[histIndex].plyrPos;
-                bossPos = hist[histIndex].bossPos;
-                bossAngle = hist[histIndex].bossAngle;
-                bossTarget = hist[histIndex].bossTarget;
-                bossMvSpd = hist[histIndex].bossMvSpd;
-                bossAngSpd = hist[histIndex].bossAngSpd;
-                time = hist[histIndex].time;
-                readIndex = hist[histIndex].readIndex;
-                wait = hist[histIndex].wait;
-                repeatVals = hist[histIndex].repeatVals;
-                spawnInd = hist[histIndex].spwnInd;
-                spawnVals = new List<double>(hist[histIndex].spwnVals);
-
-                RenderPlayerAndBoss();
-            }
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -1392,7 +1303,7 @@ namespace Barrage
         private void TextEditor_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (gamestate == GAMESTATE.EDITOR)
-                ReadSpawnTxt();
+                ReadSPTxt();
             isSPSaved = false;
             Title = "*Barrage";
         }
@@ -1501,7 +1412,7 @@ namespace Barrage
                     {
                         //find next available label for ifGoto
                         int labelIndex = 0;
-                        while (labels.ContainsKey(':' + labelIndex.SetWidth(4)))
+                        while (labelToInt.ContainsKey(':' + labelIndex.SetWidth(4)))
                             labelIndex++;
                         lines.Insert(readIndex, string.Format("ifGoto|t != {0}|{1}", time + 1, ":" + labelIndex.SetWidth(4)));
                         lines.Insert(readIndex + 2, ":" + labelIndex.SetWidth(4));
@@ -1582,36 +1493,6 @@ namespace Barrage
                         projectileImgs[index] = new BitmapImage(new Uri("files/Projectile.png", UriKind.Relative));
                 return projectileImgs[index];
             }
-        }
-
-        private void SliderMaxRewind_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (changingMaxRewind)
-                return;
-            changingMaxRewind = true;
-
-            if (textMaxRewind != null)
-                textMaxRewind.Text = (GameSettings.maxHistFrames = (int)Math.Pow(10, sliderMaxRewind.Value)).ToString();
-
-            changingMaxRewind = false;
-        }
-
-        private void TextMaxRewind_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (changingMaxRewind)
-                return;
-            changingMaxRewind = true;
-
-            if (sliderMaxRewind != null && int.TryParse(textMaxRewind.Text, out int num))
-            {
-                if (num < Math.Pow(10, sliderMaxRewind.Minimum))
-                    num = (int)Math.Pow(10, sliderMaxRewind.Minimum);
-                else if (num > Math.Pow(10, sliderMaxRewind.Maximum))
-                    num = (int)Math.Pow(10, sliderMaxRewind.Maximum);
-                sliderMaxRewind.Value = Math.Log10(GameSettings.maxHistFrames = num);
-                textMaxRewind.Text = num.ToString();
-            }
-            changingMaxRewind = false;
         }
     }
     public static class ExtensionMethods

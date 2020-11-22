@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Barrage" Height="420" Width="405" Icon="/files/Icon.ico" Loaded="Window_Loaded" Closing="Window_Closing" SizeChanged="Window_SizeChanged" Background="Black" Closed="Window_Closed">
+        Title="Barrage" Height="420" Width="405" Icon="/files/Icon.ico" Loaded="Window_Loaded" Closing="Window_Closing" SizeChanged="Window_SizeChanged" Background="Black" Closed="Window_Closed" KeyDown="MainWindow_KeyDown">
     <Grid x:Name="gridSize">
         <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridMain" Width="400" Height="400" Background="White">
             <Grid x:Name="gridGame" Visibility="Hidden" Width="400" Height="400">
@@ -47,16 +47,6 @@
                 <TextBox x:Name="textEditor" HorizontalAlignment="Right" VerticalAlignment="Top" Width="400" Height="400" FontFamily="Consolas" TextWrapping="Wrap" AcceptsReturn="True" KeyDown="TextEditor_KeyDown" IsTabStop="False" TextChanged="TextEditor_TextChanged" VerticalScrollBarVisibility="Visible" FontSize="10"/>
                 <Image x:Name="imageEditorPlay" Source="/files/Play.png" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-200,0,200,0" Opacity="0.8" MouseEnter="ImageEditor_MouseEnter" MouseLeave="ImageEditor_MouseLeave" MouseDown="ImageEditor_MouseDown" MouseUp="ImageEditor_MouseUp"/>
                 <Image x:Name="imageEditorStepForwards" Source="/files/Step.png" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-150,0,150,0" Opacity="0.8" MouseEnter="ImageEditor_MouseEnter" MouseLeave="ImageEditor_MouseLeave" MouseDown="ImageEditor_MouseDown" MouseUp="ImageEditor_MouseUp"/>
-                <Image x:Name="imageEditorStepBackwards" Source="/files/Step.png" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-250,0,250,0" RenderTransformOrigin="0.5,0.5" Opacity="0.8" MouseEnter="ImageEditor_MouseEnter" MouseLeave="ImageEditor_MouseLeave" MouseDown="ImageEditor_MouseDown" MouseUp="ImageEditor_MouseUp">
-                    <Image.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform ScaleY="1" ScaleX="-1"/>
-                            <SkewTransform/>
-                            <RotateTransform/>
-                            <TranslateTransform/>
-                        </TransformGroup>
-                    </Image.RenderTransform>
-                </Image>
                 <Label x:Name="labelEditorFocus" HorizontalAlignment="Left" VerticalAlignment="Top" Focusable="True" Width="0" Height="0"/>
             </Grid>
             <Grid x:Name="gridOptions" Visibility="Hidden">
@@ -67,11 +57,6 @@
                     <CheckBox x:Name="checkError" Content="Check for errors" Panel.ZIndex="100" FontSize="20" VerticalContentAlignment="Center"/>
                     <Label Content="Editor" FontSize="20" FontWeight="Bold"/>
                     <CheckBox x:Name="checkUseGrid" Checked="CheckOptions_CheckedChanged" Content="Use grid" Unchecked="CheckOptions_CheckedChanged" FontSize="20" VerticalContentAlignment="Center"/>
-                    <Label Content="Maximum editor rewind" FontSize="20"/>
-                    <StackPanel Orientation="Horizontal">
-                        <Slider x:Name="sliderMaxRewind" Width="200" TickPlacement="BottomRight" Foreground="#FFA1A1A1" Maximum="5" Value="3" SmallChange="1" ValueChanged="SliderMaxRewind_ValueChanged"/>
-                        <TextBox x:Name="textMaxRewind" Width="50" TextChanged="TextMaxRewind_TextChanged"/>
-                    </StackPanel>
                     <CheckBox x:Name="checkPredict" Content="Predict Projectiles" Panel.ZIndex="100" FontSize="20" VerticalContentAlignment="Center"/>
                 </StackPanel>
                 <Label x:Name="labelVersion" Content="v.unknown" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>

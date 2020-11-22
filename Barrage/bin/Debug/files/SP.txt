@@ -1,21 +1,22 @@
-val0|0
-val1|-100
-ifGoto|1|:SPAWN
-:LOOP
-ifGoto|1|:SPAWN
+val|1|15
+val|2|1.8
+val|3|2
+val|4|52
+val|5|2.1
 
-:SPAWN
-boss|val0|val1|3|1
-val2|0
-wait|180
-val0|PLYRX
-val1|PLYRY
-:BURST0
-:BURST1
-proj|tags=circle|angle=30 * n + val2|speed=2|file=MOD ( n / 12 ) 6|size=4|startPos=BOSSX,BOSSY
-repeat|:BURST1|12
-wait|3
-val2|val2 + 9
-repeat|:BURST0|18
-wait|120
-ifGoto|1|:LOOP
+#describes randomness factor
+val|9|RNG 0 360
+
+#describes quantity of bullets
+val|8|100
+val|6|-110 + ( MOD n ( val8 * 4 ) ) / 4
+val|7|MOD n ( val8 * 4 )
+
+proj|tags=circle|speed=SIGN ( MAX ( t + val6 ) 0 )|angle=5 * n + val9|startX=val1 * COS ( val5 * val7 ) * ( SIN ( val2 * val7 ) + val3 + val7 / val4 )|startY=val1 * SIN ( val5 * val7 ) * ( SIN ( val2 * val7 ) + val3 + val7 / val4 ) - 50|size=5
+proj|tags=circle|speed=SIGN ( MAX ( t + val6 ) 0 )|angle=5 * n + 90 + val9|startX=val1 * COS ( val5 * val7 + 90 ) * ( SIN ( val2 * val7 ) + val3 + val7 / val4 )|startY=val1 * SIN ( val5 * val7 + 90 ) * ( SIN ( val2 * val7 ) + val3 + val7 / val4 ) - 50|size=5
+proj|tags=circle|speed=SIGN ( MAX ( t + val6 ) 0 )|angle=5 * n + 180 + val9|startX=val1 * COS ( val5 * val7 + 180 ) * ( SIN ( val2 * val7 ) + val3 + val7 / val4 )|startY=val1 * SIN ( val5 * val7 + 180 ) * ( SIN ( val2 * val7 ) + val3 + val7 / val4 ) - 50|size=5
+proj|tags=circle|speed=SIGN ( MAX ( t + val6 ) 0 )|angle=5 * n + 270 + val9|startX=val1 * COS ( val5 * val7 + 270 ) * ( SIN ( val2 * val7 ) + val3 + val7 / val4 )|startY=val1 * SIN ( val5 * val7 + 270 ) * ( SIN ( val2 * val7 ) + val3 + val7 / val4 ) - 50|size=5
+wait|1
+repeat|6|val8
+wait|150
+repeat|5|10000

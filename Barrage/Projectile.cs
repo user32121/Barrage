@@ -14,11 +14,13 @@ namespace Barrage
         public Vector Position;
         public Vector Velocity;
         public Vector VelDir = new Vector(1, 1);
-        public List<string> Tags;
+        public MainWindow.TAGS Tags;
         public object[] Speed;
         public object[] Angle;
-        public (object[], object[])? XyPos;
-        public (object[], object[])? XyVel;
+        public object[] XPos;
+        public object[] YPos;
+        public object[] XVel;
+        public object[] YVel;
         public object[] Radius;
         public int RadiusSqr;
         public object[] Duration;
@@ -31,52 +33,52 @@ namespace Barrage
         public int Age;
         public object[] state;
 
-        public double[] projVals = new double[(int)VI.Count];
-        public enum VI /*Value Index*/
+        public static readonly Dictionary<MainWindow.PROPERTIES, object[]> defaultProps = new Dictionary<MainWindow.PROPERTIES, object[]>()
         {
-            LXPOS, LYPOS,
-            LXVEL, LYVEL,
-            LSPD,
-            LANG,
-            LSTATE,
-            Count
-        }
+            { MainWindow.PROPERTIES.TAGS,     new object[] { MainWindow.TAGS.NONE } },
+            { MainWindow.PROPERTIES.SPEED,    null },
+            { MainWindow.PROPERTIES.ANGLE,    null },
+            { MainWindow.PROPERTIES.XPOS,     null },
+            { MainWindow.PROPERTIES.YPOS,     null },
+            { MainWindow.PROPERTIES.XVEL,     null },
+            { MainWindow.PROPERTIES.YVEL,     null },
+            { MainWindow.PROPERTIES.SIZE,     new object[]{ 7.0 } },
+            { MainWindow.PROPERTIES.STARTX,   null },
+            { MainWindow.PROPERTIES.STARTY,   new object[]{ 100.0 } },
+            { MainWindow.PROPERTIES.DURATION, new object[]{ -1.0 } },
+            { MainWindow.PROPERTIES.TAGCOUNT, new object[]{ -1.0 } },
+            { MainWindow.PROPERTIES.ACTDELAY, null },
+            { MainWindow.PROPERTIES.FILE,     null },
+            { MainWindow.PROPERTIES.STATE,    null },
+        };
+
+        public double[] projVars;
+        public Dictionary<int, double> numValues;
 
         public Path path;
 
-        public Projectile() { }
-
-        public Projectile(object[] radius)
+        public Projectile(object[] radius, double[] projVars)
         {
             Radius = radius;
-            ReadString.t = 0;
-            projVals[(int)VI.LXPOS] = Position.X;
-            projVals[(int)VI.LYPOS] = Position.Y;
-            ReadString.projVals = projVals;
+            this.projVars = projVars;
+            projVars[(int)MainWindow.PROJVARS.T] = Age;
+            projVars[(int)MainWindow.PROJVARS.LXPOS] = Position.X;
+            projVars[(int)MainWindow.PROJVARS.LYPOS] = Position.Y;
+            ReadString.projVars = projVars;
             int r = (int)ReadString.Interpret(Radius);
             RadiusSqr = r * r;
             IsAlive = true;
         }
 
-        public Projectile Clone()
-        {
-            Projectile p = (Projectile)MemberwiseClone();
-            p.projVals = new double[(int)VI.Count];
-            for (int i = 0; i < projVals.Length; i++)
-                p.projVals[i] = projVals[i];
-
-            return p;
-        }
-
         public void Render()
         {
             int y1 = 0;
-            ReadString.t = Age;
-            projVals[(int)VI.LXPOS] = Position.X;
-            projVals[(int)VI.LYPOS] = Position.Y;
-            ReadString.projVals = projVals;
+            projVars[(int)MainWindow.PROJVARS.T] = Age;
+            projVars[(int)MainWindow.PROJVARS.LXPOS] = Position.X;
+            projVars[(int)MainWindow.PROJVARS.LYPOS] = Position.Y;
+            ReadString.projVars = projVars;
             TransformGroup TG = new TransformGroup();
-            if (Tags.Contains("laser"))
+            if (Tags.HasFlag(MainWindow.TAGS.LASER))
             {
                 y1 = 50;    //add 50 to y because ...
                 TG.Children.Add(new ScaleTransform(1, 6));
@@ -84,7 +86,7 @@ namespace Barrage
             }
 
             TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle) - 90));
-            if (Tags.Contains("circle"))
+            if (Tags.HasFlag(MainWindow.TAGS.CIRCLE))
             {
                 TG.Children.Add(new ScaleTransform(VelDir.X, VelDir.Y));
                 img.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(File), false);
@@ -103,12 +105,12 @@ namespace Barrage
             int r = Math.Abs((int)dr);
             if (img.Width / 2 != r)
             {
-                if (Tags.Contains("circle"))
+                if (Tags.HasFlag(MainWindow.TAGS.CIRCLE))
                 {
                     img.Width = r * 2;
                     img.Height = r * 2;
                 }
-                else if (Tags.Contains("laser"))
+                else if (Tags.HasFlag(MainWindow.TAGS.LASER))
                 {
                     img.Width = r * 2;
                 }
@@ -118,8 +120,9 @@ namespace Barrage
 
         public void Move()
         {
-            ReadString.t = Age;
-            ReadString.projVals = projVals;
+            projVars[(int)MainWindow.PROJVARS.T] = Age;
+            ReadString.projVars = projVars;
+            ReadString.numVals = numValues;
 
             //ActDelay
             int temp = (int)ReadString.Interpret(ActDelay);
@@ -143,19 +146,19 @@ namespace Barrage
             temp = (int)ReadString.Interpret(TagCount);
             if (Math.Abs(Position.X) > 200)
             {
-                if (Tags.Contains("wallBounce") && (temp == -1 || temp > TagUses))
+                if (Tags.HasFlag(MainWindow.TAGS.WALLBOUNCE) && (temp == -1 || temp > TagUses))
                 {
                     Position.X = 400 * Math.Sign(Position.X) - Position.X;
                     VelDir.X *= -1;
                     TagUses++;
                 }
-                else if (Tags.Contains("screenWrap") && (temp == -1 || temp > TagUses))
+                else if (Tags.HasFlag(MainWindow.TAGS.SCREENWRAP) && (temp == -1 || temp > TagUses))
                 {
                     Position.X -= 400 * Math.Sign(Position.X);
                     TagUses++;
                 }
                 else if (Math.Abs(Position.X) > 200 + r)
-                    if (Tags.Contains("outside") && (temp == -1 || temp > TagUses))
+                    if (Tags.HasFlag(MainWindow.TAGS.OUTSIDE) && (temp == -1 || temp > TagUses))
                         TagUses++;
                     else
                         IsAlive = false;
@@ -163,19 +166,19 @@ namespace Barrage
             //checks if offscreen (y)
             if (Math.Abs(Position.Y) > 200)
             {
-                if (Tags.Contains("wallBounce") && (temp == -1 || temp > TagUses))
+                if (Tags.HasFlag(MainWindow.TAGS.WALLBOUNCE) && (temp == -1 || temp > TagUses))
                 {
                     Position.Y = 400 * Math.Sign(Position.Y) - Position.Y;
                     VelDir.Y *= -1;
                     TagUses++;
                 }
-                else if (Tags.Contains("screenWrap") && (temp == -1 || temp > TagUses))
+                else if (Tags.HasFlag(MainWindow.TAGS.SCREENWRAP) && (temp == -1 || temp > TagUses))
                 {
                     Position.Y -= 400 * Math.Sign(Position.Y);
                     TagUses++;
                 }
-                else if (!Tags.Contains("outside") && Math.Abs(Position.Y) > 200 + r)
-                    if (Tags.Contains("outside") && (temp == -1 || temp > TagUses))
+                else if (Math.Abs(Position.Y) > 200 + r)
+                    if (Tags.HasFlag(MainWindow.TAGS.OUTSIDE) && (temp == -1 || temp > TagUses))
                         TagUses++;
                     else
                         IsAlive = false;
@@ -185,16 +188,16 @@ namespace Barrage
 
             double ang, spd;
             //xyVel
-            if (XyVel != null)
+            if (XVel != null && YVel != null)
             {
-                Velocity = new Vector(ReadString.Interpret(XyVel.Value.Item1), ReadString.Interpret(XyVel.Value.Item2));
+                Velocity = new Vector(ReadString.Interpret(XVel), ReadString.Interpret(YVel));
                 spd = Velocity.Length;
                 ang = Math.Atan2(Velocity.Y, Velocity.X);
             }
             //xyPos
-            else if (XyPos != null)
+            else if (XPos != null && YPos != null)
             {
-                Velocity = new Vector(ReadString.Interpret(XyPos.Value.Item1), ReadString.Interpret(XyPos.Value.Item2)) - Position;
+                Velocity = new Vector(ReadString.Interpret(XPos), ReadString.Interpret(YPos)) - Position;
                 spd = Velocity.Length;
                 ang = Math.Atan2(Velocity.Y, Velocity.X);
             }
@@ -215,13 +218,14 @@ namespace Barrage
             double lstate = ReadString.Interpret(state);
 
             //sets last projVals
-            projVals[(int)VI.LXPOS] = Position.X;
-            projVals[(int)VI.LYPOS] = Position.Y;
-            projVals[(int)VI.LXVEL] = Velocity.X;
-            projVals[(int)VI.LYVEL] = Velocity.Y;
-            projVals[(int)VI.LSPD] = spd;
-            projVals[(int)VI.LANG] = ang;
-            projVals[(int)VI.LSTATE] = lstate;
+            projVars[(int)MainWindow.PROJVARS.T] = Age;
+            projVars[(int)MainWindow.PROJVARS.LXPOS] = Position.X;
+            projVars[(int)MainWindow.PROJVARS.LYPOS] = Position.Y;
+            projVars[(int)MainWindow.PROJVARS.LXVEL] = Velocity.X;
+            projVars[(int)MainWindow.PROJVARS.LYVEL] = Velocity.Y;
+            projVars[(int)MainWindow.PROJVARS.LSPD] = spd;
+            projVars[(int)MainWindow.PROJVARS.LANG] = ang;
+            projVars[(int)MainWindow.PROJVARS.LSTATE] = lstate;
         }
     }
 }

@@ -25,6 +25,8 @@ namespace SPUpdater
                 while (!sr.EndOfStream)
                 {
                     s = sr.ReadLine();
+
+                    //replace obsolete variables with relevant versions
                     s = s.
                         Replace("plyrx", "PLYRX").
                         Replace("plyry", "PLYRY").
@@ -50,6 +52,33 @@ namespace SPUpdater
                         Replace("LLLPOSY", "LPOSY").
                         Replace("LLPOSX", "LPOSX").
                         Replace("LLPOSY", "LPOSY");
+
+                    //change val# with val|# format
+                    if (s.StartsWith("val") && char.IsDigit(s[3]))
+                        s = s.Insert(3, "|");
+                    else if (s.StartsWith("proj"))
+                    {
+                        string[] props = s.Split('|');
+                        for (int i = 0; i < props.Length; i++)
+                            if (props[i].StartsWith("xyPos"))
+                                props[i] = props[i].Replace("xyPos", "xPos").Replace(",", "|yPos=");
+                            else if (props[i].StartsWith("xyVel"))
+                                props[i] = props[i].Replace("xyVel", "xVel").Replace(",", "|yVel=");
+                            else if (props[i].StartsWith("startPos"))
+                                props[i] = props[i].Replace("startPos", "startX").Replace(",", "|startY=");
+                        s = string.Join("|", props);
+                    }
+                    else if(s.StartsWith("ifGoto"))
+                    {
+                        string[] spltLine = s.Split('|');
+                        //swap item 1 and 2 to change to gotoIf
+                        string t = spltLine[1];
+                        spltLine[1] = spltLine[2];
+                        spltLine[2] = t;
+                        spltLine[0] = "gotoIf";
+                        s = string.Join("|", spltLine);
+                    }
+
                     sw.WriteLine(s);
                 }
                 sr.Close();

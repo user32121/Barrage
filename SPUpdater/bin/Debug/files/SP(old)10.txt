@@ -1,16 +1,16 @@
-val1|15
-val2|1.8
-val3|2
-val4|52
-val5|2.1
+val|1|15
+val|2|1.8
+val|3|2
+val|4|52
+val|5|2.1
 
 #describes randomness factor
-val9|RNG 0 360
+val|9|RNG 0 360
 
 #describes quantity of bullets
-val8|100
-val6|-110 + ( MOD n ( val8 * 4 ) ) / 4
-val7|MOD n ( val8 * 4 )
+val|8|100
+val|6|-110 + ( MOD n ( val8 * 4 ) ) / 4
+val|7|MOD n ( val8 * 4 )
 
 proj|tags=circle|speed=SIGN ( MAX ( t + val6 ) 0 )|angle=5 * n + val9|startPos=val1 * COS ( val5 * val7 ) * ( SIN ( val2 * val7 ) + val3 + val7 / val4 ),val1 * SIN ( val5 * val7 ) * ( SIN ( val2 * val7 ) + val3 + val7 / val4 ) - 50|size=5
 proj|tags=circle|speed=SIGN ( MAX ( t + val6 ) 0 )|angle=5 * n + 90 + val9|startPos=val1 * COS ( val5 * val7 + 90 ) * ( SIN ( val2 * val7 ) + val3 + val7 / val4 ),val1 * SIN ( val5 * val7 + 90 ) * ( SIN ( val2 * val7 ) + val3 + val7 / val4 ) - 50|size=5
