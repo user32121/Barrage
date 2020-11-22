@@ -80,7 +80,7 @@ namespace Barrage
                 else if (token == ")")  //right parentheses
                 {
                     if (opStack.Count == 0)
-                        MainWindow.MessageIssue(inp, line, "Unbalanced parentheses");
+                        MainWindow.MessageIssue(inp, line, "Unbalanced parentheses.");
                     else
                     {
                         while (opStack.Peek() != OPERATORS.PARENLEFT)   //move from operator stack to output until close parentheses
@@ -88,7 +88,7 @@ namespace Barrage
                             output.Enqueue(opStack.Pop());
                             if (opStack.Count == 0)
                             {
-                                MainWindow.MessageIssue(inp, line, "Unbalanced parentheses");
+                                MainWindow.MessageIssue(inp, line, "Unbalanced parentheses.");
                                 goto BREAKOPSTACKLOOP;
                             }
                         }
@@ -104,11 +104,11 @@ namespace Barrage
                     if (int.TryParse(token.Substring(3), out int index))
                         output.Enqueue(new MainWindow.ValIndex(index));
                     else
-                        MainWindow.MessageIssue(token, line, "Invalid val index");
+                        MainWindow.MessageIssue(token, line, "Invalid val index.");
                 else if (double.TryParse(token, out double val))   //token is a number
                     output.Enqueue(val);
                 else
-                    MainWindow.MessageIssue(token, line, "Not a number or a variable");
+                    MainWindow.MessageIssue(token, line, "Not a number, variable, or label.");
             }
             while (opStack.Count > 0)
                 output.Enqueue(opStack.Pop());  //move remaining operators to ouput
@@ -126,7 +126,7 @@ namespace Barrage
                 if (MainWindow.strToTag.TryGetValue(tagsStr[i], out MainWindow.TAGS tag))
                     tags |= tag;
                 else
-                    MainWindow.MessageIssue(tagsStr[i], line, "Not a tag");
+                    MainWindow.MessageIssue(tagsStr[i], line, "Not a tag.");
             }
             return tags;
         }
@@ -207,7 +207,8 @@ namespace Barrage
                         break;
 
                     case MainWindow.ValIndex valIndex:
-                        operands.Push(numVals[valIndex.index]);
+                        numVals.TryGetValue(valIndex.index, out double val);
+                        operands.Push(val);
                         break;
 
                     case double d:
@@ -351,7 +352,7 @@ namespace Barrage
             }
             if (operands.Count < 1)
             {
-                MainWindow.MessageIssue(MainWindow.spText[line], line, "Not enough operands for operators");
+                MainWindow.MessageIssue(MainWindow.spText[line], line, "Not enough operands for operators.");
                 return 0;
             }
             else

@@ -189,8 +189,8 @@ namespace Barrage
         Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
         int spawnInd;
         Dictionary<int, double> spawnVals = new Dictionary<int, double>();
+        Dictionary<string, int> labelToInt = new Dictionary<string, int>();    //label, line #
         double[] spawnVars = new double[(int)GLOBALVARS.Count];
-        readonly Dictionary<string, int> labelToInt = new Dictionary<string, int>();    //label, line #
         Stopwatch SPTimeout = new Stopwatch();
         public static bool stopGameRequested;
         double plyrFreeze = 0;
@@ -670,7 +670,7 @@ namespace Barrage
 
                                 if (lineNum < -1)
                                 {
-                                    MessageIssue(string.Join(" ", line[1]), spawnInd, "Line number cannot be negative");
+                                    MessageIssue(string.Join(" ", line[1]), spawnInd, "Line number cannot be negative.");
                                     readIndex = -1;
                                 }
                                 else
@@ -694,7 +694,7 @@ namespace Barrage
                                 //(-1 because there is ++ later on)
 
                                 if (lineNum < -1)
-                                    MessageIssue(string.Join(" ", line), spawnInd, "Line number cannot be negative");
+                                    MessageIssue(string.Join(" ", line), readIndex, "Line number cannot be negative.");
                                 else
                                     readIndex = lineNum;
                             }
@@ -710,7 +710,7 @@ namespace Barrage
                         //sets a value to spwnVals
                         int index = (int)ReadString.Interpret(indexArr);
                         if (index < 0)
-                            MessageIssue(spText[readIndex], spawnInd, "Val# cannot be negative");
+                            MessageIssue(spText[readIndex], spawnInd, "Val# cannot be negative.");
                         else if (!stopGameRequested)
                             spawnVals[index] = ReadString.Interpret(value);
                         break;
@@ -746,6 +746,7 @@ namespace Barrage
 
             double[] projVars = new double[(int)MainWindow.PROJVARS.Count];
             projVars[(int)PROJVARS.T] = 0;
+            projVars[(int)PROJVARS.N] = projIndex;
             ReadString.projVars = projVars;
 
             //displays projectile
@@ -823,10 +824,11 @@ namespace Barrage
                 "An error occurred", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
                 stopGameRequested = true;
-                if (gamestate == GAMESTATE.EDITOR)
-                    Main.MainWindow_KeyDown(Main, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
-                else
-                    Main.LabelBack_MouseUp(Main.labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
+                if (Main != null)
+                    if (gamestate == GAMESTATE.EDITOR)
+                        Main.MainWindow_KeyDown(Main, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
+                    else
+                        Main.LabelBack_MouseUp(Main.labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
             }
         }
 
@@ -888,77 +890,82 @@ namespace Barrage
             spText.Clear();
             labelToInt.Clear();
 
+            //scan and look for labels
+            for (int i = 0; i < lines.Length; i++)
+                if (lines[i].Length > 0 && lines[i][0] == ':')  //label
+                {
+                    if (labelToInt.ContainsKey(lines[i]))
+                        MessageBox.Show("\"" + lines[i] + "\" is already a label", "", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    else
+                        labelToInt.Add(lines[i], i);
+                }
+
             //loads files into readFile and removes comments and empty spaces
             for (int i = 0; i < lines.Length; i++)
             {
                 spText.Add(lines[i]);
 
+                //substitute labels
+                if (lines[i].Length > 1 && lines[i][0] != ':')
+                    foreach (var label in labelToInt)
+                        lines[i] = lines[i].Replace(label.Key, label.Value.ToString());
+
+                //split into command and arguments
                 string[] lineSplt = lines[i].Split('|');
 
-                if (lines[i].Length == 0 || lineSplt[0][0] == '#')  // empty/comment, ignored
+                if (lines[i].Length == 0 || lineSplt[0][0] == '#' || lineSplt[0][0] == ':')  // empty/comment/label, ignored
                     spawnPattern.Add((COMMANDS.NONE, null));
-                else if (lineSplt[0][0] == ':')  //label
+                else if (strToCmd.TryGetValue(lineSplt[0], out COMMANDS cmd))
                 {
-                    spawnPattern.Add((COMMANDS.NONE, null));
-                    if (labelToInt.ContainsKey(lines[i]))
-                        MessageBox.Show("\"" + lines[i] + "\" is already a label", "", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    else
-                        labelToInt.Add(lines[i], spText.Count - 1);
+                    ReadString.line = i;
+
+                    switch (cmd)
+                    {
+                        case COMMANDS.PROJ:
+                            Dictionary<PROPERTIES, object> props = new Dictionary<PROPERTIES, object>();
+                            string[] propPair;
+                            for (int p = 1; p < lineSplt.Length; p++)
+                            {
+                                propPair = lineSplt[p].Split('=');
+                                if (strToProp.TryGetValue(propPair[0], out PROPERTIES prop))
+                                    switch (prop)
+                                    {
+                                        case PROPERTIES.TAGS:
+                                            props[prop] = ReadString.ToTags(propPair[1]);
+                                            break;
+                                        default:
+                                            props[prop] = ReadString.ToPostfix(propPair[1]);
+                                            break;
+                                    }
+                                else
+                                    MessageIssue(propPair[0], spawnInd, "Not a property name.");
+                            }
+                            spawnPattern.Add((cmd, props));
+                            break;
+                        case COMMANDS.REPEAT:
+                            repeatVals[i] = 0;
+                            goto case COMMANDS.GOTOIF;
+                        case COMMANDS.GOTOIF:
+                        case COMMANDS.VAL:
+                            spawnPattern.Add((cmd, (ReadString.ToPostfix(lineSplt[1]), ReadString.ToPostfix(lineSplt[2]))));
+                            break;
+                        case COMMANDS.BOSS:
+                            spawnPattern.Add((cmd, (ReadString.ToPostfix(lineSplt[1]), ReadString.ToPostfix(lineSplt[2]), ReadString.ToPostfix(lineSplt[3]), ReadString.ToPostfix(lineSplt[4]))));
+                            break;
+                        case COMMANDS.WAIT:
+                        case COMMANDS.RNG:
+                        case COMMANDS.FREEZE:
+                            spawnPattern.Add((cmd, ReadString.ToPostfix(lineSplt[1])));
+                            break;
+                        case COMMANDS.VISUAL:
+                            spawnPattern.Add((cmd, null));
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
                 }
                 else
-                {
-                    if (strToCmd.TryGetValue(lineSplt[0], out COMMANDS cmd))
-                    {
-                        ReadString.line = i;
-
-                        switch (cmd)
-                        {
-                            case COMMANDS.PROJ:
-                                Dictionary<PROPERTIES, object> props = new Dictionary<PROPERTIES, object>();
-                                string[] propPair;
-                                for (int p = 1; p < lineSplt.Length; p++)
-                                {
-                                    propPair = lineSplt[p].Split('=');
-                                    if (strToProp.TryGetValue(propPair[0], out PROPERTIES prop))
-                                        switch (prop)
-                                        {
-                                            case PROPERTIES.TAGS:
-                                                props[prop] = ReadString.ToTags(propPair[1]);
-                                                break;
-                                            default:
-                                                props[prop] = ReadString.ToPostfix(propPair[1]);
-                                                break;
-                                        }
-                                    else
-                                        MessageIssue(propPair[0], spawnInd, "Not a property name");
-                                }
-                                spawnPattern.Add((cmd, props));
-                                break;
-                            case COMMANDS.REPEAT:
-                                repeatVals[i] = 0;
-                                goto case COMMANDS.GOTOIF;
-                            case COMMANDS.GOTOIF:
-                            case COMMANDS.VAL:
-                                spawnPattern.Add((cmd, (ReadString.ToPostfix(lineSplt[1]), ReadString.ToPostfix(lineSplt[2]))));
-                                break;
-                            case COMMANDS.BOSS:
-                                spawnPattern.Add((cmd, (ReadString.ToPostfix(lineSplt[1]), ReadString.ToPostfix(lineSplt[2]), ReadString.ToPostfix(lineSplt[3]), ReadString.ToPostfix(lineSplt[4]))));
-                                break;
-                            case COMMANDS.WAIT:
-                            case COMMANDS.RNG:
-                            case COMMANDS.FREEZE:
-                                spawnPattern.Add((cmd, ReadString.ToPostfix(lineSplt[1])));
-                                break;
-                            case COMMANDS.VISUAL:
-                                spawnPattern.Add((cmd, null));
-                                break;
-                            default:
-                                throw new NotImplementedException();
-                        }
-                    }
-                    else
-                        MessageIssue(lineSplt[0], spawnInd, "Not a command");
-                }
+                    MessageIssue(lineSplt[0], spawnInd, "Not a command.");
             }
         }
 
