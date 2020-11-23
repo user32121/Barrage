@@ -1,5 +1,13 @@
-#Extreme Core Sign: Area Sweeper
-proj|tags=circle|speed=t / 10 - 5|angle=n * 111|startX=0|startY=-50
-repeat|0|100
-wait|50
-gotoIf|0|1
+val|0|19
+:START
+val|2|150
+:LOOP
+proj|tags=circle|angle=val1 + 72 * n|startX=val2 * COS val1|startY=val2 * SIN val1 - 100|speed=2|size=3
+repeat|:LOOP|5
+val|1|val1 + val0
+val|2|val2 - 1
+wait|2
+repeat|:LOOP|144
+wait|100
+val|0|val0 * -1
+gotoIf|:START|1

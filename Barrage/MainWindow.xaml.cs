@@ -33,7 +33,7 @@ namespace Barrage
         bool paused;
         bool gameOver;
         bool isVisual;
-        int time;
+        int time;  //age of the game in frames
         #endregion
 
         #region player
@@ -623,6 +623,7 @@ namespace Barrage
                     SPTimeout.Restart();
                 }
 
+                spawnVars[(int)GLOBALVARS.T] = time;
                 ReadString.gameVars = spawnVars;
                 ReadString.numVals = spawnVals;
                 ReadString.projVars = null;

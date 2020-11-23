@@ -44,7 +44,7 @@ namespace Barrage
             { MainWindow.PROPERTIES.YVEL,     null },
             { MainWindow.PROPERTIES.SIZE,     new object[]{ 7.0 } },
             { MainWindow.PROPERTIES.STARTX,   null },
-            { MainWindow.PROPERTIES.STARTY,   new object[]{ 100.0 } },
+            { MainWindow.PROPERTIES.STARTY,   new object[]{ -100.0 } },
             { MainWindow.PROPERTIES.DURATION, new object[]{ -1.0 } },
             { MainWindow.PROPERTIES.TAGCOUNT, new object[]{ -1.0 } },
             { MainWindow.PROPERTIES.ACTDELAY, null },

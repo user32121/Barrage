@@ -59,7 +59,7 @@ namespace Barrage
         //converts from infix/prefix notation (string) to postfix notation (object[])
         public static object[] ToPostfix(string inp)
         {
-            Queue<string> input = new Queue<string>(inp.Split(' '));
+            Queue<string> input = new Queue<string>(inp.Trim().Split(' '));
             Stack<OPERATORS> opStack = new Stack<OPERATORS>();
             Queue<object> output = new Queue<object>();
 
