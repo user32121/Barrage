@@ -1,5 +1,5 @@
 # Barrage
-Barrage is a bullethell game that was created from the concept of customizable levels.
+Barrage is a bulle thell game that was created from the concept of customizable levels.
 Details on how the level text file works is found in files folder.
 Google Drive zip:
 Note: builds may be behind build in Barrage/Barrage/bin/Debug/ folder
