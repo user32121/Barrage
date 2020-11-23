@@ -1,7 +1,9 @@
 # is comment (text reader ignores this line)
 note: an unrecognised command will still be counted as a line, but will not have any effect
 | to separate primary parameters
-note2: equations will be in postfix notation when a messagebox displays an error
+
+if your code no longer works due to an update, try running SPUpdater.exe (requires restarting game)
+
 
 
 proj|tags=circle|speed=1|angle=10|etc        fires a projectile with the given properties
@@ -45,16 +47,13 @@ visual              indicates a visual map (one that is not meant to be played a
 freeze|#1           freezes the player for #1 frames
 
 
-Available Global Values:
+Available Values:
 n           the number of projectiles created so far
-t           the age of the game
+t           the age of the projectile (or game)
 PLYRX       the player's position
 PLYRY       
 BOSSX       the boss' position
 BOSSY       
-
-Available Projectile Values:
-t           the age of the projectile (overrides global t)
 LANG        the angle from the last frame
 LSPD        the speed from the last frame
 LXPOS       position from last frame

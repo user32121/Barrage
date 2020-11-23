@@ -808,7 +808,7 @@ namespace Barrage
         //display a message box with the error message, also gives an option to stop the program
         public static void MessageIssue(string text)
         {
-            if (GameSettings.checkForErrors && MessageBox.Show(text, "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            if (GameSettings.checkForErrors && !stopGameRequested && MessageBox.Show(text, "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
                 stopGameRequested = true;
                 if (gamestate == GAMESTATE.EDITOR)
@@ -820,7 +820,7 @@ namespace Barrage
         //similar to above function, can be called from anywhere, provides a template for incorrect text, line number, and error message
         public static void MessageIssue(string text, int line, string issue)
         {
-            if (GameSettings.checkForErrors && MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n{2}\n Continue?", text, line, issue),
+            if (GameSettings.checkForErrors && !stopGameRequested && MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n{2}\n Continue?", text, line, issue),
                 "An error occurred", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
                 stopGameRequested = true;
@@ -888,6 +888,7 @@ namespace Barrage
             }
 
             spText.Clear();
+            spawnPattern.Clear();
             labelToInt.Clear();
 
             //scan and look for labels
@@ -1496,6 +1497,11 @@ namespace Barrage
                         projectileImgs[index] = new BitmapImage(new Uri("files/Projectile.png", UriKind.Relative));
                 return projectileImgs[index];
             }
+        }
+
+        private void LabelOpenFiles_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Process.Start("explorer", "files");
         }
     }
     public static class ExtensionMethods

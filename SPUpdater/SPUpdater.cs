@@ -11,15 +11,15 @@ namespace SPUpdater
     {
         static void Main(string[] args)
         {
-            if (File.Exists("files/SP.txt"))
+            if (File.Exists("SP.txt"))
             {
                 int oldIndex = 1;
-                while (File.Exists("files/SP(old)" + oldIndex + ".txt"))
+                while (File.Exists("SP(old)" + oldIndex + ".txt"))
                     oldIndex++;
 
-                File.Move("files/SP.txt", "files/SP(old)" + oldIndex + ".txt");
-                StreamReader sr = new StreamReader("files/SP(old)" + oldIndex + ".txt");
-                StreamWriter sw = new StreamWriter("files/SP.txt");
+                File.Move("SP.txt", "SP(old)" + oldIndex + ".txt");
+                StreamReader sr = new StreamReader("SP(old)" + oldIndex + ".txt");
+                StreamWriter sw = new StreamWriter("SP.txt");
 
                 string s;
                 while (!sr.EndOfStream)

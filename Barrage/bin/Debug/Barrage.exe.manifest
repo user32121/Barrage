@@ -4,7 +4,7 @@
   <description asmv2:iconFile="Icon.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="Barrage" version="1.0.7631.25344" language="neutral" processorArchitecture="msil" />
+    <assemblyIdentity name="Barrage" version="1.0.7631.33417" language="neutral" processorArchitecture="msil" />
     <commandLine file="Barrage.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Barrage.exe" size="254976">
-      <assemblyIdentity name="Barrage" version="1.0.7631.25344" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Barrage.exe" size="255488">
+      <assemblyIdentity name="Barrage" version="1.0.7631.33417" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>eoE7F/1qW4jgDUDiSLDb7P0vn65XGHUAXNqETxbgFxI=</dsig:DigestValue>
+        <dsig:DigestValue>4IcdUowmg6YYPybWKAXLJO7PDHciV1Db1ai0frDYJyk=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -73,6 +73,15 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
       <dsig:DigestValue>rl5/qDc7Jz+tB+BIbOv9iMGPlRe6YJwrjmU09dnlPcs=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="files\info.txt" size="3675">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>c+n7oaW9w7Z9aWiJUdtx015u44wjosHnRwR+NeR2V+o=</dsig:DigestValue>
     </hash>
   </file>
   <file name="files\Laser0.png" size="119">
@@ -201,13 +210,13 @@
       <dsig:DigestValue>HNkuwCvbGL8xyJuJN72MskecIIclPRKDdyvLfV6R1U4=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\spawnInfo.txt" size="3652">
+  <file name="files\SPUpdater.exe" size="7168">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>Um125KWjxVJxIBLkW4lWc9qwjSJeQGB268cSqbBvkvc=</dsig:DigestValue>
+      <dsig:DigestValue>Xs92mzQN5gQgycY4S3XZWx6ik0s+/f0vzjpwtt2qvgQ=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Icon.ico" size="59198">
@@ -226,15 +235,6 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
       <dsig:DigestValue>nVFGWoPz5kdPKLNnJ2QRKqwZ0HnUra8O5MOSTsRL7Mk=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="SPUpdater.exe" size="7168">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>GQTKjLtruDW7qSqtW9DdPF0kcl/7NNW1iL+JhuABWMI=</dsig:DigestValue>
     </hash>
   </file>
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
