@@ -1,3 +1,4 @@
+# Barrage Script v2.0
 val|0|19
 :START
 val|2|150

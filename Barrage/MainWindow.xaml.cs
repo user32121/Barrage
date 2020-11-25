@@ -18,6 +18,7 @@ using System.Windows.Threading;
 using System.Windows.Media.Effects;
 using System.Threading;
 using System.Windows.Interop;
+using SPUpdater;
 
 namespace Barrage
 {
@@ -880,6 +881,19 @@ namespace Barrage
             {
                 StreamReader sr = new StreamReader("files/SP.txt");
                 string temp = sr.ReadToEnd();
+
+                //check for update
+                if (!temp.StartsWith(SPUpdater.SPUpdater.versionText) && MessageBox.Show("The script was made in an older version.\nUpdate?", "", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    sr.Close();
+                    sr.Dispose();
+
+                    Process.Start(Directory.GetCurrentDirectory() + "/files/SPUpdater.exe").WaitForExit();
+
+                    sr = new StreamReader("files/SP.txt");
+                    temp = sr.ReadToEnd();
+                }
+
                 textEditor.Text = temp;
                 isSPSaved = true;
                 Title = "Barrage";
