@@ -428,7 +428,12 @@ namespace Barrage
                     ImageEditor_MouseLeave(imageEditorStepForwards, null);
                 }
                 else if (e.Key == Key.S && e.KeyboardDevice.Modifiers == ModifierKeys.Control)
-                    SaveSP();
+                {
+                    ReadSPTxt();
+                    if (!stopGameRequested)
+                        SaveSP();
+                    stopGameRequested = false;
+                }
             }
             else if (gamestate == GAMESTATE.MENU)
             {
@@ -1321,8 +1326,6 @@ namespace Barrage
         }
         private void TextEditor_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (gamestate == GAMESTATE.EDITOR)
-                ReadSPTxt();
             isSPSaved = false;
             Title = "*Barrage";
         }
