@@ -433,6 +433,7 @@ namespace Barrage
                     if (!stopGameRequested)
                         SaveSP();
                     stopGameRequested = false;
+                    e.Handled = true;
                 }
             }
             else if (gamestate == GAMESTATE.MENU)
