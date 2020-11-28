@@ -634,7 +634,7 @@ namespace Barrage
                 ReadString.gameVars = spawnVars;
                 ReadString.numVals = spawnVals;
                 ReadString.projVars = null;
-                ReadString.line = readIndex;
+                ReadString.curLine = readIndex;
 
                 //keeps reading lines until text says to wait
                 (COMMANDS cmd, object args) = spawnPattern[readIndex];
@@ -939,28 +939,31 @@ namespace Barrage
                     spawnPattern.Add((COMMANDS.NONE, null));
                 else if (strToCmd.TryGetValue(lineSplt[0], out COMMANDS cmd))
                 {
-                    ReadString.line = i;
+                    ReadString.curLine = i;
 
                     switch (cmd)
                     {
                         case COMMANDS.PROJ:
                             Dictionary<PROPERTIES, object> props = new Dictionary<PROPERTIES, object>();
-                            string[] propPair;
+                            string propName;
+                            string propVal;
                             for (int p = 1; p < lineSplt.Length; p++)
                             {
-                                propPair = lineSplt[p].Split('=');
-                                if (strToProp.TryGetValue(propPair[0], out PROPERTIES prop))
+                                int index = lineSplt[p].IndexOf('=');
+                                propName = lineSplt[p].Substring(0, index);
+                                propVal = lineSplt[p].Substring(index + 1);
+                                if (strToProp.TryGetValue(propName, out PROPERTIES prop))
                                     switch (prop)
                                     {
                                         case PROPERTIES.TAGS:
-                                            props[prop] = ReadString.ToTags(propPair[1]);
+                                            props[prop] = ReadString.ToTags(propVal);
                                             break;
                                         default:
-                                            props[prop] = ReadString.ToPostfix(propPair[1]);
+                                            props[prop] = ReadString.ToPostfix(propVal);
                                             break;
                                     }
                                 else
-                                    MessageIssue(propPair[0], spawnInd, "Not a property name.");
+                                    MessageIssue(propName, spawnInd, "Not a property name.");
                             }
                             spawnPattern.Add((cmd, props));
                             break;
@@ -1543,6 +1546,18 @@ namespace Barrage
         {
             string s = n.ToString();
             return new string('0', width - s.Length) + s;
+        }
+
+        //attempt to pop from the stack, will call message issue if no items
+        public static double AttPop(this Stack<double> stack)
+        {
+            if (stack.Count > 0)
+                return stack.Pop();
+            else
+            {
+                MainWindow.MessageIssue(MainWindow.spText[ReadString.curLine], ReadString.curLine, "Not enough operands for operators.");
+                return 0;
+            }
         }
     }
 }

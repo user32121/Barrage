@@ -54,7 +54,7 @@ namespace Barrage
         public static Dictionary<int, double> numVals;
 
         //debug info
-        public static int line;
+        public static int curLine;
 
         //converts from infix/prefix notation (string) to postfix notation (object[])
         public static object[] ToPostfix(string inp)
@@ -80,7 +80,7 @@ namespace Barrage
                 else if (token == ")")  //right parentheses
                 {
                     if (opStack.Count == 0)
-                        MainWindow.MessageIssue(inp, line, "Unbalanced parentheses.");
+                        MainWindow.MessageIssue(inp, curLine, "Unbalanced parentheses.");
                     else
                     {
                         while (opStack.Peek() != OPERATORS.PARENLEFT)   //move from operator stack to output until close parentheses
@@ -88,7 +88,7 @@ namespace Barrage
                             output.Enqueue(opStack.Pop());
                             if (opStack.Count == 0)
                             {
-                                MainWindow.MessageIssue(inp, line, "Unbalanced parentheses.");
+                                MainWindow.MessageIssue(inp, curLine, "Unbalanced parentheses.");
                                 goto BREAKOPSTACKLOOP;
                             }
                         }
@@ -104,11 +104,11 @@ namespace Barrage
                     if (int.TryParse(token.Substring(3), out int index))
                         output.Enqueue(new MainWindow.ValIndex(index));
                     else
-                        MainWindow.MessageIssue(token, line, "Invalid val index.");
+                        MainWindow.MessageIssue(token, curLine, "Invalid val index.");
                 else if (double.TryParse(token, out double val))   //token is a number
                     output.Enqueue(val);
                 else
-                    MainWindow.MessageIssue(token, line, "Not a number, variable, or label.");
+                    MainWindow.MessageIssue(token, curLine, "Not a number, variable, or label.");
             }
             while (opStack.Count > 0)
                 output.Enqueue(opStack.Pop());  //move remaining operators to ouput
@@ -126,7 +126,7 @@ namespace Barrage
                 if (MainWindow.strToTag.TryGetValue(tagsStr[i], out MainWindow.TAGS tag))
                     tags |= tag;
                 else
-                    MainWindow.MessageIssue(tagsStr[i], line, "Not a tag.");
+                    MainWindow.MessageIssue(tagsStr[i], curLine, "Not a tag.");
             }
             return tags;
         }
@@ -141,7 +141,7 @@ namespace Barrage
 
             Stack<double> operands = new Stack<double>();
 
-            for (int i = 0; i >= 0 && i < input.Length && !MainWindow.stopGameRequested; i++)
+            for (int i = 0; i < input.Length && !MainWindow.stopGameRequested; i++)
             {
                 switch (input[i])
                 {
@@ -222,141 +222,135 @@ namespace Barrage
                         {
                             //1 value operators
                             case OPERATORS.SQRT:
-                                num1 = operands.Pop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Sqrt(num1));
                                 break;
                             case OPERATORS.SIGN:
-                                num1 = operands.Pop();
+                                num1 = operands.AttPop();
                                 operands.Push((double)Math.Sign(num1));
                                 break;
                             case OPERATORS.SIN:
-                                num1 = operands.Pop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Sin(num1 * Math.PI / 180));
                                 break;
                             case OPERATORS.COS:
-                                num1 = operands.Pop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Cos(num1 * Math.PI / 180));
                                 break;
                             case OPERATORS.TAN:
-                                num1 = operands.Pop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Tan(num1 * Math.PI / 180));
                                 break;
                             case OPERATORS.ASIN:
-                                num1 = operands.Pop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Asin(num1) / Math.PI * 180);
                                 break;
                             case OPERATORS.ACOS:
-                                num1 = operands.Pop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Acos(num1) / Math.PI * 180);
                                 break;
                             case OPERATORS.ABS:
-                                num1 = operands.Pop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Abs(num1));
                                 break;
                             case OPERATORS.FLR:
-                                num1 = operands.Pop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Floor(num1));
                                 break;
                             case OPERATORS.CEIL:
-                                num1 = operands.Pop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Ceiling(num1));
                                 break;
                             case OPERATORS.ROUND:
-                                num1 = operands.Pop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Round(num1));
                                 break;
                             //2 value operators
                             case OPERATORS.EQUAL:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(num1 == num2 ? 1 : 0);
                                 break;
                             case OPERATORS.NOTEQUAL:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(num1 != num2 ? 1 : 0);
                                 break;
                             case OPERATORS.GREATER:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(num1 > num2 ? 1 : 0);
                                 break;
                             case OPERATORS.GREATEREQUAL:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(num1 >= num2 ? 1 : 0);
                                 break;
                             case OPERATORS.LESS:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(num1 < num2 ? 1 : 0);
                                 break;
                             case OPERATORS.LESSEQUAL:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(num1 <= num2 ? 1 : 0);
                                 break;
                             case OPERATORS.ADD:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(num1 + num2);
                                 break;
                             case OPERATORS.SUBTRACT:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(num1 - num2);
                                 break;
                             case OPERATORS.MULTIPLY:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(num1 * num2);
                                 break;
                             case OPERATORS.DIVIDE:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(num1 / num2);
                                 break;
                             case OPERATORS.POW:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Pow(num1, num2));
                                 break;
                             case OPERATORS.MOD:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(num1 % num2);
                                 break;
                             case OPERATORS.MIN:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Min(num1, num2));
                                 break;
                             case OPERATORS.MAX:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Max(num1, num2));
                                 break;
                             case OPERATORS.RNG:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(num1 + rng.NextDouble() * (num2 - num1));
                                 break;
                             case OPERATORS.ATAN:
-                                num2 = operands.Pop();
-                                num1 = operands.Pop();
+                                num2 = operands.AttPop();
+                                num1 = operands.AttPop();
                                 operands.Push(Math.Atan2(num1, num2) / Math.PI * 180);
                                 break;
                         }
                         break;
                 }
             }
-            if (operands.Count < 1)
-            {
-                MainWindow.MessageIssue(MainWindow.spText[line], line, "Not enough operands for operators.");
-                return 0;
-            }
-            else
-                return (double)operands.Pop();
+            return (double)operands.AttPop();
         }
     }
 }

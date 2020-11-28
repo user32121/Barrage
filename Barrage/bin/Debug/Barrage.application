@@ -7,14 +7,14 @@
     <framework targetVersion="4.6.1" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="Barrage.exe.manifest" size="13074">
+    <dependentAssembly dependencyType="install" codebase="Barrage.exe.manifest" size="13076">
       <assemblyIdentity name="Barrage.exe" version="1.0.2.10" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>RLlw1azh4hXQZL+w2Odu/omjWpiljYmQkKjgwF/CWaw=</dsig:DigestValue>
+        <dsig:DigestValue>vFAn75je2iCzqIh7P244P/D+CRHIi2V1NKDhRzc7WxM=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
