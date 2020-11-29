@@ -151,7 +151,6 @@
     <Resource Include="files\Laser.png" />
     <Resource Include="files\Pause.png" />
     <Resource Include="files\Play.png" />
-    <Resource Include="files\Arrow.png" />
     <Resource Include="files\Grid.png" />
     <Content Include="..\SPUpdater\bin\Debug\SPUpdater.exe">
       <Link>files\SPUpdater.exe</Link>

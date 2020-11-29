@@ -266,8 +266,6 @@ namespace Barrage
                 playPauseImgs[1] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Pause.png"));
             if (File.Exists("files/Step.png"))
                 imageEditorStepForwards.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Step.png"));
-            if (File.Exists("files/Arrow.png"))
-                Arrow.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Arrow.png"));
             if (File.Exists("files/Grid.png"))
                 gridUnderlay = new ImageBrush(new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Grid.png")));
             if (System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed)
@@ -889,7 +887,7 @@ namespace Barrage
                 string temp = sr.ReadToEnd();
 
                 //check for update
-                if (!temp.StartsWith(SPUpdater.SPUpdater.versionText) && MessageBox.Show("The script was made in an older version.\nUpdate?", "", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (checkError.IsChecked == true && !temp.StartsWith(SPUpdater.SPUpdater.versionText) && MessageBox.Show("The script was made in an older version.\nUpdate?", "", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     sr.Close();
                     sr.Dispose();
@@ -916,7 +914,7 @@ namespace Barrage
             for (int i = 0; i < lines.Length; i++)
                 if (lines[i].Length > 0 && lines[i][0] == ':')  //label
                 {
-                    if (labelToInt.ContainsKey(lines[i]))
+                    if (checkError.IsChecked == true && labelToInt.ContainsKey(lines[i]))
                         MessageBox.Show("\"" + lines[i] + "\" is already a label", "", MessageBoxButton.OK, MessageBoxImage.Warning);
                     else
                         labelToInt.Add(lines[i], i);
@@ -1332,143 +1330,6 @@ namespace Barrage
         {
             isSPSaved = false;
             Title = "*Barrage";
-        }
-
-        private void GridField_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (gamestate == GAMESTATE.EDITOR)
-            {
-                projStartPos = e.GetPosition((Grid)sender);
-                if ((bool)checkUseGrid.IsChecked)
-                {
-                    projStartPos.X = Math.Round(projStartPos.X / 20) * 20;
-                    projStartPos.Y = Math.Round(projStartPos.Y / 20) * 20;
-                }
-
-                Arrow.RenderTransform = new TransformGroup()
-                {
-                    Children = new TransformCollection() {
-                        new ScaleTransform(0, 1),
-                        new TranslateTransform(projStartPos.X, projStartPos.Y),
-                    }
-                };
-                Arrow.Visibility = Visibility.Visible;
-            }
-        }
-        private void GridField_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (gamestate == GAMESTATE.EDITOR && Arrow.Visibility == Visibility.Visible)
-            {
-                projEndPos = e.GetPosition((Grid)sender);
-                if ((bool)checkUseGrid.IsChecked)
-                {
-                    projEndPos.X = Math.Round(projEndPos.X / 20) * 20;
-                    projEndPos.Y = Math.Round(projEndPos.Y / 20) * 20;
-                }
-
-                List<string> lines = new List<string>(textEditor.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
-                string[] statement;
-                bool inLoop = false;
-
-                //check if in a loop
-                for (int i = readIndex; i < lines.Count; i++)
-                {
-                    statement = lines[i].Split('|');
-                    if (statement.Length >= 1)
-                    {
-                        int index = -1;
-                        if (statement[0] == "repeat" && statement.Length >= 2)
-                            index = 1;
-                        else if (statement[0] == "ifGoto" && statement.Length >= 3)
-                            index = 2;
-                        if (index != -1 && int.TryParse(statement[index], out int num) && num < readIndex)
-                            inLoop = true;
-                    }
-                }
-
-                //shift repeat and ifGoto
-                for (int i = 0; i < lines.Count; i++)
-                {
-                    statement = lines[i].Split('|');
-                    if (statement.Length >= 1)
-                    {
-                        int index = -1;
-                        if (statement[0] == "repeat" && statement.Length >= 2)
-                            index = 1;
-                        else if (statement[0] == "ifGoto" && statement.Length >= 3)
-                            index = 2;
-                        if (index != -1 && int.TryParse(statement[index], out int num) && num >= readIndex)
-                        {
-                            statement[index] = (num + (inLoop ? 3 : 1)).ToString();
-                            lines[i] = string.Join("|", statement);
-                        }
-                    }
-                }
-
-                //insert new projectile
-                lines.Insert(readIndex, string.Format("proj|tags=circle|startPos={0},{1}|speed={2}|angle={3}",
-                    projStartPos.X - 200, projStartPos.Y - 200,
-                    Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)) / 20,
-                    Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180));
-
-                //insert statements
-                //check if at end
-                if (readIndex == spawnPattern.Count && wait < 0)
-                {
-                    lines.Insert(readIndex, "wait|" + (int)-wait);
-                    readIndex++;
-                    wait += (int)-wait;
-                }
-                else
-                {
-                    //split wait
-                    if (wait > 0)
-                    {
-                        statement = lines[readIndex - 1].Split('|');
-                        if (statement.Length >= 1 && statement[0] == "wait" && int.TryParse(statement[1], out int num))
-                        {
-                            lines[readIndex - 1] = "wait|" + (num - wait);
-                            lines.Insert(readIndex + 1, "wait|" + wait);
-                            wait = 0;
-                        }
-                    }
-
-                    //time checker in loop
-                    if (inLoop)
-                    {
-                        //find next available label for ifGoto
-                        int labelIndex = 0;
-                        while (labelToInt.ContainsKey(':' + labelIndex.SetWidth(4)))
-                            labelIndex++;
-                        lines.Insert(readIndex, string.Format("ifGoto|t != {0}|{1}", time + 1, ":" + labelIndex.SetWidth(4)));
-                        lines.Insert(readIndex + 2, ":" + labelIndex.SetWidth(4));
-                    }
-                }
-                textEditor.Text = string.Join(Environment.NewLine, lines);
-
-                Arrow.Visibility = Visibility.Hidden;
-            }
-        }
-
-        private void GridField_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (gamestate == GAMESTATE.EDITOR && Arrow.Visibility == Visibility.Visible)
-            {
-                if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed || e.MiddleButton == MouseButtonState.Pressed)
-                {
-                    projEndPos = e.GetPosition((Grid)sender);
-                    Arrow.RenderTransform = new TransformGroup()
-                    {
-                        Children = new TransformCollection() {
-                            new ScaleTransform(Math.Sqrt(Math.Pow(projStartPos.X - projEndPos.X, 2) + Math.Pow(projStartPos.Y - projEndPos.Y, 2)), 1),
-                            new RotateTransform(Math.Atan2(projEndPos.Y - projStartPos.Y, projEndPos.X - projStartPos.X) / Math.PI * 180),
-                            new TranslateTransform(projStartPos.X, projStartPos.Y),
-                       }
-                    };
-                }
-                else
-                    GridField_MouseUp(sender, new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, MouseButton.Left));
-            }
         }
 
         private void AutosaveTimer_Tick(object sender, EventArgs e)
