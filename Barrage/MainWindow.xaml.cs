@@ -235,8 +235,6 @@ namespace Barrage
         bool stepForwards;
         Size minSize;
         readonly LinearGradientBrush hitIndicatorBrush = new LinearGradientBrush(Colors.Transparent, Colors.Transparent, new Point(0, 0.5), new Point(1, 0.5));
-        Point projStartPos;
-        Point projEndPos;
         int textEditKeyPresses;
         DispatcherTimer autosaveTimer;
         readonly ImageBrush gridUnderlay = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/files/Grid.png")));
@@ -892,7 +890,14 @@ namespace Barrage
                     sr.Close();
                     sr.Dispose();
 
-                    Process.Start(Directory.GetCurrentDirectory() + "/files/SPUpdater.exe").WaitForExit();
+                    try
+                    {
+                        Process.Start(Directory.GetCurrentDirectory() + "/files/SPUpdater.exe").WaitForExit();
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(e.Message, "An issue occurred while converting script");
+                    }
 
                     sr = new StreamReader("files/SP.txt");
                     temp = sr.ReadToEnd();
