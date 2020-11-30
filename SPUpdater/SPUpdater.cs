@@ -101,6 +101,8 @@ namespace SPUpdater
             //file format version
             if (!lines[0].StartsWith("# Barrage Script v"))
                 lines.Insert(0, versionText);
+            else
+                lines[0] = versionText;
 
             return string.Join(Environment.NewLine, lines);
         }
