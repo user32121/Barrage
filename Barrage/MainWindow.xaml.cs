@@ -190,7 +190,7 @@ namespace Barrage
         Dictionary<int, int> repeatVals = new Dictionary<int, int>();    //(line,repeats left)
         int spawnInd;
         Dictionary<int, double> spawnVals = new Dictionary<int, double>();
-        Dictionary<string, int> labelToInt = new Dictionary<string, int>();    //label, line #
+        public static Dictionary<string, int> labelToInt = new Dictionary<string, int>();    //label, line #
         double[] spawnVars = new double[(int)GLOBALVARS.Count];
         Stopwatch SPTimeout = new Stopwatch();
         public static bool stopGameRequested;
@@ -929,12 +929,7 @@ namespace Barrage
             for (int i = 0; i < lines.Length; i++)
             {
                 spText.Add(lines[i]);
-
-                //substitute labels
-                if (lines[i].Length > 1 && lines[i][0] != ':')
-                    foreach (var label in labelToInt)
-                        lines[i] = lines[i].Replace(label.Key, label.Value.ToString());
-
+                                    
                 //split into command and arguments
                 string[] lineSplt = lines[i].Split('|');
 

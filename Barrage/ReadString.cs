@@ -100,6 +100,11 @@ namespace Barrage
                     output.Enqueue(pVar);
                 else if (MainWindow.strToGVar.TryGetValue(token, out MainWindow.GLOBALVARS gVar))   //token is a global variable
                     output.Enqueue(gVar);
+                else if (token[0] == ':')
+                    if (MainWindow.labelToInt.TryGetValue(token, out int index))
+                        output.Enqueue((double)index);
+                    else
+                        MainWindow.MessageIssue(token, curLine, "Not a label");
                 else if (token.StartsWith("val"))   //token is a num value
                     if (int.TryParse(token.Substring(3), out int index))
                         output.Enqueue(new MainWindow.ValIndex(index));
@@ -108,7 +113,7 @@ namespace Barrage
                 else if (double.TryParse(token, out double val))   //token is a number
                     output.Enqueue(val);
                 else
-                    MainWindow.MessageIssue(token, curLine, "Not a number, variable, or label.");
+                    MainWindow.MessageIssue(token, curLine, "Not a number or variable.");
             }
             while (opStack.Count > 0)
                 output.Enqueue(opStack.Pop());  //move remaining operators to ouput

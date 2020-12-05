@@ -1,4 +1,58 @@
 # Barrage Script v2.0
-proj|tags=circle|speed=1|angle=16 * n
+# Passion Sign: Five Types of Love
+
+val|4|:START
+
+#for moving spawn position
+:STEP
 wait|1
-gotoIf|0|1
+val|1|val1 + 5
+val|2|( 16 * SIN val1 ^ 3 ) * 5
+val|3|( 13 * COS val1 - 5 * COS ( 2 * val1 ) - 2 * COS ( 3 * val1 ) - COS ( 4 * val1 ) ) * -5 - 100
+gotoIf|val4|1
+
+#pick a pattern
+:START
+val|0|FLR RNG 0 5
+gotoIf|:t0|val0 == 0
+gotoIf|:t1|val0 == 1
+gotoIf|:t2|val0 == 2
+gotoIf|:t3|val0 == 3
+gotoIf|:t4|val0 == 4
+
+
+#different patterns
+:t0
+val|4|:t0
+proj|tags=circle|speed=2 * ( t > 40 )|angle=n * 5|startX=val2|startY=val3
+repeat|:STEP|100
+gotoIf|:START|1
+
+:t1
+val|4|:t1
+val|5|ATAN ( PLYRY - val3 ) ( PLYRX - val2 )
+proj|tags=circle|speed=3 * ( t > 40 )|angle=val5|startX=val2|startY=val3
+repeat|:STEP|100
+gotoIf|:START|1
+
+:t2
+val|4|:t2
+val|5|val5 + 45 + ATAN ( PLYRY - val3 ) ( PLYRX - val2 )
+proj|tags=circle|speed=3 * ( t > 40 )|angle=val5|startX=val2|startY=val3
+repeat|:STEP|100
+gotoIf|:START|1
+
+:t3
+val|4|:t3
+:t31
+val|6|val6 + 90.1
+proj|tags=circle|speed=3 * ( t > 40 )|angle=val6|startX=val2|startY=val3
+repeat|:t31|4
+repeat|:STEP|100
+gotoIf|:START|1
+
+:t4
+val|4|:t4
+proj|tags=circle|speed=3 * ( t > 40 )|angle=n * 5 + SQRT t|startX=val2|startY=val3
+repeat|:STEP|100
+gotoIf|:START|1
