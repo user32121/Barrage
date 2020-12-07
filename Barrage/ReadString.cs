@@ -55,6 +55,7 @@ namespace Barrage
 
         //debug info
         public static int curLine;
+        public static MainWindow.PARAMETERS curParam;
 
         //converts from infix/prefix notation (string) to postfix notation (object[])
         public static object[] ToPostfix(string inp)
@@ -65,8 +66,10 @@ namespace Barrage
 
             while (input.Count > 0)
             {
-                string token = input.Dequeue(); //get token            
-                if (strToOp.TryGetValue(token, out OPERATORS op1))   //function or operator
+                string token = input.Dequeue(); //get token     
+                if (token.Length == 0)
+                    break;
+                else if (strToOp.TryGetValue(token, out OPERATORS op1))   //function or operator
                 {
                     double prec1 = opPrecedence[op1];
                     while (opStack.Count > 0 && opStack.Peek() != OPERATORS.PARENLEFT &&    //not empty or left parentheses
@@ -138,11 +141,13 @@ namespace Barrage
 
         //evaluates the expression
         //also inserts variable values
-        public static double Interpret(object[] input)
+        public static double Interpret(object[] input, MainWindow.PARAMETERS prop)
         {
             //null value check (returns default value of 0)
             if (input == null)
                 return 0;
+
+            curParam = prop;
 
             Stack<double> operands = new Stack<double>();
 

@@ -65,7 +65,7 @@ namespace Barrage
             projVars[(int)MainWindow.PROJVARS.LXPOS] = Position.X;
             projVars[(int)MainWindow.PROJVARS.LYPOS] = Position.Y;
             ReadString.projVars = projVars;
-            int r = (int)ReadString.Interpret(Radius);
+            int r = (int)ReadString.Interpret(Radius, MainWindow.PARAMETERS.SIZE);
             RadiusSqr = r * r;
             IsAlive = true;
         }
@@ -82,14 +82,14 @@ namespace Barrage
             {
                 y1 = 50;    //add 50 to y because ...
                 TG.Children.Add(new ScaleTransform(1, 6));
-                img.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(File), true);
+                img.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(File, MainWindow.PARAMETERS.FILE), true);
             }
 
-            TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle) - 90));
+            TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle, MainWindow.PARAMETERS.ANGLE) - 90));
             if (Tags.HasFlag(MainWindow.TAGS.CIRCLE))
             {
                 TG.Children.Add(new ScaleTransform(VelDir.X, VelDir.Y));
-                img.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(File), false);
+                img.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(File, MainWindow.PARAMETERS.FILE), false);
             }
             TG.Children.Add(new TranslateTransform(Position.X, Position.Y + y1));
             img.RenderTransform = TG;
@@ -99,7 +99,7 @@ namespace Barrage
             else
                 img.Opacity = 0.3;
 
-            double dr = ReadString.Interpret(Radius);
+            double dr = ReadString.Interpret(Radius, MainWindow.PARAMETERS.SIZE);
             if (double.IsNaN(dr))
                 dr = 0;
             int r = Math.Abs((int)dr);
@@ -125,7 +125,7 @@ namespace Barrage
             ReadString.numVals = numValues;
 
             //ActDelay
-            int temp = (int)ReadString.Interpret(ActDelay);
+            int temp = (int)ReadString.Interpret(ActDelay, MainWindow.PARAMETERS.ACTDELAY);
             if (temp > Age || temp == -1)
                 enabled = false;
             else
@@ -135,15 +135,15 @@ namespace Barrage
             Age++;
 
             //projectiles that have duration have a limited lifespan
-            temp = (int)ReadString.Interpret(Duration);
+            temp = (int)ReadString.Interpret(Duration, MainWindow.PARAMETERS.DURATION);
             if (temp != -1 && temp < Age)
                 IsAlive = false;
 
             //radius
-            int r = Math.Abs((int)ReadString.Interpret(Radius));
+            int r = Math.Abs((int)ReadString.Interpret(Radius, MainWindow.PARAMETERS.SIZE));
 
             //checks if offscreen (x)
-            temp = (int)ReadString.Interpret(TagCount);
+            temp = (int)ReadString.Interpret(TagCount, MainWindow.PARAMETERS.TAGCOUNT);
             if (Math.Abs(Position.X) > 200)
             {
                 if (Tags.HasFlag(MainWindow.TAGS.WALLBOUNCE) && (temp == -1 || temp > TagUses))
@@ -190,22 +190,22 @@ namespace Barrage
             //xyVel
             if (XVel != null && YVel != null)
             {
-                Velocity = new Vector(ReadString.Interpret(XVel), ReadString.Interpret(YVel));
+                Velocity = new Vector(ReadString.Interpret(XVel, MainWindow.PARAMETERS.XVEL), ReadString.Interpret(YVel, MainWindow.PARAMETERS.YVEL));
                 spd = Velocity.Length;
                 ang = Math.Atan2(Velocity.Y, Velocity.X);
             }
             //xyPos
             else if (XPos != null && YPos != null)
             {
-                Velocity = new Vector(ReadString.Interpret(XPos), ReadString.Interpret(YPos)) - Position;
+                Velocity = new Vector(ReadString.Interpret(XPos, MainWindow.PARAMETERS.XPOS), ReadString.Interpret(YPos, MainWindow.PARAMETERS.YPOS)) - Position;
                 spd = Velocity.Length;
                 ang = Math.Atan2(Velocity.Y, Velocity.X);
             }
             //speed and angle
             else
             {
-                ang = ReadString.Interpret(Angle);
-                spd = ReadString.Interpret(Speed);
+                ang = ReadString.Interpret(Angle, MainWindow.PARAMETERS.ANGLE);
+                spd = ReadString.Interpret(Speed, MainWindow.PARAMETERS.SPEED);
                 double radians = ang * Math.PI / 180;
                 Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * spd;
             }
@@ -215,7 +215,7 @@ namespace Barrage
 
             Render();
 
-            double lstate = ReadString.Interpret(state);
+            double lstate = ReadString.Interpret(state, MainWindow.PARAMETERS.STATE);
 
             //sets last projVals
             projVars[(int)MainWindow.PROJVARS.T] = Age;

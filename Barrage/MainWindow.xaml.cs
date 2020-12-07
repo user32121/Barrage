@@ -145,6 +145,28 @@ namespace Barrage
             FILE,
             STATE,
         }
+        public enum PARAMETERS
+        {
+            FIRST,
+            SECOND,
+            THIRD,
+            FOURTH,
+            TAGS,
+            SPEED,
+            ANGLE,
+            XPOS,
+            YPOS,
+            XVEL,
+            YVEL,
+            SIZE,
+            STARTX,
+            STARTY,
+            DURATION,
+            TAGCOUNT,
+            ACTDELAY,
+            FILE,
+            STATE,
+        }
         public static readonly Dictionary<string, PROPERTIES> strToProp = new Dictionary<string, PROPERTIES>()
         {
             { "tags",       PROPERTIES.TAGS     },
@@ -570,7 +592,7 @@ namespace Barrage
                     //dist to line is less than radius, also checks if plyr is behind laser
                     ReadString.projVars = item.projVars;
                     ReadString.numVals = item.numValues;
-                    double ang = ReadString.Interpret(item.Angle),
+                    double ang = ReadString.Interpret(item.Angle, PARAMETERS.ANGLE),
                         radians = ang * Math.PI / 180,
                         m1 = Math.Sin(radians) / Math.Cos(radians), m2 = -1 / m1;
                     if (m1 > 1000) m1 = 1000; else if (m1 < -1000) m1 = -1000;
@@ -661,15 +683,15 @@ namespace Barrage
                         break;
                     case COMMANDS.WAIT:
                         //waits # of frames untill spawns again
-                        wait += ReadString.Interpret(args as object[]);
+                        wait += ReadString.Interpret(args as object[], PARAMETERS.FIRST);
                         break;
                     case COMMANDS.GOTOIF:
                         {
                             (object[] line, object[] condition) = ((object[], object[]))args;
 
-                            if (ReadString.Interpret(condition) != 0)
+                            if (ReadString.Interpret(condition, PARAMETERS.SECOND) != 0)
                             {
-                                int lineNum = (int)ReadString.Interpret(line) - 1;
+                                int lineNum = (int)ReadString.Interpret(line, PARAMETERS.FIRST) - 1;
                                 //(-1 because there is ++ later on)
 
                                 if (lineNum < -1)
@@ -688,13 +710,13 @@ namespace Barrage
 
                             //sets repeats left
                             if (repeatVals[readIndex] <= 0)
-                                repeatVals[readIndex] = (int)ReadString.Interpret(times);
+                                repeatVals[readIndex] = (int)ReadString.Interpret(times, PARAMETERS.SECOND);
 
                             //repeats (stops at 1 since that will be the last repeat)
                             repeatVals[readIndex]--;
                             if (repeatVals[readIndex] >= 1)
                             {
-                                int lineNum = (int)ReadString.Interpret(line) - 1;
+                                int lineNum = (int)ReadString.Interpret(line, PARAMETERS.FIRST) - 1;
                                 //(-1 because there is ++ later on)
 
                                 if (lineNum < -1)
@@ -712,22 +734,22 @@ namespace Barrage
                         (object[] indexArr, object[] value) = ((object[], object[]))args;
 
                         //sets a value to spwnVals
-                        int index = (int)ReadString.Interpret(indexArr);
+                        int index = (int)ReadString.Interpret(indexArr, PARAMETERS.FIRST);
                         if (index < 0)
                             MessageIssue(spText[readIndex], spawnInd, "Val# cannot be negative.");
                         else if (!stopGameRequested)
-                            spawnVals[index] = ReadString.Interpret(value);
+                            spawnVals[index] = ReadString.Interpret(value, PARAMETERS.SECOND);
                         break;
                     case COMMANDS.RNG:
                         //set rng seed
-                        ReadString.rng = new Random((int)ReadString.Interpret(args as object[]));
+                        ReadString.rng = new Random((int)ReadString.Interpret(args as object[], PARAMETERS.FIRST));
                         break;
                     case COMMANDS.VISUAL:
                         isVisual = true;
                         break;
                     case COMMANDS.FREEZE:
                         //freeze player
-                        plyrFreeze += ReadString.Interpret(args as object[]);
+                        plyrFreeze += ReadString.Interpret(args as object[], PARAMETERS.FIRST);
                         break;
                     default:
                         throw new NotImplementedException();
@@ -754,7 +776,7 @@ namespace Barrage
             ReadString.projVars = projVars;
 
             //displays projectile
-            int r = Math.Abs((int)ReadString.Interpret(props[PROPERTIES.SIZE]));
+            int r = Math.Abs((int)ReadString.Interpret(props[PROPERTIES.SIZE], PARAMETERS.SIZE));
             Image projImage = new Image();
             if (GameSettings.predictProjectile)
                 projImage.MouseEnter += ProjImage_MouseEnter;
@@ -762,7 +784,7 @@ namespace Barrage
             {
                 projImage.Width = r * 2;
                 projImage.Height = r * 2;
-                projImage.Source = GetProjectileImage((int)ReadString.Interpret(props[PROPERTIES.FILE]), false);
+                projImage.Source = GetProjectileImage((int)ReadString.Interpret(props[PROPERTIES.FILE], PARAMETERS.FILE), false);
                 projImage.RenderTransformOrigin = new Point(0.5, 0.5);
             }
             else if (tags.HasFlag(TAGS.LASER))
@@ -770,22 +792,22 @@ namespace Barrage
                 projImage.Stretch = Stretch.Fill;
                 projImage.Width = r * 2;
                 projImage.Height = 100;
-                projImage.Source = GetProjectileImage((int)ReadString.Interpret(props[PROPERTIES.FILE]), true);
+                projImage.Source = GetProjectileImage((int)ReadString.Interpret(props[PROPERTIES.FILE], PARAMETERS.FILE), true);
                 projImage.RenderTransformOrigin = new Point(0.5, 0);
             }
-            int temp = (int)ReadString.Interpret(props[PROPERTIES.ACTDELAY]);
+            int temp = (int)ReadString.Interpret(props[PROPERTIES.ACTDELAY], PARAMETERS.ACTDELAY);
             if (temp >= 0 || temp == -1)
                 projImage.Opacity = 0.3;
             gridField.Children.Add(projImage);
 
             //creates projectile
-            double radians = ReadString.Interpret(props[PROPERTIES.ANGLE]) * Math.PI / 180;
+            double radians = ReadString.Interpret(props[PROPERTIES.ANGLE], PARAMETERS.ANGLE) * Math.PI / 180;
             Projectile tempProjectile = new Projectile(props[PROPERTIES.SIZE], projVars)
             {
                 img = projImage,
                 Duration = props[PROPERTIES.DURATION],
                 File = props[PROPERTIES.FILE],
-                Position = new Vector(ReadString.Interpret(props[PROPERTIES.STARTX]), ReadString.Interpret(props[PROPERTIES.STARTY])),
+                Position = new Vector(ReadString.Interpret(props[PROPERTIES.STARTX], PARAMETERS.STARTX), ReadString.Interpret(props[PROPERTIES.STARTY], PARAMETERS.STARTY)),
                 Speed = props[PROPERTIES.SPEED],
                 Angle = props[PROPERTIES.ANGLE],
                 XPos = props[PROPERTIES.XPOS],
@@ -794,7 +816,7 @@ namespace Barrage
                 YVel = props[PROPERTIES.YVEL],
                 Tags = tags,
                 TagCount = props[PROPERTIES.TAGCOUNT],
-                Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * ReadString.Interpret(props[PROPERTIES.SPEED]),
+                Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * ReadString.Interpret(props[PROPERTIES.SPEED], PARAMETERS.SPEED),
                 ActDelay = props[PROPERTIES.ACTDELAY],
                 state = props[PROPERTIES.STATE],
                 numValues = new Dictionary<int, double>(spawnVals),
@@ -857,10 +879,10 @@ namespace Barrage
 
             //move the boss
             ReadString.projVars = null;
-            Vector target = new Vector(ReadString.Interpret(bossTargetX), ReadString.Interpret(bossTargetY));
+            Vector target = new Vector(ReadString.Interpret(bossTargetX, PARAMETERS.FIRST), ReadString.Interpret(bossTargetY, PARAMETERS.SECOND));
             Vector offset = target - bossPos;
-            double mvSpd = ReadString.Interpret(bossMvSpd);
-            double angSpd = ReadString.Interpret(bossAngSpd);
+            double mvSpd = ReadString.Interpret(bossMvSpd, PARAMETERS.THIRD);
+            double angSpd = ReadString.Interpret(bossAngSpd, PARAMETERS.FOURTH);
 
             if (offset.LengthSquared > mvSpd * mvSpd)
             {
@@ -929,7 +951,7 @@ namespace Barrage
             for (int i = 0; i < lines.Length; i++)
             {
                 spText.Add(lines[i]);
-                                    
+
                 //split into command and arguments
                 string[] lineSplt = lines[i].Split('|');
 
@@ -1057,11 +1079,13 @@ namespace Barrage
                             }
 
                             path.Visibility = Visibility.Visible;
+
+                            //store current values
                             Vector pos = projectiles[i].Position;
                             (gg.Children[0] as LineGeometry).StartPoint = (Point)pos;
 
-                            ReadString.projVars = (new double[(int)PROJVARS.Count]);
-                            Array.Copy(projectiles[i].projVars, ReadString.projVars, (int)PROJVARS.Count);
+                            ReadString.projVars = projectiles[i].projVars;
+                            ReadString.numVals = projectiles[i].numValues;
 
                             //predict steps ahead
                             for (int t = 0; t < projStepsAhead; t++)
@@ -1072,22 +1096,22 @@ namespace Barrage
                                 double spd, ang;
                                 if (projectiles[i].XVel != null && projectiles[i].YVel != null)
                                 {
-                                    vel = new Vector(ReadString.Interpret(projectiles[i].XVel), ReadString.Interpret(projectiles[i].YVel));
+                                    vel = new Vector(ReadString.Interpret(projectiles[i].XVel, PARAMETERS.XVEL), ReadString.Interpret(projectiles[i].YVel, PARAMETERS.YVEL));
                                     spd = vel.Length;
                                     ang = Math.Atan2(vel.Y, vel.X);
                                 }
                                 //xyPos
                                 else if (projectiles[i].XPos != null && projectiles[i].YPos != null)
                                 {
-                                    vel = new Vector(ReadString.Interpret(projectiles[i].XPos), ReadString.Interpret(projectiles[i].YPos)) - pos;
+                                    vel = new Vector(ReadString.Interpret(projectiles[i].XPos, PARAMETERS.XPOS), ReadString.Interpret(projectiles[i].YPos, PARAMETERS.YPOS)) - pos;
                                     spd = vel.Length;
                                     ang = Math.Atan2(vel.Y, vel.X);
                                 }
                                 //speed and angle
                                 else
                                 {
-                                    ang = ReadString.Interpret(projectiles[i].Angle);
-                                    spd = ReadString.Interpret(projectiles[i].Speed);
+                                    ang = ReadString.Interpret(projectiles[i].Angle, PARAMETERS.ANGLE);
+                                    spd = ReadString.Interpret(projectiles[i].Speed, PARAMETERS.SPEED);
                                     double radians = ang * Math.PI / 180;
                                     vel = new Vector(Math.Cos(radians), Math.Sin(radians)) * spd;
                                 }
@@ -1416,7 +1440,7 @@ namespace Barrage
                 return stack.Pop();
             else
             {
-                MainWindow.MessageIssue(MainWindow.spText[ReadString.curLine], ReadString.curLine, "Not enough operands for operators.");
+                MainWindow.MessageIssue(MainWindow.spText[ReadString.curLine], ReadString.curLine, "Not enough operands for operators for " + ReadString.curParam.ToString().ToLower() + " parameter");
                 return 0;
             }
         }
