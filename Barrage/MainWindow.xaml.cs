@@ -66,6 +66,7 @@ namespace Barrage
             RNG,
             VISUAL,
             FREEZE,
+            TEXT,
         }
         public static readonly Dictionary<string, COMMANDS> strToCmd = new Dictionary<string, COMMANDS>()
         {
@@ -78,6 +79,7 @@ namespace Barrage
             { "rng",    COMMANDS.RNG    },
             { "visual", COMMANDS.VISUAL },
             { "freeze", COMMANDS.FREEZE },
+            { "text", COMMANDS.TEXT },
         };
         public enum GLOBALVARS
         {
@@ -385,14 +387,14 @@ namespace Barrage
                 time = 0;
 
                 isVisual = false;
-                labelVisual.Visibility = Visibility.Hidden;
+                labelVisual.Visibility = Visibility.Collapsed;
 
                 ReadSPTxt();
 
                 gameOver = false;
                 paused = false;
                 gridField.Effect = null;
-                gridPause.Visibility = Visibility.Hidden;
+                gridPause.Visibility = Visibility.Collapsed;
 
                 for (int i = 0; i < projectiles.Count; i++)
                 {
@@ -428,7 +430,7 @@ namespace Barrage
                     else
                     {
                         gridField.Effect = null;
-                        gridPause.Visibility = Visibility.Hidden;
+                        gridPause.Visibility = Visibility.Collapsed;
                         paused = false;
                     }
                 }
@@ -751,6 +753,10 @@ namespace Barrage
                         //freeze player
                         plyrFreeze += ReadString.Interpret(args as object[], PARAMETERS.FIRST);
                         break;
+                    case COMMANDS.TEXT:
+                        //display text
+                        labelSPText.Content = args;
+                        break;
                     default:
                         throw new NotImplementedException();
                 }
@@ -1005,6 +1011,9 @@ namespace Barrage
                         case COMMANDS.VISUAL:
                             spawnPattern.Add((cmd, null));
                             break;
+                        case COMMANDS.TEXT:
+                            spawnPattern.Add((cmd, lineSplt[1]));
+                            break;
                         default:
                             throw new NotImplementedException();
                     }
@@ -1190,7 +1199,7 @@ namespace Barrage
             if (sender == labelMenuPlay)
             {
                 gamestate = GAMESTATE.PLAY;
-                gridMenu.Visibility = Visibility.Hidden;
+                gridMenu.Visibility = Visibility.Collapsed;
                 gridGame.Visibility = Visibility.Visible;
                 gridField.Background = Brushes.Transparent;
             }
@@ -1213,7 +1222,7 @@ namespace Barrage
                 MinWidth = minSize.Width + 400;
                 MinHeight = minSize.Height + 50;
 
-                gridMenu.Visibility = Visibility.Hidden;
+                gridMenu.Visibility = Visibility.Collapsed;
                 gridEditor.Visibility = Visibility.Visible;
                 gridGame.Visibility = Visibility.Visible;
                 if ((bool)checkUseGrid.IsChecked)
@@ -1224,7 +1233,7 @@ namespace Barrage
             else if (sender == labelMenuOptions)
             {
                 gamestate = GAMESTATE.OPTIONS;
-                gridMenu.Visibility = Visibility.Hidden;
+                gridMenu.Visibility = Visibility.Collapsed;
                 gridOptions.Visibility = Visibility.Visible;
             }
             else if (sender == labelMenuQuit)
@@ -1291,9 +1300,9 @@ namespace Barrage
             {
                 gamestate = GAMESTATE.MENU;
                 gridMenu.Visibility = Visibility.Visible;
-                gridGame.Visibility = Visibility.Hidden;
-                gridEditor.Visibility = Visibility.Hidden;
-                gridOptions.Visibility = Visibility.Hidden;
+                gridGame.Visibility = Visibility.Collapsed;
+                gridEditor.Visibility = Visibility.Collapsed;
+                gridOptions.Visibility = Visibility.Collapsed;
 
                 MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.R));
             }

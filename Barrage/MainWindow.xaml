@@ -7,7 +7,7 @@
         Title="Barrage" Height="420" Width="405" Icon="/files/Icon.ico" Loaded="Window_Loaded" Closing="Window_Closing" SizeChanged="Window_SizeChanged" Background="Black" Closed="Window_Closed" KeyDown="MainWindow_KeyDown">
     <Grid x:Name="gridSize">
         <Grid RenderTransformOrigin="0.5,0.5" x:Name="gridMain" Width="400" Height="400" Background="White">
-            <Grid x:Name="gridGame" Visibility="Hidden" Width="400" Height="400">
+            <Grid x:Name="gridGame" Visibility="Collapsed" Width="400" Height="400">
                 <Grid x:Name="gridField" Background="Transparent">
                     <Image x:Name="Player" HorizontalAlignment="Center" Height="25" Margin="0" VerticalAlignment="Center" Width="25" Source="/files/Player.png" RenderTransformOrigin="0.5,0.5">
                         <Image.RenderTransform>
@@ -30,16 +30,17 @@
                         </Image.RenderTransform>
                     </Image>
                 </Grid>
-                <Label x:Name="labelVisual" Content="V i s u a l" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" FontSize="10" Visibility="Hidden"/>
+                <Label x:Name="labelVisual" Content="V i s u a l" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" FontSize="10" Visibility="Collapsed"/>
+                <Label x:Name="labelSPText" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,330"/>
                 <Label x:Name="projCount" Content="projectiles" Margin="0,10,0,0"  VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" Opacity="0.5" Panel.ZIndex="100" FontSize="10"/>
-                <Grid x:Name="gridPause" Visibility="Hidden">
+                <Grid x:Name="gridPause" Visibility="Collapsed">
                     <Label x:Name="labelPause" Margin="0,0,0,70" Content="Paused" VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="100" FontSize="36"/>
                     <Label x:Name="labelPauseRetry" Margin="0,20,0,0" Content="Retry" VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="100" FontSize="30" Height="40" Padding="0" MouseEnter="LabelBack_MouseEnter" MouseLeave="LabelBack_MouseLeave" MouseUp="LabelRetry_MouseUp"/>
                     <Label x:Name="labelPauseBack" Margin="0,100,0,0" Content="Back" VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="100" FontSize="30" Height="40" Padding="0" MouseEnter="LabelBack_MouseEnter" MouseLeave="LabelBack_MouseLeave" MouseUp="LabelBack_MouseUp"/>
                 </Grid>
                 <Border x:Name="gridGameBorder" BorderBrush="Gray"/>
             </Grid>
-            <Grid x:Name="gridEditor" Visibility="Hidden" OpacityMask="Black">
+            <Grid x:Name="gridEditor" Visibility="Collapsed" OpacityMask="Black">
                 <Label Background="White" Height="50" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
                 <Label x:Name="labelEditorHitIndicator" Background="Red" Height="20" Width="20" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,380,0,0" OpacityMask="#00000000"/>
                 <Label x:Name="labelEditorBack" Margin="10,0,0,5" Content="Back" VerticalAlignment="Bottom" HorizontalAlignment="Left" Panel.ZIndex="100" FontSize="24" MouseEnter="LabelBack_MouseEnter" MouseLeave="LabelBack_MouseLeave" MouseUp="LabelBack_MouseUp"/>
@@ -48,7 +49,7 @@
                 <Image x:Name="imageEditorStepForwards" Source="/files/Step.png" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-150,0,150,0" Opacity="0.8" MouseEnter="ImageEditor_MouseEnter" MouseLeave="ImageEditor_MouseLeave" MouseDown="ImageEditor_MouseDown" MouseUp="ImageEditor_MouseUp"/>
                 <Label x:Name="labelEditorFocus" HorizontalAlignment="Left" VerticalAlignment="Top" Focusable="True" Width="0" Height="0"/>
             </Grid>
-            <Grid x:Name="gridOptions" Visibility="Hidden">
+            <Grid x:Name="gridOptions" Visibility="Collapsed">
                 <StackPanel>
                     <Label Content="Game" FontSize="20" FontWeight="Bold"/>
                     <CheckBox x:Name="checkMouse" Content="Use mouse" Panel.ZIndex="100" FontSize="20" VerticalContentAlignment="Center"/>
