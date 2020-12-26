@@ -10,6 +10,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Barrage", "Barrage\Barrage.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPUpdater", "SPUpdater\SPUpdater.csproj", "{753585FF-4B60-4AE6-AF1D-10D1C582ADDF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3FED8C50-2DE0-4E5A-9D79-3407401DCBB8}"
+	ProjectSection(SolutionItems) = preProject
+		..\RPGEngine\RPGEditor\InputDialog.xaml = ..\RPGEngine\RPGEditor\InputDialog.xaml
+		..\RPGEngine\RPGEditor\InputDialog.xaml.cs = ..\RPGEngine\RPGEditor\InputDialog.xaml.cs
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

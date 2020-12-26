@@ -1,0 +1,5 @@
+# Barrage Script v2.0
+#Extreme Core Sign: Budget Sevcon
+proj|tags=circle|speed=SQRT ( SQRT t ) * 2|angle=( n * 10 ) + 200|startX= ( COS ( n * 11 ) + SIN ( n * 11 ) ) * 100|startY=( SIN ( n * 11 ) + SIN ( n * 10 ) ) * 100
+wait|0.2
+gotoIf|0|1

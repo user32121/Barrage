@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
-  <asmv1:assemblyIdentity name="Barrage.exe" version="1.0.3.1" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
+  <asmv1:assemblyIdentity name="Barrage.exe" version="1.0.4.1" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
   <description asmv2:iconFile="Icon.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="Barrage" version="1.0.7658.19391" language="neutral" processorArchitecture="msil" />
+    <assemblyIdentity name="Barrage" version="1.0.7664.31983" language="neutral" processorArchitecture="msil" />
     <commandLine file="Barrage.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Barrage.exe" size="252928">
-      <assemblyIdentity name="Barrage" version="1.0.7658.19391" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Barrage.exe" size="262144">
+      <assemblyIdentity name="Barrage" version="1.0.7664.31983" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>I78SoOOn6xl/8UEtGu7cKfLf0rjGLZ58WIRFgx0uRng=</dsig:DigestValue>
+        <dsig:DigestValue>TYfRTbrik0jeevjF/xWV9f31jfjKzox79v/FDEAzuSM=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -62,7 +62,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>9Zyo8bTY/DLpO7lNDjL0WheB5HIphtYVolSoSqDNFxs=</dsig:DigestValue>
+        <dsig:DigestValue>OZzaqiqE4txdFB1LGrsEu/dIueyvCCsbPSeG92qqbfo=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -96,7 +96,7 @@
       <dsig:DigestValue>vejfD5HGlS4E764WUEnfLgaYl1OpaBR4genN3SAEbY8=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\Laser0.png" size="119">
+  <file name="files\laser0.png" size="119">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
@@ -105,7 +105,7 @@
       <dsig:DigestValue>xZVEQoy6w/E0igvfza+zxn2lTpjUdIWpR31A1Lj5aAw=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\Laser1.png" size="119">
+  <file name="files\laser1.png" size="119">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
@@ -114,7 +114,7 @@
       <dsig:DigestValue>AzYkdeJJv4eA69bpWbJKGaXiyPMMI98tHzTknMI3Qa0=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\Laser2.png" size="119">
+  <file name="files\laser2.png" size="119">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
@@ -123,7 +123,7 @@
       <dsig:DigestValue>lJGF606ucysDkp7P9Yndm4Uhv0EtA4fXBgXJG71gT0Q=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\Laser3.png" size="119">
+  <file name="files\laser3.png" size="119">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
@@ -132,7 +132,7 @@
       <dsig:DigestValue>paePtGRuSIFn0w2f1PHWuAQg7ec+y+Nm8abrrY71/i4=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\Laser4.png" size="119">
+  <file name="files\laser4.png" size="119">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
@@ -141,7 +141,7 @@
       <dsig:DigestValue>xwGKN7EX+eW0+oNQ8MiCTgIiFewB5v2KB+La0MrTkhg=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\Laser5.png" size="119">
+  <file name="files\laser5.png" size="119">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
@@ -159,7 +159,7 @@
       <dsig:DigestValue>XZFTsdjx7/7pxkVzT60vFoWkzyd91gAHvzLcMlZW9Lk=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\Projectile0.png" size="398">
+  <file name="files\projectile0.png" size="398">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
@@ -168,7 +168,7 @@
       <dsig:DigestValue>DpO2PHgtAobSHaXVRb+EkJfJUirnzByh4f5375sUNv0=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\Projectile1.png" size="400">
+  <file name="files\projectile1.png" size="400">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
@@ -177,7 +177,7 @@
       <dsig:DigestValue>lOwCMYgY7qxqXsvP33UVL8sCRJ30iWc2lHngIB3UaBo=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\Projectile2.png" size="403">
+  <file name="files\projectile2.png" size="403">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
@@ -186,7 +186,7 @@
       <dsig:DigestValue>fq0k3DI0qDN2oMor69KGhjQBpUFS0uIhmAWPwQnnLu0=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\Projectile3.png" size="412">
+  <file name="files\projectile3.png" size="412">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
@@ -195,7 +195,7 @@
       <dsig:DigestValue>Tg/rdq9fhv47zT74P9qee9Yv4xRFhFxDcFlWnEGktI0=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\Projectile4.png" size="406">
+  <file name="files\projectile4.png" size="406">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
@@ -204,7 +204,7 @@
       <dsig:DigestValue>I6oseld6OwP9vyrZYGdP6kcefrqr45PhJP/Mc09i3qc=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\Projectile5.png" size="402">
+  <file name="files\projectile5.png" size="402">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
@@ -213,7 +213,7 @@
       <dsig:DigestValue>hOxM+/yTpjFmBF6FZvovgF9UPMiS/E2j00VUiqi5v/I=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\SP.txt" size="285">
+  <file name="files\scripts\default\SP.txt" size="285">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
@@ -222,13 +222,13 @@
       <dsig:DigestValue>JZGeiVqG/7yIluR1KdrZv7GhH/kcZAlDQK0m4hqb/vY=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="files\SPUpdater.exe" size="7168">
+  <file name="files\scripts\SPUpdater.exe" size="7168">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>9Zyo8bTY/DLpO7lNDjL0WheB5HIphtYVolSoSqDNFxs=</dsig:DigestValue>
+      <dsig:DigestValue>OZzaqiqE4txdFB1LGrsEu/dIueyvCCsbPSeG92qqbfo=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Icon.ico" size="59198">

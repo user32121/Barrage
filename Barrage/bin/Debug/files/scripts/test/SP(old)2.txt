@@ -1,0 +1,4 @@
+#Youtube Sign: T-Series
+proj|tags=circle|speed=1|angle=270 * n|size=125
+wait|1
+ifGoto|1|0

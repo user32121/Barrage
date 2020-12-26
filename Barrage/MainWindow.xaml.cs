@@ -19,6 +19,7 @@ using System.Windows.Media.Effects;
 using System.Threading;
 using System.Windows.Interop;
 using SPUpdater;
+using Path = System.IO.Path;
 
 namespace Barrage
 {
@@ -207,6 +208,7 @@ namespace Barrage
         #endregion
 
         #region spawn pattern
+        string selectedScript = "";
         List<(COMMANDS, object)> spawnPattern = new List<(COMMANDS, object)>();  //object is either (object[],...) or (property, object[])[]
         public static List<string> spText = new List<string>();
         int readIndex = 0;
@@ -219,6 +221,7 @@ namespace Barrage
         Stopwatch SPTimeout = new Stopwatch();
         public static bool stopGameRequested;
         double plyrFreeze = 0;
+        bool attemptReadSP = true;
         #endregion
 
         #region frame moderation
@@ -237,6 +240,8 @@ namespace Barrage
         enum GAMESTATE
         {
             MENU,
+            SELECTFORPLAY,
+            SELECTFOREDIT,
             PLAY,
             EDITOR,
             OPTIONS,
@@ -247,11 +252,14 @@ namespace Barrage
         #region image storage
         static readonly BitmapImage[] playPauseImgs = new BitmapImage[]
         {
-            new BitmapImage(new Uri("files/Play.png", UriKind.Relative)),
-            new BitmapImage(new Uri("files/Pause.png", UriKind.Relative)),
+            new BitmapImage(new Uri("files/play.png", UriKind.Relative)),
+            new BitmapImage(new Uri("files/pause.png", UriKind.Relative)),
         };
         static readonly List<BitmapImage> projectileImgs = new List<BitmapImage>();
         static int laserImgsIndex;
+        static BitmapImage defaultProj = new BitmapImage(new Uri("files/projectile.png", UriKind.Relative));
+        static BitmapImage defaultLaser = new BitmapImage(new Uri("files/laser.png", UriKind.Relative));
+        static BitmapImage defaultPreview = new BitmapImage(new Uri("files/preview.png", UriKind.Relative));
         #endregion
 
         #region editor
@@ -266,6 +274,9 @@ namespace Barrage
         private const int projStepsAhead = 30;
         #endregion
 
+        #region menu
+        #endregion
+
         public MainWindow()
         {
             InitializeComponent();
@@ -274,22 +285,25 @@ namespace Barrage
 
             plyrPos.Y = 100;
 
-            if (File.Exists("files/Boss.png"))
+            if (File.Exists("files/boss.png"))
                 Boss.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Boss.png"));
-            if (File.Exists("files/Player.png"))
+            if (File.Exists("files/player.png"))
                 Player.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Player.png"));
 
-            if (File.Exists("files/Play.png"))
+            if (File.Exists("files/play.png"))
             {
                 playPauseImgs[0] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Play.png"));
                 imageEditorPlay.Source = playPauseImgs[0];
             }
-            if (File.Exists("files/Pause.png"))
+            if (File.Exists("files/pause.png"))
                 playPauseImgs[1] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Pause.png"));
-            if (File.Exists("files/Step.png"))
+            if (File.Exists("files/step.png"))
                 imageEditorStepForwards.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Step.png"));
-            if (File.Exists("files/Grid.png"))
+            if (File.Exists("files/grid.png"))
                 gridUnderlay = new ImageBrush(new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Grid.png")));
+            if (File.Exists("files/preview.png"))
+                gridUnderlay = new ImageBrush(new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Grid.png")));
+
             if (System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed)
                 labelVersion.Content = "v" + System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion;
 
@@ -301,7 +315,7 @@ namespace Barrage
             checkUseGrid.IsChecked = GameSettings.useGrid;
             checkPredict.IsChecked = GameSettings.predictProjectile;
 
-            ReadSPTxt();
+            LoadScripts();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -389,7 +403,8 @@ namespace Barrage
                 isVisual = false;
                 labelVisual.Visibility = Visibility.Collapsed;
 
-                ReadSPTxt();
+                if (attemptReadSP)
+                    ReadSPTxt();
 
                 gameOver = false;
                 paused = false;
@@ -473,6 +488,11 @@ namespace Barrage
                     LabelMenu_MouseUp(labelMenuOptions, null);
                     LabelMenu_MouseLeave(labelMenuOptions, null);
                 }
+            }
+            else if (gamestate == GAMESTATE.SELECTFORPLAY || gamestate == GAMESTATE.SELECTFOREDIT)
+            {
+                if (e.Key == Key.Return)
+                    GetSelectedScriptAndSetup();
             }
         }
 
@@ -901,15 +921,18 @@ namespace Barrage
 
         void ReadSPTxt()
         {
-            if (!File.Exists("files/SP.txt"))
-                MessageBox.Show("files/SP.txt not found");
+            if (!File.Exists(Path.Combine("files\\scripts", selectedScript, "SP.txt")))
+            {
+                MessageBox.Show(Path.Combine("files\\scripts", selectedScript, "SP.txt") + " not found");
+                return;
+            }
 
             string[] lines;
             if (gamestate == GAMESTATE.EDITOR)
                 lines = textEditor.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
             else
             {
-                StreamReader sr = new StreamReader("files/SP.txt");
+                StreamReader sr = new StreamReader(Path.Combine("files\\scripts", selectedScript, "SP.txt"));
                 string temp = sr.ReadToEnd();
 
                 //check for update
@@ -920,14 +943,14 @@ namespace Barrage
 
                     try
                     {
-                        Process.Start(Directory.GetCurrentDirectory() + "/files/SPUpdater.exe").WaitForExit();
+                        Process.Start(Path.Combine(Directory.GetCurrentDirectory(), "files/scripts/SPUpdater.exe"), "\"" + selectedScript + "\"").WaitForExit();
                     }
                     catch (Exception e)
                     {
                         MessageBox.Show(e.Message, "An issue occurred while converting script");
                     }
 
-                    sr = new StreamReader("files/SP.txt");
+                    sr = new StreamReader(Path.Combine("files\\scripts", selectedScript, "SP.txt"));
                     temp = sr.ReadToEnd();
                 }
 
@@ -1171,7 +1194,7 @@ namespace Barrage
 
         void SaveSP()
         {
-            StreamWriter sw = new StreamWriter("files/SP.txt");
+            StreamWriter sw = new StreamWriter(Path.Combine("files\\scripts", selectedScript, "SP.txt"));
             sw.Write(textEditor.Text);
             sw.Close();
             sw.Dispose();
@@ -1198,37 +1221,17 @@ namespace Barrage
         {
             if (sender == labelMenuPlay)
             {
-                gamestate = GAMESTATE.PLAY;
+                gamestate = GAMESTATE.SELECTFORPLAY;
                 gridMenu.Visibility = Visibility.Collapsed;
-                gridGame.Visibility = Visibility.Visible;
-                gridField.Background = Brushes.Transparent;
+                gridLevelSelect.Visibility = Visibility.Visible;
+                LBLevels.Focus();
             }
             else if (sender == labelMenuEditor)
             {
-                gamestate = GAMESTATE.EDITOR;
-                gridMain.Width = 800;
-                gridMain.Height = 450;
-                gridGame.HorizontalAlignment = HorizontalAlignment.Left;
-                gridGame.VerticalAlignment = VerticalAlignment.Top;
-                gridGameBorder.BorderThickness = new Thickness(0.5);
-                labelFps.Margin = new Thickness(0, 0, 400, 0);
-                double sX = gridSize.ActualWidth - rightBlack.Width * 4,
-                    sY = (gridSize.ActualHeight - downBlack.Height * 2) / 8 * 9 - gridSize.ActualHeight;
-                if (sX > 0)
-                    Width += sX;
-                if (sY > 0)
-                    Height += sY;
-                Window_SizeChanged(this, null);
-                MinWidth = minSize.Width + 400;
-                MinHeight = minSize.Height + 50;
-
+                gamestate = GAMESTATE.SELECTFOREDIT;
                 gridMenu.Visibility = Visibility.Collapsed;
-                gridEditor.Visibility = Visibility.Visible;
-                gridGame.Visibility = Visibility.Visible;
-                if ((bool)checkUseGrid.IsChecked)
-                    gridField.Background = gridUnderlay;
-                else
-                    gridField.Background = Brushes.Transparent;
+                gridLevelSelect.Visibility = Visibility.Visible;
+                LBLevels.Focus();
             }
             else if (sender == labelMenuOptions)
             {
@@ -1239,6 +1242,29 @@ namespace Barrage
             else if (sender == labelMenuQuit)
             {
                 Application.Current.Shutdown();
+            }
+            else if (sender == labelRefreshScripts)
+            {
+                LoadScripts();
+            }
+            else if (sender == labelPlayScript)
+            {
+                GetSelectedScriptAndSetup();
+            }
+            else if (sender == labelNewScript)
+            {
+                MakeNewScript();
+                return;
+            }
+            else if (sender == labelRenameScript)
+            {
+                RenameScript();
+                return;
+            }
+            else if (sender == labelDeleteScript)
+            {
+                DeleteScript();
+                return;
             }
 
             ((Label)sender).Background = new SolidColorBrush(Color.FromRgb(230, 230, 230));
@@ -1254,7 +1280,13 @@ namespace Barrage
         private void LabelBack_MouseUp(object sender, MouseButtonEventArgs e)
         {
             bool canceled = false;
-            if (gamestate == GAMESTATE.EDITOR)
+            if (gamestate == GAMESTATE.PLAY)
+            {
+                gamestate = GAMESTATE.SELECTFORPLAY;
+                gridLevelSelect.Visibility = Visibility.Visible;
+                gridGame.Visibility = Visibility.Collapsed;
+            }
+            else if (gamestate == GAMESTATE.EDITOR)
             {
                 MessageBoxResult result;
                 if (isSPSaved)
@@ -1283,6 +1315,11 @@ namespace Barrage
 
                     if (result == MessageBoxResult.Yes)
                         SaveSP();
+
+                    gamestate = GAMESTATE.SELECTFOREDIT;
+                    gridLevelSelect.Visibility = Visibility.Visible;
+                    gridEditor.Visibility = Visibility.Collapsed;
+                    gridGame.Visibility = Visibility.Collapsed;
                 }
                 else
                     canceled = true;
@@ -1295,21 +1332,29 @@ namespace Barrage
                 GameSettings.checkForErrors = (bool)checkError.IsChecked;
                 GameSettings.predictProjectile = (bool)checkPredict.IsChecked;
                 GameSettings.Save();
+
+                gamestate = GAMESTATE.MENU;
+                gridMenu.Visibility = Visibility.Visible;
+                gridOptions.Visibility = Visibility.Collapsed;
+            }
+            else if (gamestate == GAMESTATE.SELECTFORPLAY || gamestate == GAMESTATE.SELECTFOREDIT)
+            {
+                gridLevelSelect.Visibility = Visibility.Collapsed;
+                gridMenu.Visibility = Visibility.Visible;
+                gamestate = GAMESTATE.MENU;
             }
             if (!canceled)
             {
-                gamestate = GAMESTATE.MENU;
-                gridMenu.Visibility = Visibility.Visible;
-                gridGame.Visibility = Visibility.Collapsed;
-                gridEditor.Visibility = Visibility.Collapsed;
-                gridOptions.Visibility = Visibility.Collapsed;
-
+                attemptReadSP = false;
                 MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.R));
+                attemptReadSP = true;
             }
         }
         private void LabelRetry_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            attemptReadSP = false;
             MainWindow_KeyDown(this, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.R));
+            attemptReadSP = true;
         }
         private void ImageEditor_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -1369,7 +1414,7 @@ namespace Barrage
         {
             if (gamestate == GAMESTATE.EDITOR)
             {
-                StreamWriter sw = new StreamWriter("files/SP(autosave).txt");
+                StreamWriter sw = new StreamWriter(Path.Combine("files\\scripts", selectedScript, "SP(autosave).txt"));
                 sw.Write(textEditor.Text);
                 sw.Close();
                 sw.Dispose();
@@ -1393,10 +1438,10 @@ namespace Barrage
                     projectileImgs.Add(null);
 
                 if (projectileImgs[index + laserImgsIndex] == null)
-                    if (File.Exists("files/Laser" + index + ".png"))
-                        projectileImgs[index + laserImgsIndex] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Laser" + index + ".png"));
+                    if (File.Exists("files/laser" + index + ".png"))
+                        projectileImgs[index + laserImgsIndex] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/laser" + index + ".png"));
                     else
-                        projectileImgs[index + laserImgsIndex] = new BitmapImage(new Uri("files/Laser.png", UriKind.Relative));
+                        projectileImgs[index + laserImgsIndex] = defaultLaser;
                 return projectileImgs[index + laserImgsIndex];
             }
             else
@@ -1407,10 +1452,10 @@ namespace Barrage
                     laserImgsIndex++;
                 }
                 if (projectileImgs[index] == null)
-                    if (File.Exists("files/Projectile" + index + ".png"))
-                        projectileImgs[index] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Projectile" + index + ".png"));
+                    if (File.Exists("files/projectile" + index + ".png"))
+                        projectileImgs[index] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/projectile" + index + ".png"));
                     else
-                        projectileImgs[index] = new BitmapImage(new Uri("files/Projectile.png", UriKind.Relative));
+                        projectileImgs[index] = defaultProj;
                 return projectileImgs[index];
             }
         }
@@ -1418,6 +1463,172 @@ namespace Barrage
         private void LabelOpenFiles_MouseUp(object sender, MouseButtonEventArgs e)
         {
             Process.Start("explorer", "files");
+        }
+
+        void LoadScripts()
+        {
+            LBLevels.Items.Clear();
+
+            string[] scripts = Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), "files\\scripts"));
+            for (int i = 0; i < scripts.Length; i++)
+            {
+                StackPanel SP = new StackPanel() { Tag = Path.GetFileName(scripts[i]), Orientation = Orientation.Horizontal };
+                if (File.Exists(Path.Combine(scripts[i], "preview.png")))
+                {
+                    BitmapImage img = new BitmapImage();
+                    img.BeginInit();
+                    img.CacheOption = BitmapCacheOption.OnLoad;
+                    img.UriSource = new Uri(Path.Combine(scripts[i], "preview.png"), UriKind.Absolute);
+                    img.EndInit();
+                    SP.Children.Add(new Image() { Source = img, Width = 100, Height = 100 });
+                }
+                else
+                    SP.Children.Add(new Image() { Source = defaultPreview, Width = 100, Height = 100 });
+                SP.Children.Add(new Label() { Content = Path.GetFileName(scripts[i]), VerticalAlignment = VerticalAlignment.Center });
+
+                LBLevels.Items.Add(SP);
+            }
+
+            LBLevels.SelectedIndex = 0;
+        }
+        void GetSelectedScriptAndSetup()
+        {
+            if (LBLevels.SelectedIndex == -1)
+                return;
+
+            selectedScript = (LBLevels.SelectedItem as StackPanel).Tag as string;
+
+            ReadSPTxt();
+            if (stopGameRequested)
+            {
+                stopGameRequested = false;
+                return;
+            }
+
+            if (gamestate == GAMESTATE.SELECTFORPLAY)
+            {
+                gamestate = GAMESTATE.PLAY;
+                gridLevelSelect.Visibility = Visibility.Collapsed;
+                gridGame.Visibility = Visibility.Visible;
+                gridField.Background = Brushes.Transparent;
+            }
+            else if (gamestate == GAMESTATE.SELECTFOREDIT)
+            {
+                gamestate = GAMESTATE.EDITOR;
+                gridMain.Width = 800;
+                gridMain.Height = 450;
+                gridGame.HorizontalAlignment = HorizontalAlignment.Left;
+                gridGame.VerticalAlignment = VerticalAlignment.Top;
+                gridGameBorder.BorderThickness = new Thickness(0.5);
+                labelFps.Margin = new Thickness(0, 0, 400, 0);
+                double sX = gridSize.ActualWidth - rightBlack.Width * 4,
+                    sY = (gridSize.ActualHeight - downBlack.Height * 2) / 8 * 9 - gridSize.ActualHeight;
+                if (sX > 0)
+                    Width += sX;
+                if (sY > 0)
+                    Height += sY;
+                Window_SizeChanged(this, null);
+                MinWidth = minSize.Width + 400;
+                MinHeight = minSize.Height + 50;
+
+                gridLevelSelect.Visibility = Visibility.Collapsed;
+                gridEditor.Visibility = Visibility.Visible;
+                gridGame.Visibility = Visibility.Visible;
+                if ((bool)checkUseGrid.IsChecked)
+                    gridField.Background = gridUnderlay;
+                else
+                    gridField.Background = Brushes.Transparent;
+            }
+            else
+                throw new NotImplementedException();
+        }
+        void MakeNewScript()
+        {
+            string name = "";
+            while (true)
+            {
+                name = InputDialog.Prompt("Enter new script name:", name);
+                if (name == null)
+                    return;
+
+                int index;
+                if (name == "")
+                    MessageBox.Show("script name cannot be empty", "invalid script name");
+                else if ((index = name.IndexOfAny(Path.GetInvalidFileNameChars())) != -1)
+                    MessageBox.Show("script name contains an invalid character at position " + index, "invalid script name");
+                else if (Directory.Exists(Path.Combine("files\\scripts", name)))
+                    MessageBox.Show("a script with the same name already exists", "invalid script name");
+                else
+                    break;
+            }
+
+            try
+            {
+                Directory.CreateDirectory(Path.Combine("files\\scripts", name));
+                StreamWriter sw = File.CreateText(Path.Combine("files\\scripts", name, "SP.txt"));
+                sw.WriteLine(SPUpdater.SPUpdater.versionText);
+                sw.Close();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(string.Format("could not create new script: {0}\n{1}", e.GetType(), e.Message), "", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            }
+            LoadScripts();
+        }
+        void RenameScript()
+        {
+            if (LBLevels.SelectedIndex == -1)
+                return;
+
+            selectedScript = (LBLevels.SelectedItem as StackPanel).Tag as string;
+
+            string newName = selectedScript;
+            while (true)
+            {
+                newName = InputDialog.Prompt("Enter new script name:", newName);
+                if (newName == null)
+                    return;
+
+                int index;
+                if (newName == "")
+                    MessageBox.Show("script name cannot be empty", "invalid script name");
+                else if ((index = newName.IndexOfAny(Path.GetInvalidFileNameChars())) != -1)
+                    MessageBox.Show("script name contains an invalid character at position " + index, "invalid script name");
+                else if (Directory.Exists(Path.Combine("files\\scripts", newName)))
+                    MessageBox.Show("a script with the same name already exists", "invalid script name");
+                else
+                    break;
+            }
+
+            try
+            {
+                Directory.Move(Path.Combine("files\\scripts", selectedScript), Path.Combine("files\\scripts", newName));
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(string.Format("could not rename script: {0}\n{1}", e.GetType(), e.Message), "", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            }
+
+            LoadScripts();
+        }
+        void DeleteScript()
+        {
+            if (LBLevels.SelectedIndex == -1)
+                return;
+
+            selectedScript = (LBLevels.SelectedItem as StackPanel).Tag as string;
+
+            if (MessageBox.Show("Are you sure you want to delete this script forever?", "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                try
+                {
+                    Directory.Delete(Path.Combine("files\\scripts", selectedScript), true);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(string.Format("could not delete script: {0}\n{1}", e.GetType(), e.Message), "", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                }
+
+            LoadScripts();
         }
     }
     public static class ExtensionMethods

@@ -1,15 +1,4 @@
 # Barrage Script v2.0
-text|Greetings
-wait|120
-text|Let's Start
-wait|20
-text|Let's Start.
-wait|20
-text|Let's Start..
-wait|20
-text|Let's Start...
-wait|20
-test|
 val|0|19
 :START
 val|2|150

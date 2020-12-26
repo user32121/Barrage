@@ -1,0 +1,6 @@
+# Barrage Script v2.0
+#Technical Sign: Cog Wheel
+proj|tags=circle|speed=t / 10 - 5|angle=n * 111|startX=0|startY=-50
+repeat|0|30
+wait|10
+gotoIf|0|1

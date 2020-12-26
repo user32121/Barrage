@@ -1,0 +1,5 @@
+# Barrage Script v2.0
+#Extreme Core Sign: Merg
+proj|tags=circle|speed=3|angle=n * 222.5
+wait|0.1
+gotoIf|0|1

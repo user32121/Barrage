@@ -1,0 +1,4 @@
+#?????????: Wall Phasing
+proj|tags=laser,wallBounce|speed=3|angle=SIN ( t / 10 ) * 75 + n|tagCount=3
+wait|7
+ifGoto|1|0

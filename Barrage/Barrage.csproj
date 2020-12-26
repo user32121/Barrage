@@ -28,7 +28,7 @@
     <WebPage>publish.htm</WebPage>
     <AutorunEnabled>true</AutorunEnabled>
     <ApplicationRevision>1</ApplicationRevision>
-    <ApplicationVersion>1.0.3.%2a</ApplicationVersion>
+    <ApplicationVersion>1.0.4.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -101,9 +101,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="..\..\RPGEngine\RPGEditor\InputDialog.xaml.cs">
+      <Link>InputDialog.xaml.cs</Link>
+      <DependentUpon>InputDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Projectile.cs" />
     <Compile Include="ReadString.cs" />
     <Compile Include="GameSettings.cs" />
+    <Page Include="..\..\RPGEngine\RPGEditor\InputDialog.xaml">
+      <Link>InputDialog.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -146,68 +155,69 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="files\Boss.png" />
+    <Resource Include="files\boss.png" />
     <Resource Include="files\Icon.ico" />
-    <Resource Include="files\Laser.png" />
-    <Resource Include="files\Pause.png" />
-    <Resource Include="files\Play.png" />
-    <Resource Include="files\Grid.png" />
+    <Resource Include="files\laser.png" />
+    <Resource Include="files\pause.png" />
+    <Resource Include="files\play.png" />
+    <Resource Include="files\grid.png" />
     <Content Include="..\SPUpdater\bin\Debug\SPUpdater.exe">
-      <Link>files\SPUpdater.exe</Link>
+      <Link>files\scripts\SPUpdater.exe</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Laser0.png">
+    <Content Include="files\laser0.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Laser1.png">
+    <Content Include="files\laser1.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Laser2.png">
+    <Content Include="files\laser2.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Laser3.png">
+    <Content Include="files\laser3.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Laser4.png">
+    <Content Include="files\laser4.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Laser5.png">
+    <Content Include="files\laser5.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="files\presets.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Resource Include="files\Projectile.png" />
+    <Resource Include="files\projectile.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="files\Player.png" />
+    <Resource Include="files\player.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="files\Projectile0.png">
+    <Resource Include="files\preview.png" />
+    <Content Include="files\projectile0.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Projectile1.png">
+    <Content Include="files\projectile1.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Projectile2.png">
+    <Content Include="files\projectile2.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Projectile3.png">
+    <Content Include="files\projectile3.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Projectile4.png">
+    <Content Include="files\projectile4.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\Projectile5.png">
+    <Content Include="files\projectile5.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\SP.txt">
+    <Content Include="files\scripts\default\SP.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="files\info.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Resource Include="files\Step.png" />
+    <Resource Include="files\step.png" />
     <Resource Include="Icon.ico" />
     <Content Include="readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -231,5 +241,6 @@
       <Name>SPUpdater</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

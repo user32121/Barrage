@@ -1,0 +1,4 @@
+#Extreme Core Sign: Budget Sevcon
+proj|tags=circle|speed=SQRT ( SQRT t )  2|angle=( n  10 ) + 200|startPos= ( COS ( n  11 ) + SIN ( n  11 ) )  100,( SIN ( n  11 ) + SIN ( n  10 ) )  100
+wait|0.2
+ifGoto|1|0 

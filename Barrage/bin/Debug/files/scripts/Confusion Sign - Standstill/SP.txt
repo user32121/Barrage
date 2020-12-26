@@ -1,0 +1,5 @@
+# Barrage Script v2.0
+#Confusion Sign: Standstill
+proj|tags=laser|xVel=0.1 / ( ( PLYRX - LPOSX ) ^ 2 + ( PLYRY - LPOSY ) ^ 2 ) * COS ( ATAN ( PLYRY - LPOSY ) ( PLYRX - LPOSX ) ) + LVELX|yVel=1000 / ( ( PLYRX - LPOSX ) ^ 2 + ( PLYRY - LPOSY ) ^ 2 ) * SIN ( ATAN ( PLYRY - LPOSY ) ( PLYRX - LPOSX ) ) + LVELY|size=3
+wait|1
+repeat|1|10000 

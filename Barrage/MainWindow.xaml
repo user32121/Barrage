@@ -69,6 +69,31 @@
                 <Label x:Name="labelMenuOptions" Content="Options" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,65,0,0" Width="200" Height="60" FontSize="25" Background="#FFC8C8C8" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseDown="LabelMenu_MouseDown" MouseUp="LabelMenu_MouseUp"/>
                 <Label x:Name="labelMenuQuit" Content="Quit" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,195,0,0" Width="200" Height="60" FontSize="25" Background="#FFC8C8C8" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseDown="LabelMenu_MouseDown" MouseUp="LabelMenu_MouseUp"/>
             </Grid>
+            <Grid x:Name="gridLevelSelect" Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <ListBox x:Name="LBLevels" Grid.ColumnSpan="100"/>
+                <Label x:Name="labelSelectBack" Content="Back" FontSize="20" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelBack_MouseUp" Grid.Column="0" HorizontalContentAlignment="Center" Grid.Row="1" VerticalAlignment="Center"/>
+                <Label x:Name="labelRefreshScripts" Content="Refresh" FontSize="20" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelMenu_MouseUp" Grid.Column="2" HorizontalContentAlignment="Center" Grid.Row="1" VerticalAlignment="Center"/>
+                <Label x:Name="labelNewScript" Content="New" FontSize="20" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelMenu_MouseUp" Grid.Column="3" HorizontalContentAlignment="Center" Grid.Row="1" VerticalAlignment="Center"/>
+                <Label x:Name="labelRenameScript" Content="Rename" FontSize="20" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelMenu_MouseUp" Grid.Column="4" HorizontalContentAlignment="Center" Grid.Row="1" VerticalAlignment="Center"/>
+                <Label x:Name="labelDeleteScript" Content="Delete" FontSize="20" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelMenu_MouseUp" Grid.Column="5" HorizontalContentAlignment="Center" Grid.Row="1" VerticalAlignment="Center"/>
+                <Label x:Name="labelPlayScript" Content="Play" FontSize="20" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelMenu_MouseUp" Grid.Column="7" HorizontalContentAlignment="Center" Grid.Row="1" VerticalAlignment="Center"/>
+            </Grid>
+
             <Label x:Name="labelFps" Content="fps" VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" Opacity="0.5" Panel.ZIndex="100" FontSize="10"/>
         </Grid>
         <Label x:Name="leftBlack" Background="Black" HorizontalAlignment="Left" Width="0"/>

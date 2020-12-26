@@ -14,27 +14,37 @@ namespace SPUpdater
 
         static void Main(string[] args)
         {
-            if (File.Exists(Directory.GetCurrentDirectory() + "\\files\\SP.txt"))
+            for (int i = 0; i < args.Length; i++)
+                Console.WriteLine(args[i]);
+
+            string folder = "";
+            if (args.Length > 0)
+                folder = args[0];
+
+            string SPPathPrefix = Path.Combine(Directory.GetCurrentDirectory(), "files\\scripts", folder, "SP");
+
+            if (File.Exists(SPPathPrefix + ".txt"))
             {
                 int oldIndex = 1;
-                while (File.Exists(Directory.GetCurrentDirectory() + "\\files\\SP(old)" + oldIndex + ".txt"))
+                while (File.Exists(SPPathPrefix + "(old)" + oldIndex + ".txt"))
                     oldIndex++;
 
-                File.Move(Directory.GetCurrentDirectory() + "\\files\\SP.txt", Directory.GetCurrentDirectory() + "\\files\\SP(old)" + oldIndex + ".txt");
-                StreamReader sr = new StreamReader(Directory.GetCurrentDirectory() + "\\files\\SP(old)" + oldIndex + ".txt");
-                StreamWriter sw = new StreamWriter(Directory.GetCurrentDirectory() + "\\files\\SP.txt");
+                File.Move(SPPathPrefix + ".txt", SPPathPrefix + "(old)" + oldIndex + ".txt");
+                StreamReader sr = new StreamReader(SPPathPrefix + "(old)" + oldIndex + ".txt");
+                StreamWriter sw = new StreamWriter(SPPathPrefix + ".txt");
 
                 sw.Write(UpdateScript(sr.ReadToEnd()));
 
                 sr.Close();
                 sw.Close();
                 Console.WriteLine("Finished converting SP.txt");
-                Console.WriteLine("Unconverted version can be found at " + Directory.GetCurrentDirectory() + "\\files\\SP(old)" + oldIndex + ".txt");
+                Console.WriteLine("Unconverted version can be found at " + SPPathPrefix + "(old)" + oldIndex + ".txt");
             }
             else
             {
-                Console.WriteLine("Could not find " + Directory.GetCurrentDirectory() + "\\files\\SP.txt");
+                Console.WriteLine("Could not find " + SPPathPrefix + ".txt");
             }
+            Console.Write("Press enter to continue...");
             Console.ReadLine();
         }
 

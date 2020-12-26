@@ -1,17 +1,4 @@
 # Barrage Script v2.0
-text|Greetings
-wait|120
-text|Let's Start
-wait|20
-text|Let's Start.
-wait|20
-text|Let's Start..
-wait|20
-text|Let's Start...
-wait|50
-text|and Go!
-wait|10
-text|
 val|0|19
 :START
 val|2|150
@@ -23,6 +10,5 @@ val|2|val2 - 1
 wait|2
 repeat|:LOOP|144
 wait|100
-text|and back
 val|0|val0 * -1
 gotoIf|:START|1

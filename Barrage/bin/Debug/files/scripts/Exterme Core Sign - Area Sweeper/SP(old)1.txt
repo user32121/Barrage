@@ -1,0 +1,5 @@
+#Extreme Core Sign: Area Sweeper
+proj|tags=circle|speed=t / 10 - 5|angle=n * 111|startPos=0,-50
+repeat|0|500
+wait|50
+ifGoto|1|0
