@@ -857,7 +857,7 @@ namespace Barrage
             DisplayArrow();
         }
 
-        //display a message box with the error message, also gives an option to stop the program
+        //display a message box with the error message, also gives an option to stop the program. text is the message to be displayed
         public static void MessageIssue(string text)
         {
             if (GameSettings.checkForErrors && !stopGameRequested && MessageBox.Show(text, "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
@@ -869,7 +869,7 @@ namespace Barrage
                     Main.LabelBack_MouseUp(Main.labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
             }
         }
-        //similar to above function, can be called from anywhere, provides a template for incorrect text, line number, and error message
+        //similar to above function, provides a template for incorrect text, line number, and error message
         public static void MessageIssue(string text, int line, string issue)
         {
             if (GameSettings.checkForErrors && !stopGameRequested && MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n{2}\n Continue?", text, line, issue),
@@ -976,15 +976,20 @@ namespace Barrage
                         labelToInt.Add(lines[i], i);
                 }
 
-            //loads files into readFile and removes comments and empty spaces
+            //parse each line
             for (int i = 0; i < lines.Length; i++)
             {
                 spText.Add(lines[i]);
 
+                //remove comments
+                int commentInd = lines[i].IndexOf('#');
+                if (commentInd != -1)
+                    lines[i] = lines[i].Substring(0, commentInd);
+
                 //split into command and arguments
                 string[] lineSplt = lines[i].Split('|');
 
-                if (lines[i].Length == 0 || lineSplt[0][0] == '#' || lineSplt[0][0] == ':')  // empty/comment/label, ignored
+                if (lines[i].Length == 0 || lineSplt[0][0] == ':')  // empty(/comment)/label, ignored
                     spawnPattern.Add((COMMANDS.NONE, null));
                 else if (strToCmd.TryGetValue(lineSplt[0], out COMMANDS cmd))
                 {
@@ -998,7 +1003,16 @@ namespace Barrage
                             string propVal;
                             for (int p = 1; p < lineSplt.Length; p++)
                             {
+                                if (lineSplt[p].Trim().Length == 0)
+                                    continue;
+
                                 int index = lineSplt[p].IndexOf('=');
+                                if (index == -1)
+                                {
+                                    MessageIssue(lineSplt[p], i, "Proj parameter not in PROPERTY=EQUATION format.");
+                                    continue;
+                                }
+
                                 propName = lineSplt[p].Substring(0, index);
                                 propVal = lineSplt[p].Substring(index + 1);
                                 if (strToProp.TryGetValue(propName, out PROPERTIES prop))
@@ -1042,7 +1056,10 @@ namespace Barrage
                     }
                 }
                 else
+                {
                     MessageIssue(lineSplt[0], spawnInd, "Not a command.");
+                    spawnPattern.Add((COMMANDS.NONE, null));
+                }
             }
         }
 

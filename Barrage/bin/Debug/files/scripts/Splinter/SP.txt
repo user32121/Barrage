@@ -1,0 +1,1563 @@
+# Barrage Script v2.0
+#ifGoto|1|:dev
+proj|tags=laser|speed=4|startX=-195|startY=-200
+wait|100
+
+wait|27
+#beats
+:p001
+:p002
+proj|tags=circle|angle=131.1 * n|speed=15 / ( t + 1 )|duration=20
+repeat|:p002|10
+wait|12
+:p003
+proj|tags=circle|angle=131.1 * n|speed=15 / ( t + 1 )|duration=20
+repeat|:p003|10
+wait|18
+:p004
+proj|tags=circle|angle=131.1 * n|speed=20 / ( t + 1 )|duration=30
+repeat|:p004|10
+wait|18
+repeat|:p001|3
+
+#noise
+:p005
+proj|tags=circle|speed=( RNG ( t * -1 ) t ) / 5|angle=RNG 0 360|startX=0|startY=0|duration=250|size=5|actDelay=1000
+repeat|:p005|300
+
+#beats
+:p006
+:p007
+proj|tags=circle|angle=131.1 * n|speed=15 / ( t + 1 )|duration=20
+repeat|:p007|10
+wait|12
+:p008
+proj|tags=circle|angle=131.1 * n|speed=15 / ( t + 1 )|duration=20
+repeat|:p008|10
+wait|18
+:p009
+proj|tags=circle|angle=131.1 * n|speed=20 / ( t + 1 )|duration=30
+repeat|:p009|10
+wait|18
+repeat|:p006|5
+
+#spinning
+val|1|0
+:p010
+val|0|9
+:p011
+proj|tags=circle|xPos=COS ( t * 2 + val0 * 6 + val1 ) * 100|yPos= SIN ( t * 2 + val0 * 6 + val1 ) * 100|size=val0|duration=1205
+val|0|val0 - 0.5
+repeat|:p011|12
+val|1|val1 + 120
+repeat|:p010|3
+
+#fill
+val|0|-185
+val|1|-200
+val|2|30
+val|3|825
+val|4|32
+:p012
+proj|tags=circle|size=10|angle=30|speed=( t > val3 ) * 20|startX=val0|startY=val1
+proj|tags=circle|size=10|angle=150|speed=( t > val3 ) * 20|startX=val0 + 10|startY=val1
+proj|tags=circle|size=10|angle=30|speed=( t > val3 ) * 20|startX=val0|startY=val1 + 10
+proj|tags=circle|size=10|angle=150|speed=( t > val3 ) * 20|startX=val0 + 10|startY=val1 + 10
+proj|tags=circle|size=10|angle=30|speed=( t > val3 ) * 20|startX=-1 * val0|startY=-1 * val1
+proj|tags=circle|size=10|angle=150|speed=( t > val3 ) * 20|startX=-1 * ( val0 + 10 )|startY=-1 * val1
+proj|tags=circle|size=10|angle=30|speed=( t > val3 ) * 20|startX=-1 * val0|startY=-1 * ( val1 + 10 )
+proj|tags=circle|size=10|angle=150|speed=( t > val3 ) * 20|startX=-1 * ( val0 + 10 )|startY=-1 * ( val1 + 10 )
+wait|25.9
+val|0|val0 + val2
+val|3|val3 - 25.9
+val|4|val4 - 1
+gotoIf|:pp000|val4 == 0
+repeat|:p012|13
+val|1|val1 + ABS val2
+val|2|val2 * -1
+val|0|val0 + val2
+repeat|:p012|3
+
+#directional burst function (2 dir, 3 x, 4 y, 5 return) (using 0 speed, 1 dir var)
+:f000
+val|0|RNG 10 40
+val|1|RNG ( val2 - 30 ) ( val2 + 30 )
+proj|tags=circle|speed=val0 / ( t + 1 )|angle=val1|startX=val3|startY=val4|size=SQRT ( 50 - t )|duration=50
+repeat|:f000|20
+gotoIf|val5|1
+
+#primary circle loop (TR,TL,BL,BR) function (6 return) (using 2 dir, 3 x, 4 y, 5 :f000)
+:f001
+val|2|90
+val|3|100
+val|4|-200
+val|5|:p014
+gotoIf|:f000|1
+:p014
+wait|26
+val|3|-100
+val|5|:p015
+gotoIf|:f000|1
+:p015
+wait|26
+val|2|-90
+val|4|200
+val|5|:p016
+gotoIf|:f000|1
+:p016
+wait|26
+val|3|100
+val|5|:p017
+gotoIf|:f000|1
+:p017
+wait|26
+gotoIf|val6|1
+
+#secondary circle loop (LT,RT,RB,LB) function (6 return) (using 2 dir, 3 x, 4 y, 5 :f000)
+:f002
+val|2|0
+val|3|-200
+val|4|-100
+val|5|:p018
+gotoIf|:f000|1
+:p018
+wait|26
+val|2|180
+val|3|200
+val|5|:p019
+gotoIf|:f000|1
+:p019
+wait|26
+val|4|100
+val|5|:p020
+gotoIf|:f000|1
+:p020
+wait|26
+val|2|0
+val|3|-200
+val|5|:p021
+gotoIf|:f000|1
+:p021
+wait|26
+gotoIf|val6|1
+
+#directional bursts
+:pp000
+val|6|:pp001
+gotoIf|:f001|1
+:pp001
+val|6|:pp002
+gotoIf|:f002|1
+:pp002
+val|6|:pp003
+gotoIf|:f001|1
+:pp003
+
+val|2|0
+val|3|-200
+val|4|-100
+val|5|:p026
+gotoIf|:f000|1
+:p026
+val|2|180
+val|3|200
+val|5|:p027
+gotoIf|:f000|1
+:p027
+wait|26
+val|4|100
+val|5|:p028
+gotoIf|:f000|1
+:p028
+val|2|0
+val|3|-200
+val|5|:p029
+gotoIf|:f000|1
+:p029
+wait|26
+
+#collapsing circle
+:p030
+proj|tags=circle|speed=( 13 - t ) * 1.3|angle=n * 15|startX=0|startY=0
+repeat|:p030|24
+wait|52
+
+val|6|:p032
+gotoIf|:f001|1
+:p032
+val|6|:p033
+gotoIf|:f002|1
+:p033
+
+:pp004
+val|2|135
+val|3|200
+val|4|-200
+val|5|:p034
+gotoIf|:f000|1
+:p034
+val|2|45
+val|3|-200
+val|5|:p035
+gotoIf|:f000|1
+:p035
+val|2|-45
+val|4|200
+val|5|:p036
+gotoIf|:f000|1
+:p036
+val|2|-135
+val|3|200
+val|5|:p037
+gotoIf|:f000|1
+:p037
+wait|26
+
+val|2|180
+val|3|200
+val|4|0
+val|5|:p038
+gotoIf|:f000|1
+:p038
+val|2|0
+val|3|-200
+val|5|:p039
+gotoIf|:f000|1
+:p039
+val|2|90
+val|3|0
+val|4|-200
+val|5|:p040
+gotoIf|:f000|1
+:p040
+val|2|-90
+val|4|200
+val|5|:p041
+gotoIf|:f000|1
+:p041
+wait|26
+repeat|:pp004|2
+
+#fold and drop
+proj|tags=laser|size=200|xPos=20|yPos=( t < 78 ) * ( FLR ( t / 26 ) * 100 - 300 ) + ( t >= 78 ) * ( t * 4 - 300 )
+proj|tags=laser|size=200|angle=180|xPos=-20|yPos=( t < 78 ) * ( FLR ( t / 26 ) * 100 - 300 ) + ( t >= 78 ) * ( t * 4 - 300 )
+wait|78
+
+#trails
+val|0|RNG -100 100
+val|1|RNG -100 100
+val|2|FLR RNG 1 5
+val|3|0
+val|4|10
+:p042
+proj|tags=circle|size=SIN ( t * 3 ) * 10|startX=val0|startY=val1|duration=60
+proj|tags=circle|size=SIN ( t * 3 ) * 10|startX=-1 * val0|startY=val1|duration=60
+proj|tags=circle|size=SIN ( t * 3 ) * 10|startX=val0|startY=-1 * val1|duration=60
+proj|tags=circle|size=SIN ( t * 3 ) * 10|startX=-1 * val0|startY=-1 * val1|duration=60
+gotoIf|:p043|val2 != 0
+val|2|val2 + 4
+:p043
+gotoIf|:p044|val2 != 5
+val|2|val2 - 4
+:p044
+gotoIf|:p045|val0 > -200 
+val|2|1
+:p045
+gotoIf|:p046|val0 < 200
+val|2|3
+:p046
+gotoIf|:p047|val1 > -200
+val|2|2
+:p047
+gotoIf|:p048|val1 < 200
+val|2|4
+:p048
+gotoIf|:p049|val2 != 1
+val|0|val0 + 20
+:p049
+gotoIf|:p050|val2 != 2
+val|1|val0 + 20
+:p050
+gotoIf|:p051|val2 != 3
+val|0|val0 - 20
+:p051
+gotoIf|:p052|val2 != 4
+val|1|val1 - 20
+:p052
+gotoIf|:p053|RNG 0 1 > 0.5
+val|2|val2 + FLR RNG -1 2
+:p053
+wait|13
+
+#random bursts
+val|3|val3 + 1
+gotoIf|:p055|val3 < val4
+val|3|val3 - val4
+val|5|RNG -200 200
+val|6|RNG -200 200
+val|7|RNG 0 360
+:p054
+proj|tags=circle|speed=t / val4|angle=60 * n + val7 + t * 3|startX=val5|startY=val6|actDelay=1000
+repeat|:p054|24
+:p055
+val|4|val4 * 0.98
+
+repeat|:p042|128
+
+#logo
+#circle
+val|0|100
+val|1|180
+:p056
+gotoIf|:p057|( val0 > 210 ) * ( val0 < 240 ) + ( val0 > 300 ) * ( val0 < 330 )
+proj|tags=circle|startX=COS val0 * 50|startY=SIN val0 * 50|size=4|duration=val1
+:p057
+wait|0.5
+val|1|val1 - 0.5
+val|0|val0 + 6
+repeat|:p056|57
+#middle line
+val|0|0
+:p058
+proj|tags=circle|startX=val0|startY=val0 / -15 - 16|size=4|duration=val1
+proj|tags=circle|startX=val0 * -1|startY=val0 / -15 - 16|size=4|duration=val1
+val|0|val0 + 3
+wait|1
+val|1|val1 - 1
+repeat|:p058|4
+#ears
+val|0|90
+:p059
+proj|tags=circle|startX=COS val0 * 35 - 13|startY=SIN val0 * 33 - 50|size=4|duration=val1
+proj|tags=circle|startX=COS val0 * -35 + 13|startY=SIN val0 * 33 - 50|size=4|duration=val1
+wait|1
+val|1|val1 - 1
+val|0|val0 + 6
+repeat|:p059|19
+val|0|-60
+:p060
+proj|tags=circle|startX=COS val0 * 45 - 65|startY=SIN val0 * 43 - 23|size=4|duration=val1
+proj|tags=circle|startX=COS val0 * -45 + 65|startY=SIN val0 * 43 - 23|size=4|duration=val1
+wait|1
+val|1|val1 - 1
+val|0|val0 + 6
+repeat|:p060|16
+#face
+val|0|0
+:p061
+proj|tags=circle|startX=val0 * 1.8 - 30|startY=val0 * 3 + 3|size=4|duration=val1
+proj|tags=circle|startX=30 - val0 * 1.8|startY=val0 * 3 + 3|size=4|duration=val1
+wait|1
+val|1|val1 - 1
+val|0|val0 + 1
+repeat|:p061|18
+#eyes
+val|0|0
+:p062
+proj|tags=circle|startX=val0 * 1.8 - 14|startY=val0 * 3 + 3|size=3|duration=val1
+proj|tags=circle|startX=14 - val0 * 1.8|startY=val0 * 3 + 3|size=3|duration=val1
+wait|1
+val|1|val1 - 1
+val|0|val0 + 1
+repeat|:p062|5
+wait|10
+
+#lasers in each direction
+val|0|0
+:p063
+proj|tags=laser|angle=val0|startX=0|startY=0|duration=100 - val0 / 5
+val|0|val0 + 10
+wait|2
+repeat|:p063|36
+wait|34
+
+#zig zag slash (|x - 1| - |x + 1| + |x + 2|/2 - |x - 2|/2)
+val|0|-4
+:p064
+proj|tags=circle|startX=( ABS ( val0 - 1 ) - ABS ( val0 + 1 ) + ABS ( val0 + 2 ) / 2 - ABS ( val0 - 2 ) / 2 ) * 50|startY=val0 * 50|duration=20
+val|0|val0 + 0.1
+wait|0.1
+repeat|:p064|80
+wait|34
+
+val|0|-4
+:p065
+proj|tags=circle|startX=val0 * 50|startY=( ABS ( val0 - 1 ) - ABS ( val0 + 1 ) + ABS ( val0 + 2 ) / 2 - ABS ( val0 - 2 ) / 2 ) * 50|duration=20
+val|0|val0 + 0.1
+wait|0.1
+repeat|:p065|80
+wait|34
+
+#moving spirals
+:p066
+proj|tags=circle|speed=10|angle=n * 6.1|startX=SIN ( n * 2 ) * 150|startY=-100
+proj|tags=circle|speed=10|angle=n * 6.1 + 180|startX=SIN ( n * 2 ) * -150|startY=-100
+wait|1
+repeat|:p066|100
+
+#circle burst
+val|0|-1
+:p067
+val|1|val0 * 100
+:p068
+proj|tags=circle|speed=20 / t|angle=n * 3|size=10|startX=val1|startY=-100|duration=20
+proj|tags=circle|speed=10 / t|angle=n * 3|startX=val1|startY=-100|duration=20
+repeat|:p068|60
+wait|17
+val|1|val1 * -1
+repeat|:p068|2
+#sideways rush
+:p069
+proj|tags=circle|speed=10 * val0|startX=-200 * val0|startY=RNG -50 150
+repeat|:p069|5
+wait|1
+repeat|:p069|30
+val|0|val0 * -1
+repeat|:p067|2
+
+#flower
+val|0|0
+:p070
+proj|tags=circle|angle=val0|speed=2|startX=100 * COS val0 * SIN ( 3 * val0 )|startY=100 * SIN val0 * SIN ( 3 * val0 )|size=5
+val|0|val0 + 6.1
+wait|1
+repeat|:p070|60
+
+#expanding dots
+:p071
+proj|tags=circle|speed=( t > 34 ) * ( SQRT t / 2 ) - 1|angle=12 * n|actDelay=34|
+proj|tags=circle|speed=( t > 34 ) * ( SQRT t / 2 ) - 1|angle=12 * n|actDelay=34|startX=-165|startY=-170
+proj|tags=circle|speed=( t > 34 ) * ( SQRT t / 2 ) - 1|angle=12 * n|actDelay=34|startX=165|startY=-170
+repeat|:p071|10
+wait|34
+:p072
+proj|tags=circle|speed=( t > 34 ) * ( SQRT t / 2 ) - 1|angle=12 * n|actDelay=34|startX=0|startY=-170
+proj|tags=circle|speed=( t > 34 ) * ( SQRT t / 2 ) - 1|angle=12 * n|actDelay=34|startX=-165|startY=-170
+proj|tags=circle|speed=( t > 34 ) * ( SQRT t / 2 ) - 1|angle=12 * n|actDelay=34|startX=165|startY=-170
+repeat|:p072|10
+wait|110
+
+#grid
+#then left side bounce and collapse, then right side same
+val|1|-200
+val|3|85
+:p073
+val|0|-200
+#horizontal
+:p074
+val|2|RNG 0 3
+#create gaps
+gotoIf|:p075|( MOD ( val0 + 200 ) 150 < 75 ) + ( MOD ( val1 + 200 ) 150 < 75 ) == 1
+proj|tags=circle|startX=val0|startY=val1|xVel=( t > val3 + ( val0 > 15 ) * 40 ) * val2 * SIGN ( val0 - 15 )|yVel=( t > val3 + ( val0 > 15 ) * 40 ) * ( t - val3 - ( val0 > 15 ) * 40 - 10 ) / 3
+:p075
+val|0|val0 + 15
+repeat|:p074|27
+wait|3
+val|3|val3 - 3
+val|1|val1 + 15
+repeat|:p073|28
+wait|60
+
+#spinning center
+:p076
+proj|tags=circle|size=MIN ( ( t + MOD n 6 ) / 6 ) 10|xPos=COS ( t * t / 10 + 60 * n ) * 50|yPos=SIN ( t * t / 10 + 60 * n ) * 50|duration=200
+repeat|:p076|6
+proj|tags=circle|size=MIN ( t / 3 ) 100|startX=0|startY=0|duration=200
+wait|130
+
+#fire large dots that burst into hex
+:p077
+val|0|RNG 0 360
+val|1|RNG 100 180
+:p078
+proj|tags=circle|xPos=LPOSX * 0.9 + COS val0 * val1 * 0.1|yPos=LPOSY * 0.9 + SIN val0 * val1 * 0.1|duration=40
+:p079
+proj|tags=circle|xPos=LPOSX * 0.9 + COS val0 * val1 * 0.1 + COS ( n * 60 ) * ( t > 17 ) * 5|yPos=LPOSY * 0.9 + SIN val0 * val1 * 0.1 + SIN ( n * 60 ) * ( t > 17 ) * 5|duration=40
+repeat|:p079|6
+val|0|val0 + 120
+repeat|:p078|3
+wait|50
+repeat|:p077|2
+
+#spewing nonsense
+:p080
+val|0|RNG -1 1
+proj|tags=circle|startX=0|startY=-190|xVel=val0|yVel=t / 10 - 1|size=5
+proj|tags=circle|startX=-200|startY=-100|xVel=val0|yVel=t / 10 - 1|size=5
+proj|tags=circle|startX=200|startY=-100|xVel=val0|yVel=t / 10 - 1|size=5
+wait|5
+repeat|:p080|15
+
+#approaching disappearing walls (horizontal)
+val|1|PLYRY
+proj|tags=laser,outside|xPos=-200|yPos=t * 10 - 400 + val1|duration=40
+proj|tags=laser,outside|xPos=-200|yPos=400 - t * 10 + val1|duration=40
+wait|17
+#approaching disappearing walls (vertical)
+val|0|PLYRX
+proj|tags=laser,outside|angle=90|xPos=t * 10 - 400 + val0|yPos=-200|duration=40
+proj|tags=laser,outside|angle=90|xPos=400 - t * 10 + val0|yPos=-200|duration=40
+wait|17
+#approaching disappearing walls (square)
+val|0|PLYRX
+val|1|PLYRY
+proj|tags=laser,outside|angle=37 - t|xPos=val0 - 25|yPos=400 - t * 10 + val1|duration=40
+proj|tags=laser,outside|angle=217 - t|xPos=val0 + 25|yPos=t * 10 - 400 + val1|duration=40
+proj|tags=laser,outside|angle=127 - t|xPos=t * 10 - 400 + val0|yPos=val1 - 25|duration=40
+proj|tags=laser,outside|angle=-53 - t|xPos=400 - t * 10 + val0|yPos=val1 + 25|duration=40
+wait|50
+
+#approaching disappearing circle (small)
+val|0|PLYRX
+val|1|PLYRY
+:p081
+proj|tags=circle,outside|xPos=COS ( n * 10 ) * ( 150 - t * 10 ) + val0|yPos=SIN ( n * 10 ) * ( 150 - t * 10 ) + val1|duration=15
+repeat|:p081|36
+wait|17
+#approaching disappearing circle (large)
+:p082
+proj|tags=circle,outside|xPos=COS ( n * 10 ) * ( 200 - t * 10 ) + val0|yPos=SIN ( n * 10 ) * ( 200 - t * 10 ) + val1|duration=18|size=20
+repeat|:p082|36
+wait|10
+#approaching disappearing wave (full)
+:p083
+val|2|RNG 0 360
+proj|tags=circle,outside|xPos=COS val2 * ( 300 - t * 10 ) + val0|yPos=SIN val2 * ( 300 - t * 10 ) + val1|duration=30
+repeat|:p083|7
+wait|1
+repeat|:p083|34
+wait|17
+
+#striped fill with actDelay
+val|0|-200
+:p084
+proj|tags=laser|startX=-199|startY=val0|size=4 + ( t > 60 ) * 3|actDelay=60|duration=180
+proj|tags=laser|angle=90|startX=0 - val0|startY=-200|size=4 + ( t > 120 ) * 3|actDelay=120|duration=180
+val|0|val0 + 40
+wait|3
+repeat|:p084|40
+wait|80
+
+#pull to left, then to right, then spin
+:p085
+val|0|RNG -100 200
+val|1|RNG -200 200
+gotoIf|:p086|val0 > 50
+val|0|val0 - 100
+:p086
+proj|tags=circle|startX=val0|startY=val1|size=MIN ( t / 2 ) 7|xVel=LVELX * 0.9 + ( t == 1 ) * -5 + ( t == 34 ) * 5 + ( t > 68 ) * ( LPOSY / 200 )|yVel=LVELY * 0.9 + ( t > 68 ) * ( LPOSX / -200 )
+repeat|:p085|100
+wait|130
+
+#logo
+#circle
+val|0|100
+:p087
+gotoIf|:p088|( val0 > 210 ) * ( val0 < 240 ) + ( val0 > 300 ) * ( val0 < 330 )
+proj|tags=circle|startX=COS val0 * 50|startY=SIN val0 * 50|size=MIN t 4|duration=51
+:p088
+val|0|val0 + 6
+repeat|:p087|57
+wait|17
+#middle line
+val|0|0
+:p089
+proj|tags=circle|startX=val0|startY=val0 / -15 - 16|size=MIN t 4|duration=34
+proj|tags=circle|startX=val0 * -1|startY=val0 / -15 - 16|size=MIN t 4|duration=34
+val|0|val0 + 3
+repeat|:p089|4
+#ears
+val|0|90
+:p090
+proj|tags=circle|startX=COS val0 * 35 - 13|startY=SIN val0 * 33 - 50|size=MIN t 4|duration=34
+proj|tags=circle|startX=COS val0 * -35 + 13|startY=SIN val0 * 33 - 50|size=MIN t 4|duration=34
+val|0|val0 + 6
+repeat|:p090|19
+val|0|-60
+:p091
+proj|tags=circle|startX=COS val0 * 45 - 65|startY=SIN val0 * 43 - 23|size=MIN t 4|duration=34
+proj|tags=circle|startX=COS val0 * -45 + 65|startY=SIN val0 * 43 - 23|size=MIN t 4|duration=34
+val|0|val0 + 6
+repeat|:p091|16
+#face
+val|0|0
+:p092
+proj|tags=circle|startX=val0 * 1.8 - 30|startY=val0 * 3 + 3|size=MIN t 4|duration=34
+proj|tags=circle|startX=30 - val0 * 1.8|startY=val0 * 3 + 3|size=MIN t 4|duration=34
+val|0|val0 + 1
+repeat|:p092|18
+wait|17
+#eyes
+val|0|0
+:p093
+proj|tags=circle|startX=val0 * 1.8 - 14|startY=val0 * 3 + 3|size=MIN t 3|duration=17
+proj|tags=circle|startX=14 - val0 * 1.8|startY=val0 * 3 + 3|size=MIN t 3|duration=17
+val|0|val0 + 1
+repeat|:p093|5
+wait|10
+
+#spinning expanding circles
+val|0|0
+:p094
+val|0|val0 + 20
+proj|tags=circle|xPos=COS ( t * 5 ) * 30 * SIN val0 - SIN ( t * 5 ) * ( 30 * COS val0 - 15 )|yPos=SIN ( t * 5 ) * 30 * SIN val0 + COS ( t * 5 ) * ( 30 * COS val0 - 15 )|duration=128
+repeat|:p094|18
+wait|32
+:p095
+val|0|val0 + 10
+proj|tags=circle|xPos=COS ( t * -5 ) * 60 * SIN val0 - SIN ( t * -5 ) * ( 60 * COS val0 - 15 )|yPos=SIN ( t * -5 ) * 60 * SIN val0 + COS ( t * -5 ) * ( 60 * COS val0 - 15 )|duration=96
+repeat|:p095|36
+wait|32
+val|0|0
+:p096
+val|0|val0 + 8
+proj|tags=circle|xPos=COS ( t * 5 ) * 90 * SIN val0 - SIN ( t * 5 ) * ( 90 * COS val0 - 15 )|yPos=SIN ( t * 5 ) * 90 * SIN val0 + COS ( t * 5 ) * ( 90 * COS val0 - 15 )|duration=64
+repeat|:p096|45
+wait|32
+:p097
+val|0|val0 + 6
+proj|tags=circle|xPos=COS ( t * -5 ) * 120 * SIN val0 - SIN ( t * -5 ) * ( 120 * COS val0 - 15 )|yPos=SIN ( t * -5 ) * 120 * SIN val0 + COS ( t * -5 ) * ( 120 * COS val0 - 15 )|duration=32
+repeat|:p097|67.5
+wait|32
+
+#running curves
+#horizontal
+val|0|-10
+:p098
+val|0|val0 + .333
+proj|tags=circle|startX=val0 * 20|startY=ATAN val0 1 / 2 - 100|duration=30
+proj|tags=circle|startX=val0 * -20|startY=ATAN val0 1 / 2|duration=30
+proj|tags=circle|startX=val0 * 20|startY=ATAN val0 1 / 2 + 100|duration=30
+wait|0.3
+repeat|:p098|60
+wait|10
+#vertical
+val|0|-10
+:p099
+val|0|val0 + .333
+proj|tags=circle|startX=ATAN val0 1 / 2 - 100|startY=val0 * 20|duration=30
+proj|tags=circle|startX=ATAN val0 1 / 2|startY=val0 * -20|duration=30
+proj|tags=circle|startX=ATAN val0 1 / 2 + 100|startY=val0 * 20|duration=30
+wait|0.3
+repeat|:p099|60
+wait|34
+
+#running line split middle
+val|0|-200
+:p100
+gotoIf|:p101|ABS val0 > 100
+proj|tags=circle|startX=val0|startY=ABS val0 * 0.5 - 50|duration=60
+proj|tags=circle|startX=val0|startY=ABS val0 * -0.5 + 50|duration=60
+proj|tags=circle|startX=ABS val0 * 0.5 - 50|startY=val0|duration=60
+proj|tags=circle|startX=ABS val0 * -0.5 + 50|startY=val0|duration=60
+val|0|val0 + 7
+gotoIf|:p102|1
+:p101
+proj|tags=circle|startX=val0|startY=0|duration=60
+proj|tags=circle|startX=0|startY=val0|duration=60
+val|0|val0 + 10
+:p102
+wait|1
+repeat|:p100|80
+wait|30
+
+#flashing lane, fire down arrows
+#left
+val|2|-100
+:pp005
+proj|tags=laser|size=50|angle=90|startX=val2|startY=-200|duration=10|actDelay=10
+wait|15
+proj|tags=laser|size=50|angle=90|startX=val2|startY=-200|duration=10|actDelay=10
+wait|15
+:p103
+val|0|RNG ( val2 - 30 ) ( val2 + 30 )
+val|1|0
+:p104
+proj|tags=circle|startX=val0|startY=-200|speed=10|angle=90
+gotoIf|:p105|val1 > 15
+proj|tags=circle|startX=val0 + val1|startY=-200|speed=10|angle=90
+proj|tags=circle|startX=val0 - val1|startY=-200|speed=10|angle=90
+:p105
+val|1|val1 + 5
+wait|1
+repeat|:p104|6
+repeat|:p103|5
+#right
+val|2|100
+repeat|:pp005|2
+
+#spinning elipse
+:p106
+proj|tags=circle|xPos=COS ( n * 3 ) * SIN ( t * 3 ) * 100|yPos= SIN ( n * 3 ) * COS ( t * 3 ) * 100|duration=211
+proj|tags=circle|xPos=COS ( n * 3 ) * COS ( t * 3 ) * 100|yPos= SIN ( n * 3 ) * SIN ( t * 3 ) * 100|duration=211
+repeat|:p106|60
+wait|75
+
+#more layers
+:p107
+proj|tags=circle|xPos=COS ( n * 6 ) * SIN ( t * 3 ) * 150|yPos= SIN ( n * 6 ) * COS ( t * 3 ) * 150|duration=136
+repeat|:p107|60
+wait|68
+:p108
+proj|tags=circle|xPos=COS ( n * 6 ) * COS ( t * 3 ) * 200|yPos= SIN ( n * 6 ) * SIN ( t * 3 ) * 200|duration=68
+repeat|:p108|60
+wait|60
+
+#increasing points of targeting (TL, TR, TM, T,T,T)
+proj|tags=circle|size=MIN ( t / 2 ) 10|startX=-150|startY=-150|duration=200
+proj|tags=circle|size=MIN ( MAX ( t / 2 - 25 ) 0 ) 10|startX=150|startY=-150|duration=200
+proj|tags=circle|size=MIN ( MAX ( t / 2 - 50 ) 0 ) 10|startX=0|startY=-150|duration=200
+
+val|3|0
+:p109
+val|0|RNG -10 10
+val|1|RNG -10 10
+val|2|ATAN ( PLYRY + 150 - val1 ) ( PLYRX + 150 - val0 )
+proj|tags=circle|angle=val2|speed=5|startX=val0 - 150|startY=val1 - 150
+gotoIf|:p110|val3 < 50
+val|0|RNG -10 10
+val|1|RNG -10 10
+val|2|ATAN ( PLYRY + 150 - val1 ) ( PLYRX - 150 - val0 )
+proj|tags=circle|angle=val2|speed=5|startX=val0 + 150|startY=val1 - 150
+gotoIf|:p110|val3 < 100
+val|0|RNG -10 10
+val|1|RNG -10 10
+val|2|ATAN ( PLYRY + 150 - val1 ) ( PLYRX - val0 )
+proj|tags=circle|angle=val2|speed=5|startX=val0|startY=val1 - 150
+gotoIf|:p110|( ( val3 < 110 ) + MOD val3 30 ) != 0
+val|4|-200
+:p111
+val|2|ATAN ( PLYRY + 200 ) ( PLYRX - val4 )
+proj|tags=circle|angle=val2|speed=5|startX=val4|startY=-200
+val|4|val4 + 10
+repeat|:p111|40
+:p110
+wait|10
+val|3|val3 + 10
+repeat|:p109|20
+
+#twisting spiral
+val|0|1
+:p112
+proj|tags=circle|xPos=COS ( n * 90 + t * 200 / val0 ) * val0|yPos=SIN ( n * 90 + t * 200 / val0 ) * val0|duration=180
+repeat|:p112|4
+val|0|val0 + 5
+repeat|:p112|20
+
+#scanning lasers
+proj|tags=laser|angle=90|xPos=MAX ( t - 90 ) 0 * 4 - 195|yPos=-200|duration=130|actDelay=90
+proj|tags=laser|angle=90|xPos=195 - MAX ( t - 90 ) 0 * 4|yPos=-200|duration=130|actDelay=90
+wait|60
+proj|tags=laser|xPos=-200|yPos=MAX ( t - 90 ) 0 * 4 - 200|duration=130|actDelay=90
+proj|tags=laser|xPos=-200|yPos=200 - MAX ( t - 90 ) 0 * 4|duration=130|actDelay=90
+wait|120
+
+#flickering (giant laser)
+val|0|-200
+:p113
+val|0|val0 + 10
+proj|tags=laser|xPos=-200|yPos=val0|angle=FLR ( RNG 0 2 ) * 180|actDelay=1000000|size=50|duration=40
+wait|1
+repeat|:p113|40
+wait|70
+
+#boxes (M L R)
+val|0|-25
+val|1|-100
+val|2|62.5
+val|3|:p114
+#50 width box function (0 x, 1 y, 2 duration, 3 return) (using 4 counter)
+:f003
+val|4|0
+:pp006
+proj|tags=circle|startX=val0 + val4|startY=val1|duration=val2|size=5
+proj|tags=circle|startX=val0 + val4|startY=val1 + 50|duration=val2|size=5
+proj|tags=circle|startX=val0|startY=val1 + val4|duration=val2|size=5
+proj|tags=circle|startX=val0 + 50|startY=val1 + val4|duration=val2|size=5
+val|4|val4 + 5
+repeat|:pp006|11
+gotoIf|val3|1
+:p114
+wait|15
+val|0|-125
+val|1|0
+val|2|60
+val|3|:p115
+gotoIf|:f003|1
+:p115
+wait|15
+val|0|75
+val|1|100
+val|2|57.5
+val|3|:p116
+gotoIf|:f003|1
+:p116
+wait|20
+
+#and arrows (L D R)
+val|0|0
+:p117
+proj|tags=circle|angle=90|speed=8|startX=val0 - 125|startY=-175|duration=25
+proj|tags=circle|angle=90|speed=8|startX=val0 / 2 - 125|startY=val0 / 2 - 175|duration=25
+proj|tags=circle|angle=90|speed=8|startX=val0 / 2 - 125|startY=val0 / -2 - 175|duration=25
+proj|tags=circle|angle=90|speed=8|startX=0|startY=val0 - 200|duration=12.5
+proj|tags=circle|angle=90|speed=8|startX=val0 / 2|startY=-150 - val0 / 2|duration=12.5
+proj|tags=circle|angle=90|speed=8|startX=val0 / -2|startY=-150 - val0 / 2|duration=12.5
+proj|tags=circle|angle=90|speed=8|startX=125 - val0|startY=-175|duration=37.5
+proj|tags=circle|angle=90|speed=8|startX=125 - val0 / 2|startY=val0 / 2 - 175|duration=37.5
+proj|tags=circle|angle=90|speed=8|startX=125 - val0 / 2|startY=val0 / -2 - 175|duration=37.5
+val|0|val0 + 5
+repeat|:p117|10
+wait|37.5
+
+#linear multispeed multishot
+val|0|3
+val|1|ATAN ( PLYRY + 200 ) ( PLYRX + 200 )
+val|2|ATAN ( PLYRY - 200 ) ( PLYRX + 200 )
+val|3|ATAN ( PLYRY + 200 ) ( PLYRX - 200 )
+val|4|ATAN ( PLYRY - 200 ) ( PLYRX - 200 )
+:p118
+proj|tags=circle|startX=-200|startY=-200|angle=val1|speed=val0
+proj|tags=circle|startX=-200|startY=200|angle=val2|speed=val0
+proj|tags=circle|startX=200|startY=-200|angle=val3|speed=val0
+proj|tags=circle|startX=200|startY=200|angle=val4|speed=val0
+val|0|val0 + 1
+repeat|:p118|10
+wait|60
+
+#large small running spirals
+val|0|0
+val|1|100
+:p119
+proj|tags=circle|duration=30|startX=COS val0 * ( COS ( 2 * val0 ) + 1 ) * val1|startY=SIN val0 * ( COS ( 2 * val0 ) + 1 ) * val1
+val|0|val0 + 6
+gotoIf|:p120|MOD val0 360 != 90
+val|1|( val1 != 100 ) * 50 + 50
+:p120
+wait|1
+repeat|:p119|75
+
+#squash
+:p121
+proj|tags=circle|duration=20|startX=COS val0 * 100|startY=SIN val0 * ( COS ( 2 * val0 ) + 1 ) * 100
+val|0|val0 + 6
+wait|0.6
+repeat|:p121|67
+
+#stretch
+:p122
+proj|tags=circle|duration=20|startX=COS val0 * ( COS ( 2 * val0 ) + 1 ) * 100|startY=SIN val0 * 100
+val|0|val0 + 6
+wait|0.6
+repeat|:p122|68
+
+#linear bursts (L T R), then flicker
+val|0|1
+:p123
+proj|tags=circle|startX=-200|startY=-100|speed=val0|size=8|size=7 * ( ( t < 180 ) + ( t >= 195 ) )|duration=210
+proj|tags=circle|startX=-200|startY=0|speed=val0|size=8|size=7 * ( ( t < 180 ) + ( t >= 195 ) )|duration=210
+proj|tags=circle|startX=-200|startY=100|speed=val0|size=8|size=7 * ( ( t < 180 ) + ( t >= 195 ) )|duration=210
+val|0|val0 + 1
+repeat|:p123|10
+wait|60
+val|0|1
+:p124
+proj|tags=circle|startX=-100|startY=-200|speed=val0|size=8|angle=90|size=7 * ( ( t < 120 ) + ( t >= 135 ) )|duration=150
+proj|tags=circle|startX=0|startY=-200|speed=val0|size=8|angle=90|size=7 * ( ( t < 120 ) + ( t >= 135 ) )|duration=150
+proj|tags=circle|startX=100|startY=-200|speed=val0|size=8|angle=90|size=7 * ( ( t < 120 ) + ( t >= 135 ) )|duration=150
+val|0|val0 + 1
+repeat|:p124|10
+wait|60
+val|0|1
+:p125
+proj|tags=circle|startX=200|startY=-100|speed=val0 * -1|size=7 * ( ( t < 60 ) + ( t >= 75 ) )|duration=90
+proj|tags=circle|startX=200|startY=0|speed=val0 * -1|size=7 * ( ( t < 60 ) + ( t >= 75 ) )|duration=90
+proj|tags=circle|startX=200|startY=100|speed=val0 * -1|size=7 * ( ( t < 60 ) + ( t >= 75 ) )|duration=90
+val|0|val0 + 1
+repeat|:p125|10
+wait|90
+
+#running curve
+val|0|0
+val|1|5
+val|2|0
+val|3|0
+val|4|0
+:p126
+proj|tags=circle|startX=val2|startY=val3|duration=30|size=SIN ( 6 * t ) * 7
+val|0|val0 + val1
+gotoIf|:p127|RNG 0 1 > 0.1
+val|1|val1 * -1
+:p127
+val|2|val2 + COS val0 * 5
+val|3|val3 + SIN val0 * 5
+gotoIf|:p128|ABS val2 < 200
+val|2|val2 * -1
+:p128
+gotoIf|:p129|ABS val3 < 200
+val|3|val3 * -1
+:p129
+val|4|val4 + 1
+gotoIf|:p130|val4 == 1480
+:p131
+wait|0.5
+repeat|:p126|1560
+
+#scroll staff
+gotoIf|:p132|1
+:p130
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-190|duration=3380| #C
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-180|duration=3380| #B
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-170|duration=3380| #A
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-160|duration=3380| #G
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-150|duration=3380| #F
+proj|tags=laser|xPos=MAX ( 200 - t * 6 ) -160|yPos=-150|size=1|duration=3380
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-140|duration=3380| #E
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-130|duration=3380| #D
+proj|tags=laser|xPos=MAX ( 200 - t * 6 ) -160|yPos=-130|size=1|duration=3380
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-120|duration=3380| #C
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-110|duration=3380| #B
+proj|tags=laser|xPos=MAX ( 200 - t * 6 ) -160|yPos=-110|size=1|duration=3380
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-100|duration=3380| #A
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-90|duration=3380|  #G
+proj|tags=laser|xPos=MAX ( 200 - t * 6 ) -160|yPos=-90|size=1|duration=3380
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-80|duration=3380|  #F
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-70|duration=3380|  #E
+proj|tags=laser|xPos=MAX ( 200 - t * 6 ) -160|yPos=-70|size=1|duration=3380
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-60|duration=3380|  #D
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-50|duration=3380|  #Middle C
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-40|duration=3380|  #B
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-30|duration=3380|  #A
+proj|tags=laser|xPos=MAX ( 200 - t * 6 ) -160|yPos=-30|size=1|duration=3380
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-20|duration=3380|  #G
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=-10|duration=3380|  #F
+proj|tags=laser|xPos=MAX ( 200 - t * 6 ) -160|yPos=-10|size=1|duration=3380
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=0|duration=3380|    #E
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=10|duration=3380|   #D
+proj|tags=laser|xPos=MAX ( 200 - t * 6 ) -160|yPos=10|size=1|duration=3380
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=20|duration=3380|   #C
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=30|duration=3380|   #B
+proj|tags=laser|xPos=MAX ( 200 - t * 6 ) -160|yPos=30|size=1|duration=3380
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=40|duration=3380|   #A
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=50|duration=3380|   #G
+proj|tags=laser|xPos=MAX ( 200 - t * 6 ) -160|yPos=50|size=1|duration=3380
+proj|tags=circle|xPos=MAX ( 200 - t * 6 ) -160|yPos=60|duration=3380|   #F
+gotoIf|:p131|1
+:p132
+
+val|9|0
+gotoIf|:pp007|1
+#note array function (0 y1, 1 y2, 2 y3, 3 y4, 4 y5, 5 y6, 6 y7, 7 y8, 8 return, 9 extraMode)
+:f004
+val|13|:pp010
+gotoIf|:f006|val9 > 1
+:pp010
+proj|tags=circle|startX=-160|startY=val0|size=MIN ( MAX ( t - 55 ) 0 ) 15|duration=160|actDelay=( val9 == -1 ) * 1000
+proj|tags=circle|startX=200|startY=val0|speed=-6|duration=60|actDelay=( val9 == -1 ) * 1000
+wait|13
+proj|tags=circle|startX=-160|startY=val1|size=MIN ( MAX ( t - 55 ) 0 ) 15|duration=70|actDelay=( val9 == -1 ) * 1000
+proj|tags=circle|startX=200|startY=val1|speed=-6|duration=60|actDelay=( val9 == -1 ) * 1000
+wait|13
+val|13|:pp010 + 9
+gotoIf|:f006|val9 > 1
+proj|tags=circle|startX=-160|startY=val2|size=MIN ( MAX ( t - 55 ) 0 ) 15|duration=70|actDelay=( val9 == -1 ) * 1000
+proj|tags=circle|startX=200|startY=val2|speed=-6|duration=60|actDelay=( val9 == -1 ) * 1000
+wait|13
+proj|tags=circle|startX=-160|startY=val3|size=MIN ( MAX ( t - 55 ) 0 ) 15|duration=70|actDelay=( val9 == -1 ) * 1000
+proj|tags=circle|startX=200|startY=val3|speed=-6|duration=60|actDelay=( val9 == -1 ) * 1000
+wait|13
+val|13|:pp010 + 17
+gotoIf|:f006|val9 > 1
+proj|tags=circle|startX=-160|startY=val4|size=MIN ( MAX ( t - 55 ) 0 ) 15|duration=70|actDelay=( val9 == -1 ) * 1000
+proj|tags=circle|startX=200|startY=val4|speed=-6|duration=60|actDelay=( val9 == -1 ) * 1000
+wait|13
+proj|tags=circle|startX=-160|startY=val5|size=MIN ( MAX ( t - 55 ) 0 ) 15|duration=70|actDelay=( val9 == -1 ) * 1000
+proj|tags=circle|startX=200|startY=val5|speed=-6|duration=60|actDelay=( val9 == -1 ) * 1000
+wait|13
+val|13|:pp010 + 25
+gotoIf|:f006|val9 > 1
+proj|tags=circle|startX=-160|startY=val6|size=MIN ( MAX ( t - 55 ) 0 ) 15|duration=70|actDelay=( val9 == -1 ) * 1000
+proj|tags=circle|startX=200|startY=val6|speed=-6|duration=60|actDelay=( val9 == -1 ) * 1000
+wait|13
+proj|tags=circle|startX=-160|startY=val7|size=MIN ( MAX ( t - 55 ) 0 ) 15|duration=70|actDelay=( val9 == -1 ) * 1000
+proj|tags=circle|startX=200|startY=val7|speed=-6|duration=60|actDelay=( val9 == -1 ) * 1000
+wait|11.5
+gotoIf|:f005|val9 > 0
+:pp008
+gotoIf|val8|1
+
+#left right linear burst function (:pp008 return) (using 10 x, 11 y, 12 speed)
+:f005
+val|12|3
+:pp009
+proj|tags=circle|startX=val10|startY=val11|speed=val12 * SIGN val10 * -1
+val|12|val12 + 1
+repeat|:pp009|10
+val|10|val10 * -1
+val|11|val11 - 10
+gotoIf|:pp008|1
+
+#top tri burst function (13 return) (using 14 x, 15 dir)
+:f006
+val|14|RNG -150 150
+val|15|ATAN ( PLYRY + 200 ) ( PLYRX - val14 )
+proj|tags=circle|speed=( t > 70 ) * 3|angle=val15|startX=val14|startY=-200|size=5
+proj|tags=circle|speed=( t > 70 ) * 3|angle=val15 + 30|startX=val14|startY=-200|size=5
+proj|tags=circle|speed=( t > 70 ) * 3|angle=val15 - 30|startX=val14|startY=-200|size=5
+gotoIf|val13|1
+
+#playing notes
+#2nd time: linear bursts from left and right getting higher
+#3rd time: random tri shot from top
+:pp007
+val|10|-200
+val|11|190
+#m1: DADAEAGF
+val|0|-60
+val|1|-100
+val|2|-130
+val|3|-100
+val|4|-140
+val|5|-100
+val|6|-160
+val|7|-150
+val|8|:p133
+gotoIf|:f004|1
+:p133
+#m2: CADAEAGF
+val|0|-50
+val|1|-100
+val|2|-130
+val|3|-100
+val|4|-140
+val|5|-100
+val|6|-160
+val|7|-150
+val|8|:p134
+gotoIf|:f004|1
+:p134
+#m3: BBDBEBCB
+val|0|-40
+val|1|-110
+val|2|-130
+val|3|-110
+val|4|-140
+val|5|-110
+val|6|-190
+val|7|-180
+val|8|:p135
+gotoIf|:f004|1
+:p135
+#m4: AAABGBFG
+val|0|-30
+val|1|-100
+val|2|-170
+val|3|-110
+val|4|-160
+val|5|-110
+val|6|-150
+val|7|-160
+val|8|:p136
+gotoIf|:f004|1
+:p136
+#m5: GGDGEGDE
+val|0|-90
+val|1|-90
+val|2|-130
+val|3|-90
+val|4|-140
+val|5|-90
+val|6|-130
+val|7|-140
+val|8|:p137
+gotoIf|:f004|1
+:p137
+#m6: FGDGEGDE
+val|0|-80
+val|1|-90
+val|2|-130
+val|3|-90
+val|4|-140
+val|5|-90
+val|6|-130
+val|7|-140
+val|8|:p138
+gotoIf|:f004|1
+:p138
+#m7: CADAEABA
+val|0|-50
+val|1|-100
+val|2|-130
+val|3|-100
+val|4|-140
+val|5|-100
+val|6|-180
+val|7|-170
+val|8|:p139
+gotoIf|:f004|1
+:p139
+#m8: ECGCFCEF
+val|0|-70
+val|1|-120
+val|2|-160
+val|3|-120
+val|4|-150
+val|5|-120
+val|6|-140
+val|7|-150
+val|8|:p140
+gotoIf|:f004|1
+:p140
+val|9|val9 + 1
+repeat|:pp007|3
+
+#m9: DADAEAGF
+val|0|-60
+val|1|-100
+val|2|-130
+val|3|-100
+val|4|-140
+val|5|-100
+val|6|-160
+val|7|-150
+val|8|:p141
+val|9|0
+:p141
+repeat|:f004|5 + val9
+val|9|-1
+repeat|:f004|2
+
+proj|tags=circle|startX=0|startY=0|actDelay=1000|duration=60|size=150
+wait|60
+
+#spinning spinning spinning circles
+:p142
+proj|tags=circle|xPos=COS ( ( t / 5 ) ^ 1.5 + 120 * n ) * 100|yPos=SIN ( ( t / 5 ) ^ 1.5 + 120 * n ) * 100|duration=930
+repeat|:p142|3
+val|0|0
+:p143
+proj|tags=circle|xPos=COS ( ( t / 5 ) ^ 1.5 + val0 ) * 100 + COS ( t ^ 1.2 * -1 + 10 * n ) * 50|yPos=SIN ( ( t / 5 ) ^ 1.5 + val0 ) * 100 + SIN ( t ^ 1.2 * -1 + 10 * n ) * 50|size=5|duration=930
+val|0|val0 + 120
+repeat|:p143|36
+:p144
+proj|tags=circle|xPos=COS ( ( t / 5 ) ^ 1.5 ) * 100 + COS ( t ^ 1.2 + val0 ) * 50|yPos=SIN ( ( t / 5 ) ^ 1.5 ) * 100 + SIN ( t ^ 1.2 + val0 ) * 50|size=10|duration=930
+proj|tags=circle|xPos=COS ( ( t / 5 ) ^ 1.5 + 120 ) * 100 + COS ( val0 - t ^ 1.2 ) * 50|yPos=SIN ( ( t / 5 ) ^ 1.5 + 120 ) * 100 + SIN ( t ^ 1.2 + val0 ) * 50|size=10|duration=930
+proj|tags=circle|xPos=COS ( ( t / 5 ) ^ 1.5 + 240 ) * 100 + COS ( val0 - t ^ 1.2 ) * 50|yPos=SIN ( ( t / 5 ) ^ 1.5 + 240 ) * 100 + SIN ( val0 - t ^ 1.2 ) * 50|size=10|duration=930
+val|0|val0 + 120
+repeat|:p144|3
+wait|930
+
+#approaching lasers, flash vertical, then horizontal
+proj|tags=laser|xPos=-200|yPos=MIN ( -290 + t * 2 ) -110|actDelay=110|duration=130|size=100
+proj|tags=laser|xPos=-200|yPos=MAX ( 290 - t * 2 ) 110|actDelay=110|duration=130|size=100
+proj|tags=laser|xPos=MIN ( -290 + t * 2 ) -110|yPos=-200|actDelay=160|duration=180|size=100|angle=90
+proj|tags=laser|xPos=MAX ( 290 - t * 2 ) 110|yPos=-200|actDelay=160|duration=180|size=100|angle=90
+wait|210
+
+#draw middle line
+val|0|-200
+val|1|190
+:p145
+proj|tags=circle|startX=val0|startY=0|duration=val1
+val|0|val0 + 10
+wait|2
+val|1|val1 - 2
+repeat|:p145|40
+wait|20
+
+#two waves meeting
+val|0|160
+:p146
+val|1|-50 - ( val0 == 0 ) * 50
+:p147
+proj|tags=circle|size=40|startX=val0 * -1|startY=val1|duration=13 + ( val0 == 0 ) * 13
+proj|tags=circle|size=40|startX=val0|startY=val1|duration=13 + ( val0 == 0 ) * 13
+val|1|val1 + 20
+repeat|:p147|5 + ( val0 == 0 ) * 5
+gotoIf|:p148|val0 != 0
+:pp011
+val|2|RNG 0 360
+val|3|RNG 4 8
+proj|tags=circle|angle=val2|speed=val3|startX=0|startY=-100
+proj|tags=circle|angle=val2|speed=val3|startX=0|startY=100
+repeat|:pp011|10
+wait|13
+:p148
+val|0|val0 - 80
+wait|13
+repeat|:p146|5
+wait|10
+
+#sweeping stripes
+val|1|60
+:p149
+val|0|-200
+:p150
+gotoIf|:p151|ABS val0 >= 100
+proj|tags=circle|startX=-200|startY=val0|speed=2 * ( t - val1 < 60 ) + 10 * ( t - val1 >= 60 )
+gotoIf|:p152|1
+:p151
+proj|tags=circle|startX=-200|startY=val0|speed=2 * ( t - val1 < 110 ) + -10 * ( t - val1 >= 110 )
+:p152
+val|0|val0 + 40
+repeat|:p150|11
+val|1|val1 - 7
+wait|7
+repeat|:p149|10
+wait|150
+
+#falling walls (prepareL,pR, fallLR)
+proj|tags=laser|angle=90|startX=-150|startY=-200|size=100|actDelay=1000|duration=110
+wait|50
+proj|tags=laser|angle=90|startX=150|startY=-200|size=100|actDelay=1000|duration=60
+wait|40
+proj|tags=laser|angle=-90|xPos=-150|yPos=MIN ( -200 + t * 20 ) 210|duration=40|size=100
+proj|tags=laser|angle=-90|xPos=150|yPos=MIN ( -200 + t * 20 ) 210|duration=55|size=100
+wait|40
+val|2|1
+:p153
+val|0|RNG -200 -100
+val|1|RNG -200 200
+proj|tags=circle|xPos=( t == 1 ) * val0 * val2 + LPOSX * 0.8|yPos=( t == 1 ) * val1 + LPOSY * 0.8 - 20|duration=30 + ( val2 == 1 ) * 15
+val|1|val1 + 20
+repeat|:p153|50
+val|2|val2 * -1
+wait|15
+repeat|:p153|2
+wait|20
+
+#laser with static
+proj|tags=laser|duration=30
+proj|tags=laser|angle=90|duration=30
+proj|tags=laser|angle=180|duration=30
+proj|tags=laser|angle=270|duration=30
+val|0|-200
+:pp012
+proj|tags=circle|xPos=val0 + RNG -5 5|yPos=RNG -105 -95|duration=30
+proj|tags=circle|xPos=RNG -5 5|yPos=val0 + RNG -5 5|duration=30
+val|0|val0 + 5
+repeat|:pp012|80
+wait|30
+
+#180 rotate lasers
+proj|tags=laser|angle=MIN ( t * 3 ) 180|startX=0|startY=0|duration=191
+proj|tags=laser|angle=MIN ( t * 3 ) 180 + 180|startX=0|startY=0|duration=191
+wait|90
+
+#extend U,D lasers
+val|0|0
+:p154
+proj|tags=circle|startX=0|startY=val0|duration=50
+val|0|val0 - 5
+wait|0.5
+repeat|:p154|42
+wait|29
+proj|tags=laser,outside|angle=-90|xPos=0|yPos=MIN ( t * 10 ) 210|duration=50
+wait|50
+
+#rotate 180
+proj|tags=laser|angle=MIN ( t * 3 ) 180|startX=0|startY=0|duration=176
+proj|tags=laser|angle=MIN ( t * 3 ) 180 + 90|startX=0|startY=0|duration=176
+proj|tags=laser|angle=MIN ( t * 3 ) 180 + 180|startX=0|startY=0|duration=176
+proj|tags=laser|angle=MIN ( t * 3 ) 180 + 270|startX=0|startY=0|duration=176
+wait|100
+
+#extend pTL, pTR, TL TR, pBL, pBR, BL BR
+proj|tags=laser|angle=-135|startX=0|startY=0|actDelay=30|duration=76
+wait|15
+proj|tags=laser|angle=-45|startX=0|startY=0|actDelay=15|duration=61
+wait|45
+proj|tags=laser|angle=135|startX=0|startY=0|actDelay=30|duration=16
+wait|15
+proj|tags=laser|angle=45|startX=0|startY=0|actDelay=15|duration=1
+
+#temp disable lasers
+proj|tags=laser|startX=0|startY=0|actDelay=60|duration=61
+proj|tags=laser|angle=45|startX=0|startY=0|actDelay=60|duration=61
+proj|tags=laser|angle=90|startX=0|startY=0|actDelay=60|duration=61
+proj|tags=laser|angle=135|startX=0|startY=0|actDelay=60|duration=61
+proj|tags=laser|angle=180|startX=0|startY=0|actDelay=60|duration=61
+proj|tags=laser|angle=225|startX=0|startY=0|actDelay=60|duration=61
+proj|tags=laser|angle=270|startX=0|startY=0|actDelay=60|duration=61
+proj|tags=laser|angle=315|startX=0|startY=0|actDelay=60|duration=61
+#then star explosion
+val|0|0
+:p155
+proj|tags=circle|angle=val0|speed=( SIN ( 5 * val0 ) + 5 ) * 5 / t|startX=0|startY=0|duration=60
+val|0|val0 + 12
+repeat|:p155|30
+wait|60
+
+#increase laser size, then slow rotate
+proj|tags=laser|angle=( t > 180 ) * ( t / 10 - 18 )|startX=0|startY=0|duration=346|size=MIN ( 7 + t ) 70
+proj|tags=laser|angle=45 + ( t > 180 ) * ( t / 10 - 18 )|startX=0|startY=0|duration=346|size=MIN ( 7 + t ) 70
+proj|tags=laser|angle=90 + ( t > 180 ) * ( t / 10 - 18 )|startX=0|startY=0|duration=346|size=MIN ( 7 + t ) 70
+proj|tags=laser|angle=135 + ( t > 180 ) * ( t / 10 - 18 )|startX=0|startY=0|duration=346|size=MIN ( 7 + t ) 70
+proj|tags=laser|angle=180 + ( t > 180 ) * ( t / 10 - 18 )|startX=0|startY=0|duration=346|size=MIN ( 7 + t ) 70
+proj|tags=laser|angle=225 + ( t > 180 ) * ( t / 10 - 18 )|startX=0|startY=0|duration=346|size=MIN ( 7 + t ) 70
+proj|tags=laser|angle=270 + ( t > 180 ) * ( t / 10 - 18 )|startX=0|startY=0|duration=346|size=MIN ( 7 + t ) 70
+proj|tags=laser|angle=315 + ( t > 180 ) * ( t / 10 - 18 )|startX=0|startY=0|duration=346|size=MIN ( 7 + t ) 70
+wait|90
+#shoot off section 0 and 4
+proj|tags=circle|size=100|angle=-22.5|speed=5|startX=0|startY=0
+wait|30
+proj|tags=circle|size=100|angle=157.5|speed=5|startX=0|startY=0
+wait|225
+
+#then flicker
+proj|tags=laser|angle=t / 10 + 16.5|startX=0|startY=0|duration=30|size=70|actDelay=15
+proj|tags=laser|angle=t / 10 + 61.5|startX=0|startY=0|duration=30|size=70|actDelay=15
+proj|tags=laser|angle=t / 10 + 106.5|startX=0|startY=0|duration=30|size=70|actDelay=15
+proj|tags=laser|angle=t / 10 + 151.5|startX=0|startY=0|duration=30|size=70|actDelay=15
+proj|tags=laser|angle=t / 10 + 196.5|startX=0|startY=0|duration=30|size=70|actDelay=15
+proj|tags=laser|angle=t / 10 + 241.5|startX=0|startY=0|duration=30|size=70|actDelay=15
+proj|tags=laser|angle=t / 10 + 286.5|startX=0|startY=0|duration=30|size=70|actDelay=15
+proj|tags=laser|angle=t / 10 + 331.5|startX=0|startY=0|duration=30|size=70|actDelay=15
+
+#spinning perspective spirals
+val|0|0
+val|1|5
+val|2|40
+val|4|1
+:p156
+val|3|0
+:p157
+proj|tags=circle|xPos=COS ( t / 0.6 * val4 + val0 ) * val3 - SIN ( t / 0.6 * val4 + val0 ) * ( val3 - 10 )|yPos=SIN ( t / 0.6 * val4 + val0 ) * val3 + COS ( t / 0.6 * val4 + val0 ) * ( val3 - 10 )|size=2|duration=3 * val2
+proj|tags=circle|xPos=COS ( t / 0.6 * val4 + val0 ) * ( val3 - 10 ) - SIN ( t / 0.6 * val4 + val0 ) * val3|yPos=SIN ( t / 0.6 * val4 + val0 ) * ( val3 - 10 ) + COS ( t / 0.6 * val4 + val0 ) * val3|size=2|duration=3 * val2
+proj|tags=circle|xPos=COS ( t / 0.6 * val4 + val0 ) * val3 - SIN ( t / 0.6 * val4 + val0 ) * ( 10 - val3 )|yPos=SIN ( t / 0.6 * val4 + val0 ) * val3 + COS ( t / 0.6 * val4 + val0 ) * ( 10 - val3 )|size=2|duration=3 * val2
+proj|tags=circle|xPos=COS ( t / 0.6 * val4 + val0 ) * ( val3 - 10 ) - SIN ( t / 0.6 * val4 + val0 ) * val3 * -1|yPos=SIN ( t / 0.6 * val4 + val0 ) * ( val3 - 10 ) + COS ( t / 0.6 * val4 + val0 ) * val3 * -1|size=2|duration=3 * val2
+val|3|val3 + 2
+repeat|:p157|6
+:p158
+proj|tags=circle|speed=3 + t / 20|angle=val0|size=t / 3 + 1|startX=0|startY=0
+proj|tags=circle|speed=3 + t / 20|angle=val0 + 90|size=t / 3 + 1|startX=0|startY=0
+proj|tags=circle|speed=3 + t / 20|angle=val0 + 180|size=t / 3 + 1|startX=0|startY=0
+proj|tags=circle|speed=3 + t / 20|angle=val0 + 270|size=t / 3 + 1|startX=0|startY=0
+val|0|val0 + val1
+wait|3
+repeat|:p158|val2
+#direction change
+val|1|val1 * -1
+val|4|val4 * -1
+val|2|20
+repeat|:p156|3
+
+#spinning perspective lasers
+val|1|0
+val|2|120
+val|3|0
+val|4|0
+:p159
+val|0|1
+:p160
+proj|tags=circle|xPos=MIN ( MAX ( COS ( ( t + val4 ) / 0.6 ) * val0 ) ( -190 - val0 / 10 ) ) ( 190 + val0 / 10 )|yPos=MIN ( MAX ( SIN ( ( t + val4 ) / 0.6 ) * val0 ) ( -200 - val0 / 10 ) ) ( 200 + val0 / 10 )|size=val0 / 10 + 1|actDelay=val1|duration=val2
+proj|tags=circle|xPos=MIN ( MAX ( COS ( ( t + val4 ) / 0.6 + 120 ) * val0 ) ( -190 - val0 / 10 ) ) ( 190 + val0 / 10 )|yPos=MIN ( MAX ( SIN ( ( t + val4 ) / 0.6 + 120 ) * val0 ) ( -200 - val0 / 10 ) ) ( 200 + val0 / 10 )|size=val0 / 10 + 1|actDelay=val1|duration=val2
+proj|tags=circle|xPos=MIN ( MAX ( COS ( ( t + val4 ) / 0.6 + 240 ) * val0 ) ( -190 - val0 / 10 ) ) ( 190 + val0 / 10 )|yPos=MIN ( MAX ( SIN ( ( t + val4 ) / 0.6 + 240 ) * val0 ) ( -200 - val0 / 10 ) ) ( 200 + val0 / 10 )|size=val0 / 10 + 1|actDelay=val1|duration=val2
+val|0|val0 * 1.15
+repeat|:p160|41
+wait|val2
+val|4|val4 + val2
+#flash out in out, in out dissapear
+val|1|( val1 == 0 ) * 1000
+val|2|10
+gotoIf|:p161|val3 != 2
+val|2|30
+:p161
+val|3|val3 + 1
+repeat|:p159|6
+
+#anti direction spirals (1 fast, 1 slow)
+val|0|0
+:p162
+proj|tags=circle|angle=val0 * 15|speed=3|startX=0|startY=0
+proj|tags=circle|angle=val0 * -31|speed=3|startX=0|startY=0
+val|0|val0 + 1
+wait|4
+gotoIf|:p163|val0 == 30
+gotoIf|:p164|val0 == 45
+:p165
+repeat|:p162|60
+
+#block outside with lasers (horizontal, vertical)
+gotoIf|:p166|1
+:p163
+proj|tags=laser|startX=-200|startY=-180|size=25|actDelay=15|duration=150
+proj|tags=laser|startX=-200|startY=181|size=25|actDelay=15|duration=150
+gotoIf|:p165|1
+:p164
+proj|tags=laser|angle=90|startX=-180|startY=-200|size=25|actDelay=15|duration=90
+proj|tags=laser|angle=90|startX=180|startY=-200|size=25|actDelay=15|duration=90
+gotoIf|:p165|1
+:p166
+
+#3d "platforms"
+val|2|0
+:p169
+val|0|RNG -45 24
+:p168
+val|1|val0
+:p167
+proj|tags=circle|startX=0|startY=0|angle=ATAN val1 40 + val2|speed=SQRT ( val1 ^ 2 + 1600 ) / 20
+proj|tags=circle|startX=0|startY=0|angle=ATAN val1 40 + 180 + val2|speed=SQRT ( val1 ^ 2 + 1600 ) / 20
+val|1|val1 + 3
+repeat|:p167|7
+wait|5
+repeat|:p168|5
+val|2|val2 + 90
+repeat|:p169|8
+
+#horizontal screenwrap moving wall
+proj|tags=laser|startX=100|startY=-200|angle=90|actDelay=1000|duration=50|size=100
+val|0|-195
+:p170
+proj|tags=circle,screenWrap|angle=90|speed=5|tagCount=1|startX=val0|startY=-200
+proj|tags=circle,screenWrap|angle=90|speed=5|tagCount=1|startX=val0 + 100|startY=-200
+proj|tags=circle,screenWrap|angle=90|speed=5|tagCount=1|startX=val0 + 200|startY=-200
+proj|tags=circle,screenWrap|angle=90|speed=5|tagCount=1|startX=val0 + 300|startY=-200
+val|0|val0 + 2.4
+wait|2
+repeat|:p170|42
+
+#spirals
+val|0|-150
+:p171
+proj|tags=circle|startX=val0|startY=-150|angle=n * 31.1|speed=3
+wait|1
+repeat|:p171|30
+val|0|val0 * -1
+wait|10
+repeat|:p171|2
+
+#stream from sides
+val|1|0
+val|2|-150
+:p172
+val|0|ATAN ( PLYRY + 200 ) ( PLYRX + 200 )
+proj|tags=circle|angle=val0|speed=4|startX=-200|startY=-200
+val|0|ATAN ( PLYRY + 200 ) ( PLYRX - 200 )
+proj|tags=circle|angle=val0|speed=4|startX=200|startY=-200
+
+#large circle bursts, change to small
+gotoIf|:p174|( val1 == 12 ) + ( val1 == 13 ) + ( val1 == 14 ) + ( val1 == 17 ) + ( val1 == 18 ) != 1
+:p173
+proj|tags=circle|angle=n * 4|speed=2|size=10 - 6 * ( t > ( 20 - val1 ) * 10 )|startX=val2|startY=-150
+repeat|:p173|90
+val|2|val2 * -1
+:p174
+val|1|val1 + 1
+wait|10
+repeat|:p172|20
+wait|30
+
+#lasers in all directions, dissapear top, then bottom
+val|0|0
+:p175
+proj|tags=laser|angle=val0|startX=0|startY=0|duration=150 - ( val0 > 180 ) * 60|size=5|actDelay=30
+val|0|val0 + 20
+repeat|:p175|18
+wait|180
+
+#laser rotate player around screen
+val|1|0
+:p176
+val|0|0
+:p177
+proj|tags=circle|speed=2|startX=0|startY=val0|actDelay=1000 * ( val1 < 1 )
+proj|tags=circle|speed=-2|startX=0|startY=val0|actDelay=1000 * ( val1 < 1 )
+proj|tags=circle|speed=2|angle=-90|startX=100 + val0|startY=200|actDelay=1000 * ( val1 < 1 )
+proj|tags=circle|speed=2|angle=-90|startX=-100 - val0|startY=200|actDelay=1000 * ( val1 < 1 )
+proj|tags=circle|speed=-2|startX=200|startY=val0 - 200|duration=100|actDelay=1000 * ( val1 < 1 )
+proj|tags=circle|speed=2|startX=-200|startY=val0 - 200|duration=100|actDelay=1000 * ( val1 < 1 )
+proj|tags=circle|speed=2|angle=90|startX=-100 + val0|startY=-200|actDelay=1000 * ( val1 < 1 )
+val|0|val0 + 10
+repeat|:p177|22
+val|1|val1 + 1
+wait|100
+repeat|:p176|2
+
+#lasers following player, then shrinking away
+val|0|PLYRX
+val|1|PLYRX
+val|2|PLYRX
+val|3|PLYRX
+val|4|PLYRX
+val|5|PLYRX
+val|6|PLYRX
+val|7|PLYRX
+val|8|PLYRX
+val|9|PLYRX
+val|10|PLYRY
+val|11|PLYRY
+val|12|PLYRY
+val|13|PLYRY
+val|14|PLYRY
+val|15|PLYRY
+val|16|PLYRY
+val|17|PLYRY
+val|18|PLYRY
+val|19|PLYRY
+val|21|0
+:p178
+val|0|val1
+val|1|val2
+val|2|val3
+val|3|val4
+val|4|val5
+val|5|val6
+val|6|val7
+val|7|val8
+val|8|val9
+val|9|PLYRX
+val|10|val11
+val|11|val12
+val|12|val13
+val|13|val14
+val|14|val15
+val|15|val16
+val|16|val17
+val|17|val18
+val|18|val19
+val|19|PLYRY
+val|20|ATAN ( val10 - SIN val21 * 100 ) ( val0 - COS val21 * 100 )
+proj|tags=laser|angle=val20|duration=3|startX=COS val21 * 100|startY=SIN val21 * 100|actDelay=( val21 < 100 ) * 1000
+val|20|ATAN ( val10 - SIN ( val21 + 120 ) * 100 ) ( val0 - COS ( val21 + 120 ) * 100 )
+proj|tags=laser|angle=val20|duration=3|startX=COS ( val21 + 120 ) * 100|startY=SIN ( val21 + 120 ) * 100|actDelay=( val21 < 100 ) * 1000
+val|20|ATAN ( val10 - SIN ( val21 + 240 ) * 100 ) ( val0 - COS ( val21 + 240 ) * 100 )
+proj|tags=laser|angle=val20|duration=3|startX=COS ( val21 + 240 ) * 100|startY=SIN ( val21 + 240 ) * 100|actDelay=( val21 < 100 ) * 1000
+val|21|val21 + 2
+wait|2
+repeat|:p178|420
+
+#rotating rotating circle spawning accelerating projectiles
+:p179
+proj|tags=circle|speed=-1|angle=21 * n|startX=100 * COS ( 2 * n ) + 50 * COS ( 21 * n )|startY=100 * SIN ( 2 * n ) + 50 * SIN ( 21 * n )
+wait|1
+repeat|:p179|500
+wait|320
+
+:dev
+#different shapes collapsing
+val|0|3
+val|1|0
+:p180
+val|2|RNG 0.5 1
+val|3|RNG 0 360
+proj|tags=circle|speed=val2 - 3 / ( t + 1 ) + t / 100|angle=val3|size=5|startX=50 * COS val1 / COS ( 2 / val0 * ASIN ( SIN ( val1 * val0 / 2 ) ) )|startY=50 * SIN val1 / COS ( 2 / val0 * ASIN ( SIN ( val1 * val0 / 2 ) ) )
+val|1|val1 + 6
+repeat|:p180|60
+val|0|val0 + 1
+wait|105
+repeat|:p180|8
+
+#random starting converging to organized pattern
+val|0|-1
+:p181
+val|1|RNG -100 100 + val0 * 100
+val|2|RNG -100 100 + 30
+proj|tags=circle|xPos=( t == 1 ) * val1 + LPOSX * 0.99 + val0|yPos=( t == 1 ) * val2 + LPOSY * 0.99 + 0.3
+proj|tags=circle|xPos=( t == 1 ) * val2 + LPOSX * 0.99 + 0.3 + val0 * -0.2|yPos=( t == 1 ) * val1 + LPOSY * 0.99 + val0
+val|2|val2 * -1
+proj|tags=circle|xPos=( t == 1 ) * val1 + LPOSX * 0.99 + val0|yPos=( t == 1 ) * val2 + LPOSY * 0.99 - 0.3
+proj|tags=circle|xPos=( t == 1 ) * val1 + LPOSX * 0.99 - 0.3 + val0 * -0.2|yPos=( t == 1 ) * val2 + LPOSY * 0.99 + val0
+val|0|val0 + 0.04
+repeat|:p181|50

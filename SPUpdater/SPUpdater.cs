@@ -9,7 +9,7 @@ namespace SPUpdater
 {
     public class SPUpdater
     {
-        public const string currentVer = "2.0";
+        public const string currentVer = "2.1";
         public const string versionText = "# Barrage Script v" + currentVer;
 
         static void Main(string[] args)
