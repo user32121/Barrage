@@ -21,7 +21,7 @@ namespace Barrage
 
         public static void Save()
         {
-            BinaryWriter bw = new BinaryWriter(new FileStream("files/settings.dat", FileMode.Create));
+            BinaryWriter bw = new BinaryWriter(new FileStream(Path.Combine(MainWindow.filesFolderPath, "settings.dat"), FileMode.Create));
             bw.Write(useMouse);
             bw.Write(checkForInfiniteLoop);
             bw.Write(useGrid);
@@ -34,9 +34,9 @@ namespace Barrage
 
         public static bool TryLoad()
         {
-            if (File.Exists("files/settings.dat"))
+            if (File.Exists(Path.Combine(MainWindow.filesFolderPath, "settings.dat")))
             {
-                BinaryReader br = new BinaryReader(new FileStream("files/settings.dat", FileMode.Open));
+                BinaryReader br = new BinaryReader(new FileStream(Path.Combine(MainWindow.filesFolderPath, "settings.dat"), FileMode.Open));
                 try
                 {
                     useMouse = br.ReadBoolean();

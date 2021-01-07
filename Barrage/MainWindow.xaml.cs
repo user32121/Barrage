@@ -29,6 +29,7 @@ namespace Barrage
     public partial class MainWindow : Window
     {
         static MainWindow Main;
+        public static readonly string filesFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Barrage\\files");
 
         #region game
         List<Projectile> projectiles = new List<Projectile>();
@@ -274,9 +275,6 @@ namespace Barrage
         private const int projStepsAhead = 30;
         #endregion
 
-        #region menu
-        #endregion
-
         public MainWindow()
         {
             InitializeComponent();
@@ -285,24 +283,24 @@ namespace Barrage
 
             plyrPos.Y = 100;
 
-            if (File.Exists("files/boss.png"))
-                Boss.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Boss.png"));
-            if (File.Exists("files/player.png"))
-                Player.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Player.png"));
+            if (File.Exists(Path.Combine(filesFolderPath, "boss.png")))
+                Boss.Source = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "\\Boss.png")));
+            if (File.Exists(Path.Combine(filesFolderPath, "player.png")))
+                Player.Source = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "Player.png")));
 
-            if (File.Exists("files/play.png"))
+            if (File.Exists(Path.Combine(filesFolderPath, "play.png")))
             {
-                playPauseImgs[0] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Play.png"));
+                playPauseImgs[0] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "Play.png")));
                 imageEditorPlay.Source = playPauseImgs[0];
             }
-            if (File.Exists("files/pause.png"))
-                playPauseImgs[1] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Pause.png"));
-            if (File.Exists("files/step.png"))
-                imageEditorStepForwards.Source = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Step.png"));
-            if (File.Exists("files/grid.png"))
-                gridUnderlay = new ImageBrush(new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Grid.png")));
-            if (File.Exists("files/preview.png"))
-                gridUnderlay = new ImageBrush(new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/Grid.png")));
+            if (File.Exists(Path.Combine(filesFolderPath, "pause.png")))
+                playPauseImgs[1] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "Pause.png")));
+            if (File.Exists(Path.Combine(filesFolderPath, "step.png")))
+                imageEditorStepForwards.Source = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "Step.png")));
+            if (File.Exists(Path.Combine(filesFolderPath, "grid.png")))
+                gridUnderlay = new ImageBrush(new BitmapImage(new Uri(Path.Combine(filesFolderPath, "Grid.png"))));
+            if (File.Exists(Path.Combine(filesFolderPath, "preview.png")))
+                gridUnderlay = new ImageBrush(new BitmapImage(new Uri(Path.Combine(filesFolderPath, "Grid.png"))));
 
             if (System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed)
                 labelVersion.Content = "v" + System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion;
@@ -921,9 +919,10 @@ namespace Barrage
 
         void ReadSPTxt()
         {
-            if (!File.Exists(Path.Combine("files\\scripts", selectedScript, "SP.txt")))
+            string spPath = Path.Combine(filesFolderPath, "scripts", selectedScript, "SP.txt");
+            if (!File.Exists(spPath))
             {
-                MessageBox.Show(Path.Combine("files\\scripts", selectedScript, "SP.txt") + " not found");
+                MessageBox.Show(spPath + " not found");
                 return;
             }
 
@@ -932,7 +931,7 @@ namespace Barrage
                 lines = textEditor.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
             else
             {
-                StreamReader sr = new StreamReader(Path.Combine("files\\scripts", selectedScript, "SP.txt"));
+                StreamReader sr = new StreamReader(spPath);
                 string temp = sr.ReadToEnd();
 
                 //check for update
@@ -943,14 +942,14 @@ namespace Barrage
 
                     try
                     {
-                        Process.Start(Path.Combine(Directory.GetCurrentDirectory(), "files/scripts/SPUpdater.exe"), "\"" + selectedScript + "\"").WaitForExit();
+                        Process.Start(Path.Combine(filesFolderPath, "scripts\\SPUpdater.exe"), "\"" + Path.Combine(filesFolderPath, "scripts", selectedScript) + "\"").WaitForExit();
                     }
                     catch (Exception e)
                     {
                         MessageBox.Show(e.Message, "An issue occurred while converting script");
                     }
 
-                    sr = new StreamReader(Path.Combine("files\\scripts", selectedScript, "SP.txt"));
+                    sr = new StreamReader(Path.Combine(filesFolderPath, "scripts", selectedScript, "SP.txt"));
                     temp = sr.ReadToEnd();
                 }
 
@@ -1211,7 +1210,7 @@ namespace Barrage
 
         void SaveSP()
         {
-            StreamWriter sw = new StreamWriter(Path.Combine("files\\scripts", selectedScript, "SP.txt"));
+            StreamWriter sw = new StreamWriter(Path.Combine(filesFolderPath, "scripts", selectedScript, "SP.txt"));
             sw.Write(textEditor.Text);
             sw.Close();
             sw.Dispose();
@@ -1241,6 +1240,7 @@ namespace Barrage
                 gamestate = GAMESTATE.SELECTFORPLAY;
                 gridMenu.Visibility = Visibility.Collapsed;
                 gridLevelSelect.Visibility = Visibility.Visible;
+                levelSelectExButtons.Visibility = Visibility.Collapsed;
                 LBLevels.Focus();
             }
             else if (sender == labelMenuEditor)
@@ -1248,6 +1248,7 @@ namespace Barrage
                 gamestate = GAMESTATE.SELECTFOREDIT;
                 gridMenu.Visibility = Visibility.Collapsed;
                 gridLevelSelect.Visibility = Visibility.Visible;
+                levelSelectExButtons.Visibility = Visibility.Visible;
                 LBLevels.Focus();
             }
             else if (sender == labelMenuOptions)
@@ -1431,7 +1432,7 @@ namespace Barrage
         {
             if (gamestate == GAMESTATE.EDITOR)
             {
-                StreamWriter sw = new StreamWriter(Path.Combine("files\\scripts", selectedScript, "SP(autosave).txt"));
+                StreamWriter sw = new StreamWriter(Path.Combine(filesFolderPath, "scripts", selectedScript, "SP(autosave).txt"));
                 sw.Write(textEditor.Text);
                 sw.Close();
                 sw.Dispose();
@@ -1455,8 +1456,8 @@ namespace Barrage
                     projectileImgs.Add(null);
 
                 if (projectileImgs[index + laserImgsIndex] == null)
-                    if (File.Exists("files/laser" + index + ".png"))
-                        projectileImgs[index + laserImgsIndex] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/laser" + index + ".png"));
+                    if (File.Exists(Path.Combine(filesFolderPath, "laser" + index + ".png")))
+                        projectileImgs[index + laserImgsIndex] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "laser" + index + ".png")));
                     else
                         projectileImgs[index + laserImgsIndex] = defaultLaser;
                 return projectileImgs[index + laserImgsIndex];
@@ -1469,8 +1470,8 @@ namespace Barrage
                     laserImgsIndex++;
                 }
                 if (projectileImgs[index] == null)
-                    if (File.Exists("files/projectile" + index + ".png"))
-                        projectileImgs[index] = new BitmapImage(new Uri(Directory.GetCurrentDirectory() + "/files/projectile" + index + ".png"));
+                    if (File.Exists(Path.Combine(filesFolderPath, "projectile" + index + ".png")))
+                        projectileImgs[index] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "projectile" + index + ".png")));
                     else
                         projectileImgs[index] = defaultProj;
                 return projectileImgs[index];
@@ -1479,14 +1480,14 @@ namespace Barrage
 
         private void LabelOpenFiles_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            Process.Start("explorer", "files");
+            Process.Start("explorer", filesFolderPath);
         }
 
         void LoadScripts()
         {
             LBLevels.Items.Clear();
 
-            string[] scripts = Directory.GetDirectories(Path.Combine(Directory.GetCurrentDirectory(), "files\\scripts"));
+            string[] scripts = Directory.GetDirectories(Path.Combine(filesFolderPath, "scripts"));
             for (int i = 0; i < scripts.Length; i++)
             {
                 StackPanel SP = new StackPanel() { Tag = Path.GetFileName(scripts[i]), Orientation = Orientation.Horizontal };
@@ -1573,7 +1574,7 @@ namespace Barrage
                     MessageBox.Show("script name cannot be empty", "invalid script name");
                 else if ((index = name.IndexOfAny(Path.GetInvalidFileNameChars())) != -1)
                     MessageBox.Show("script name contains an invalid character at position " + index, "invalid script name");
-                else if (Directory.Exists(Path.Combine("files\\scripts", name)))
+                else if (Directory.Exists(Path.Combine(filesFolderPath, "scripts", name)))
                     MessageBox.Show("a script with the same name already exists", "invalid script name");
                 else
                     break;
@@ -1581,8 +1582,8 @@ namespace Barrage
 
             try
             {
-                Directory.CreateDirectory(Path.Combine("files\\scripts", name));
-                StreamWriter sw = File.CreateText(Path.Combine("files\\scripts", name, "SP.txt"));
+                Directory.CreateDirectory(Path.Combine(Path.Combine(filesFolderPath, "scripts", name)));
+                StreamWriter sw = File.CreateText(Path.Combine(filesFolderPath, "scripts", name, "SP.txt"));
                 sw.WriteLine(SPUpdater.SPUpdater.versionText);
                 sw.Close();
             }
@@ -1611,7 +1612,7 @@ namespace Barrage
                     MessageBox.Show("script name cannot be empty", "invalid script name");
                 else if ((index = newName.IndexOfAny(Path.GetInvalidFileNameChars())) != -1)
                     MessageBox.Show("script name contains an invalid character at position " + index, "invalid script name");
-                else if (Directory.Exists(Path.Combine("files\\scripts", newName)))
+                else if (Directory.Exists(Path.Combine(filesFolderPath, "scripts", newName)))
                     MessageBox.Show("a script with the same name already exists", "invalid script name");
                 else
                     break;
@@ -1619,7 +1620,7 @@ namespace Barrage
 
             try
             {
-                Directory.Move(Path.Combine("files\\scripts", selectedScript), Path.Combine("files\\scripts", newName));
+                Directory.Move(Path.Combine(filesFolderPath, "scripts", selectedScript), Path.Combine(filesFolderPath, "scripts", newName));
             }
             catch (Exception e)
             {
@@ -1638,7 +1639,7 @@ namespace Barrage
             if (MessageBox.Show("Are you sure you want to delete this script forever?", "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 try
                 {
-                    Directory.Delete(Path.Combine("files\\scripts", selectedScript), true);
+                    Directory.Delete(Path.Combine(filesFolderPath, "scripts", selectedScript), true);
                 }
                 catch (Exception e)
                 {

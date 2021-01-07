@@ -1,4 +1,0 @@
-#Nuclear Sign/EXTREME CORE:Heart of the Reactor
-proj|tags=laser|speed=10|angle=n * 15.6|startPos=0,-50
-wait|0.1
-ifGoto|1|0 

@@ -1,5 +1,0 @@
-# Barrage Script v2.0
-#Nuclear Sign/EXTREME CORE:Heart of the Reactor
-proj|tags=laser|speed=10|angle=n * 15.6|startX=0|startY=-50
-wait|0.1
-gotoIf|0 |1

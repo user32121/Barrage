@@ -1,4 +1,0 @@
-#Extreme Core Sign: Merg
-proj|tags=circle|speed=3|angle=n * 222.5
-wait|0.1
-ifGoto|1|0

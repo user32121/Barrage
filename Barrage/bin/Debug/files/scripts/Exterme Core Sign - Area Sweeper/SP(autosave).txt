@@ -1,6 +1,0 @@
-# Barrage Script v2.0
-#Extreme Core Sign: Area Sweeper
-proj|tags=circle|speed=t / 10 - 5|angle=n * 111|startX=0|startY=-50
-repeat|0|500
-wait|50
-gotoIf|0|1

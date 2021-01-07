@@ -27,8 +27,8 @@
     <MapFileExtensions>true</MapFileExtensions>
     <WebPage>publish.htm</WebPage>
     <AutorunEnabled>true</AutorunEnabled>
-    <ApplicationRevision>2</ApplicationRevision>
-    <ApplicationVersion>1.0.4.%2a</ApplicationVersion>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>1.0.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -161,31 +161,12 @@
     <Resource Include="files\pause.png" />
     <Resource Include="files\play.png" />
     <Resource Include="files\grid.png" />
-    <Content Include="..\SPUpdater\bin\Debug\SPUpdater.exe">
-      <Link>files\scripts\SPUpdater.exe</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\laser0.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\laser1.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\laser2.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\laser3.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\laser4.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\laser5.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\presets.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="userFiles\laser0.png" />
+    <Content Include="userFiles\laser1.png" />
+    <Content Include="userFiles\laser2.png" />
+    <Content Include="userFiles\laser3.png" />
+    <Content Include="userFiles\laser4.png" />
+    <Content Include="userFiles\laser5.png" />
     <Resource Include="files\projectile.png" />
   </ItemGroup>
   <ItemGroup>
@@ -193,27 +174,13 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="files\preview.png" />
-    <Content Include="files\projectile0.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\projectile1.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\projectile2.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\projectile3.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\projectile4.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\projectile5.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\scripts\default\SP.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="userFiles\projectile0.png" />
+    <Content Include="userFiles\projectile1.png" />
+    <Content Include="userFiles\projectile2.png" />
+    <Content Include="userFiles\projectile3.png" />
+    <Content Include="userFiles\projectile4.png" />
+    <Content Include="userFiles\projectile5.png" />
+    <Content Include="userFiles\scripts\default\SP.txt" />
     <Resource Include="files\step.png" />
     <Resource Include="Icon.ico" />
     <Content Include="readme.txt">

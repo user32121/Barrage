@@ -21,7 +21,7 @@ namespace SPUpdater
             if (args.Length > 0)
                 folder = args[0];
 
-            string SPPathPrefix = Path.Combine(Directory.GetCurrentDirectory(), "files\\scripts", folder, "SP");
+            string SPPathPrefix = Path.Combine(folder, "SP");
 
             if (File.Exists(SPPathPrefix + ".txt"))
             {
