@@ -4,7 +4,7 @@
   <description asmv2:iconFile="Icon.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="Barrage" version="1.0.7676.43150" language="neutral" processorArchitecture="msil" />
+    <assemblyIdentity name="Barrage" version="1.0.7684.1244" language="neutral" processorArchitecture="msil" />
     <commandLine file="Barrage.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Barrage.exe" size="262656">
-      <assemblyIdentity name="Barrage" version="1.0.7676.43150" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Barrage.exe" size="267776">
+      <assemblyIdentity name="Barrage" version="1.0.7684.1244" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>bNbiGQWNFa30/V6x4Yj7zX/6TTi+lkEaPXL4LaTV5Wc=</dsig:DigestValue>
+        <dsig:DigestValue>uzI5bj1bF6joc8vaqTYZAdeB3+DNW4MEfH05uFj+u2o=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

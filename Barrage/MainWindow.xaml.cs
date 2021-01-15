@@ -20,6 +20,7 @@ using System.Threading;
 using System.Windows.Interop;
 using SPUpdater;
 using Path = System.IO.Path;
+using System.Net;
 
 namespace Barrage
 {
@@ -246,6 +247,7 @@ namespace Barrage
             PLAY,
             EDITOR,
             OPTIONS,
+            DOWNLOAD,
         }
         static GAMESTATE gamestate = GAMESTATE.MENU;
         #endregion
@@ -273,6 +275,13 @@ namespace Barrage
         readonly ImageBrush gridUnderlay = new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/files/Grid.png")));
         bool isSPSaved;
         private const int projStepsAhead = 30;
+        #endregion
+
+        #region
+        WebClient ftpClient = new WebClient();
+        const string ftpAddress = "ftp://192.168.50.18/";
+        readonly Uri ftpAddressUri = new Uri(ftpAddress);
+        readonly string[] allowedFtpFilenames = new string[] { "SP.txt", "preview.png" };  //ensure that only allowed files are uploaded/downloaded
         #endregion
 
         public MainWindow()
@@ -312,6 +321,8 @@ namespace Barrage
             checkError.IsChecked = GameSettings.checkForErrors;
             checkUseGrid.IsChecked = GameSettings.useGrid;
             checkPredict.IsChecked = GameSettings.predictProjectile;
+
+            ftpClient.Credentials = new NetworkCredential("barrageftpconnection", "barrageFtpClient");
 
             LoadScripts();
         }
@@ -1239,17 +1250,19 @@ namespace Barrage
             {
                 gamestate = GAMESTATE.SELECTFORPLAY;
                 gridMenu.Visibility = Visibility.Collapsed;
-                gridLevelSelect.Visibility = Visibility.Visible;
-                levelSelectExButtons.Visibility = Visibility.Collapsed;
-                LBLevels.Focus();
+                gridScriptDisplay.Visibility = Visibility.Visible;
+                gridScriptSelect.Visibility = Visibility.Visible;
+                scriptSelectExButtons.Visibility = Visibility.Collapsed;
+                LBScripts.Focus();
             }
             else if (sender == labelMenuEditor)
             {
                 gamestate = GAMESTATE.SELECTFOREDIT;
                 gridMenu.Visibility = Visibility.Collapsed;
-                gridLevelSelect.Visibility = Visibility.Visible;
-                levelSelectExButtons.Visibility = Visibility.Visible;
-                LBLevels.Focus();
+                gridScriptDisplay.Visibility = Visibility.Visible;
+                gridScriptSelect.Visibility = Visibility.Visible;
+                scriptSelectExButtons.Visibility = Visibility.Visible;
+                LBScripts.Focus();
             }
             else if (sender == labelMenuOptions)
             {
@@ -1284,6 +1297,32 @@ namespace Barrage
                 DeleteScript();
                 return;
             }
+            else if (sender == labelOnlineMenu)
+            {
+                gamestate = GAMESTATE.DOWNLOAD;
+                gridScriptSelect.Visibility = Visibility.Collapsed;
+                gridOnline.Visibility = Visibility.Visible;
+                gridScriptDisplay.ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
+                LBOnlineScripts.Visibility = Visibility.Visible;
+                LoadWebScripts(false);
+                return;
+            }
+            else if (sender == labelOnlineRefresh)
+            {
+                LoadScripts();
+                LoadWebScripts(true);
+                return;
+            }
+            else if (sender == labelOnlineUpload)
+            {
+                UploadSelectedScript();
+                return;
+            }
+            else if (sender == labelOnlineDownload)
+            {
+                DownloadSelectedWebScript();
+                return;
+            }
 
             ((Label)sender).Background = new SolidColorBrush(Color.FromRgb(230, 230, 230));
         }
@@ -1301,7 +1340,8 @@ namespace Barrage
             if (gamestate == GAMESTATE.PLAY)
             {
                 gamestate = GAMESTATE.SELECTFORPLAY;
-                gridLevelSelect.Visibility = Visibility.Visible;
+                gridScriptDisplay.Visibility = Visibility.Visible;
+                gridScriptSelect.Visibility = Visibility.Visible;
                 gridGame.Visibility = Visibility.Collapsed;
             }
             else if (gamestate == GAMESTATE.EDITOR)
@@ -1335,7 +1375,8 @@ namespace Barrage
                         SaveSP();
 
                     gamestate = GAMESTATE.SELECTFOREDIT;
-                    gridLevelSelect.Visibility = Visibility.Visible;
+                    gridScriptDisplay.Visibility = Visibility.Visible;
+                    gridScriptSelect.Visibility = Visibility.Visible;
                     gridEditor.Visibility = Visibility.Collapsed;
                     gridGame.Visibility = Visibility.Collapsed;
                 }
@@ -1357,9 +1398,18 @@ namespace Barrage
             }
             else if (gamestate == GAMESTATE.SELECTFORPLAY || gamestate == GAMESTATE.SELECTFOREDIT)
             {
-                gridLevelSelect.Visibility = Visibility.Collapsed;
+                gridScriptDisplay.Visibility = Visibility.Collapsed;
+                gridScriptSelect.Visibility = Visibility.Collapsed;
                 gridMenu.Visibility = Visibility.Visible;
                 gamestate = GAMESTATE.MENU;
+            }
+            else if (gamestate == GAMESTATE.DOWNLOAD)
+            {
+                gridOnline.Visibility = Visibility.Collapsed;
+                gridScriptDisplay.ColumnDefinitions[1].Width = new GridLength(0, GridUnitType.Star);
+                LBOnlineScripts.Visibility = Visibility.Collapsed;
+                gridScriptSelect.Visibility = Visibility.Visible;
+                gamestate = GAMESTATE.SELECTFOREDIT;
             }
             if (!canceled)
             {
@@ -1485,7 +1535,7 @@ namespace Barrage
 
         void LoadScripts()
         {
-            LBLevels.Items.Clear();
+            LBScripts.Items.Clear();
 
             string[] scripts = Directory.GetDirectories(Path.Combine(filesFolderPath, "scripts"));
             for (int i = 0; i < scripts.Length; i++)
@@ -1498,23 +1548,24 @@ namespace Barrage
                     img.CacheOption = BitmapCacheOption.OnLoad;
                     img.UriSource = new Uri(Path.Combine(scripts[i], "preview.png"), UriKind.Absolute);
                     img.EndInit();
-                    SP.Children.Add(new Image() { Source = img, Width = 100, Height = 100 });
+                    SP.Children.Add(new Image() { Source = img, Width = 50, Height = 50 });
                 }
                 else
-                    SP.Children.Add(new Image() { Source = defaultPreview, Width = 100, Height = 100 });
+                    SP.Children.Add(new Image() { Source = defaultPreview, Width = 50, Height = 50 });
                 SP.Children.Add(new Label() { Content = Path.GetFileName(scripts[i]), VerticalAlignment = VerticalAlignment.Center });
+                SP.Tag = Path.GetFileName(scripts[i]);
 
-                LBLevels.Items.Add(SP);
+                LBScripts.Items.Add(SP);
             }
 
-            LBLevels.SelectedIndex = 0;
+            LBScripts.SelectedIndex = 0;
         }
         void GetSelectedScriptAndSetup()
         {
-            if (LBLevels.SelectedIndex == -1)
+            if (LBScripts.SelectedIndex == -1)
                 return;
 
-            selectedScript = (LBLevels.SelectedItem as StackPanel).Tag as string;
+            selectedScript = (LBScripts.SelectedItem as StackPanel).Tag as string;
 
             ReadSPTxt();
             if (stopGameRequested)
@@ -1526,7 +1577,8 @@ namespace Barrage
             if (gamestate == GAMESTATE.SELECTFORPLAY)
             {
                 gamestate = GAMESTATE.PLAY;
-                gridLevelSelect.Visibility = Visibility.Collapsed;
+                gridScriptDisplay.Visibility = Visibility.Collapsed;
+                gridScriptSelect.Visibility = Visibility.Collapsed;
                 gridGame.Visibility = Visibility.Visible;
                 gridField.Background = Brushes.Transparent;
             }
@@ -1549,7 +1601,8 @@ namespace Barrage
                 MinWidth = minSize.Width + 400;
                 MinHeight = minSize.Height + 50;
 
-                gridLevelSelect.Visibility = Visibility.Collapsed;
+                gridScriptDisplay.Visibility = Visibility.Collapsed;
+                gridScriptSelect.Visibility = Visibility.Collapsed;
                 gridEditor.Visibility = Visibility.Visible;
                 gridGame.Visibility = Visibility.Visible;
                 if ((bool)checkUseGrid.IsChecked)
@@ -1595,10 +1648,10 @@ namespace Barrage
         }
         void RenameScript()
         {
-            if (LBLevels.SelectedIndex == -1)
+            if (LBScripts.SelectedIndex == -1)
                 return;
 
-            selectedScript = (LBLevels.SelectedItem as StackPanel).Tag as string;
+            selectedScript = (LBScripts.SelectedItem as StackPanel).Tag as string;
 
             string newName = selectedScript;
             while (true)
@@ -1631,10 +1684,10 @@ namespace Barrage
         }
         void DeleteScript()
         {
-            if (LBLevels.SelectedIndex == -1)
+            if (LBScripts.SelectedIndex == -1)
                 return;
 
-            selectedScript = (LBLevels.SelectedItem as StackPanel).Tag as string;
+            selectedScript = (LBScripts.SelectedItem as StackPanel).Tag as string;
 
             if (MessageBox.Show("Are you sure you want to delete this script forever?", "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 try
@@ -1645,6 +1698,109 @@ namespace Barrage
                 {
                     MessageBox.Show(string.Format("could not delete script: {0}\n{1}", e.GetType(), e.Message), "", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 }
+
+            LoadScripts();
+        }
+
+        void LoadWebScripts(bool notifyUser)
+        {
+            FtpWebRequest ftpwr = (FtpWebRequest)FtpWebRequest.Create(ftpAddress);
+            ftpwr.Credentials = ftpClient.Credentials;
+            ftpwr.Method = WebRequestMethods.Ftp.ListDirectory;
+            WebResponse wr = ftpwr.GetResponse();
+            StreamReader sr = new StreamReader(wr.GetResponseStream());
+            LBOnlineScripts.Items.Clear();
+            try
+            {
+                while (!sr.EndOfStream)
+                    LBOnlineScripts.Items.Add(sr.ReadLine());
+            }
+            catch (ObjectDisposedException) { }
+            LBOnlineScripts.SelectedIndex = 0;
+            LBOnlineScripts.Focus();
+
+            if (notifyUser)
+                MessageBox.Show("Found " + LBOnlineScripts.Items.Count + " scripts");
+        }
+        void UploadSelectedScript()
+        {
+            if (LBScripts.SelectedIndex == -1)
+                return;
+
+            string folderName = (LBScripts.SelectedItem as StackPanel).Tag as string;
+
+            //check if folder already exists
+            FtpWebRequest ftpwr = (FtpWebRequest)FtpWebRequest.Create(ftpAddress);
+            ftpwr.Credentials = ftpClient.Credentials;
+            ftpwr.Method = WebRequestMethods.Ftp.ListDirectory;
+            WebResponse wr = ftpwr.GetResponse();
+            StreamReader sr = new StreamReader(wr.GetResponseStream());
+            try
+            {
+                while (!sr.EndOfStream)
+                    if (folderName == sr.ReadLine())
+                    {
+                        MessageBox.Show("Unable to upload script. Script already exists online.");
+                        return;
+                    }
+            }
+            catch (ObjectDisposedException) { }
+            sr.Close();
+            wr.Close();
+
+            ftpwr = (FtpWebRequest)FtpWebRequest.Create(new Uri(ftpAddressUri, folderName));
+            ftpwr.Credentials = ftpClient.Credentials;
+            ftpwr.Method = WebRequestMethods.Ftp.MakeDirectory;
+            ftpwr.GetResponse().Close();
+
+            string[] files = Directory.GetFiles(Path.Combine(filesFolderPath, "scripts", folderName));
+            int filesUploaded = 0;
+            for (int i = 0; i < files.Length; i++)
+            {
+                files[i] = Path.GetFileName(files[i]);
+                if (allowedFtpFilenames.Contains(files[i]))
+                {
+                    ftpClient.UploadFile(new Uri(ftpAddressUri, Path.Combine(folderName, files[i])), Path.Combine(filesFolderPath, "scripts", folderName, files[i]));
+                    filesUploaded++;
+                }
+            }
+            MessageBox.Show(filesUploaded + " files uploaded.");
+
+            LoadWebScripts(false);
+        }
+        void DownloadSelectedWebScript()
+        {
+            if (LBOnlineScripts.SelectedIndex == -1)
+                return;
+
+            string folderName = LBOnlineScripts.SelectedItem as string;
+            if (Directory.Exists(Path.Combine(filesFolderPath, "scripts", folderName)))
+            {
+                if (MessageBox.Show("Script already exists. Update it?", "", MessageBoxButton.YesNo) == MessageBoxResult.No)
+                    return;
+            }
+            else
+                Directory.CreateDirectory(folderName);
+            FtpWebRequest ftpwr = (FtpWebRequest)FtpWebRequest.Create(ftpAddress + folderName);
+            ftpwr.Credentials = ftpClient.Credentials;
+            ftpwr.Method = WebRequestMethods.Ftp.ListDirectory;
+            WebResponse wr = ftpwr.GetResponse();
+            StreamReader sr = new StreamReader(wr.GetResponseStream());
+            int filesDownloaded = 0;
+            try
+            {
+                while (!sr.EndOfStream)
+                {
+                    string file = sr.ReadLine();
+                    if (allowedFtpFilenames.Contains(Path.GetFileName(file)))
+                    {
+                        ftpClient.DownloadFile(ftpAddress + file, Path.Combine(filesFolderPath, "scripts", file));
+                        filesDownloaded++;
+                    }
+                }
+            }
+            catch (ObjectDisposedException) { }
+            MessageBox.Show(filesDownloaded + " files downloaded.");
 
             LoadScripts();
         }
