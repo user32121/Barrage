@@ -14,7 +14,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		..\RPGEngine\RPGEditor\InputDialog.xaml = ..\RPGEngine\RPGEditor\InputDialog.xaml
 		..\RPGEngine\RPGEditor\InputDialog.xaml.cs = ..\RPGEngine\RPGEditor\InputDialog.xaml.cs
+		MHBCommon.cs = MHBCommon.cs
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BarrageScriptServer", "BarrageScriptServer\BarrageScriptServer.csproj", "{9C091350-97BE-408C-915F-AC468AD19A63}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,6 +33,10 @@ Global
 		{753585FF-4B60-4AE6-AF1D-10D1C582ADDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{753585FF-4B60-4AE6-AF1D-10D1C582ADDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{753585FF-4B60-4AE6-AF1D-10D1C582ADDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C091350-97BE-408C-915F-AC468AD19A63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C091350-97BE-408C-915F-AC468AD19A63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C091350-97BE-408C-915F-AC468AD19A63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C091350-97BE-408C-915F-AC468AD19A63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

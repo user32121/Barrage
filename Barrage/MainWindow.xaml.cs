@@ -210,7 +210,7 @@ namespace Barrage
         #endregion
 
         #region spawn pattern
-        string selectedScript = "";
+        static string selectedScript = "";
         List<(COMMANDS, object)> spawnPattern = new List<(COMMANDS, object)>();  //object is either (object[],...) or (property, object[])[]
         public static List<string> spText = new List<string>();
         int readIndex = 0;
@@ -253,16 +253,20 @@ namespace Barrage
         #endregion
 
         #region image storage
-        static readonly BitmapImage[] playPauseImgs = new BitmapImage[]
+        static readonly ImageSource[] playPauseImgs = new ImageSource[]
         {
             new BitmapImage(new Uri("files/play.png", UriKind.Relative)),
             new BitmapImage(new Uri("files/pause.png", UriKind.Relative)),
         };
-        static readonly List<BitmapImage> projectileImgs = new List<BitmapImage>();
-        static int laserImgsIndex;
-        static BitmapImage defaultProj = new BitmapImage(new Uri("files/projectile.png", UriKind.Relative));
-        static BitmapImage defaultLaser = new BitmapImage(new Uri("files/laser.png", UriKind.Relative));
-        static BitmapImage defaultPreview = new BitmapImage(new Uri("files/preview.png", UriKind.Relative));
+        static readonly Dictionary<int, ImageSource> projectileImgs = new Dictionary<int, ImageSource>();  //cache gloabl skin files to avoid needing to load them again
+        static readonly Dictionary<int, ImageSource> laserImgs = new Dictionary<int, ImageSource>();
+        static readonly Dictionary<int, ImageSource> projectileLocalImgs = new Dictionary<int, ImageSource>();  //local skin files
+        static readonly Dictionary<int, ImageSource> laserLocalImgs = new Dictionary<int, ImageSource>();
+        static ImageSource defaultProjImg = new BitmapImage(new Uri("files/projectile.png", UriKind.Relative));
+        static ImageSource defaultLaserImg = new BitmapImage(new Uri("files/laser.png", UriKind.Relative));
+        static ImageSource defaultPreview = new BitmapImage(new Uri("files/preview.png", UriKind.Relative));
+        static ImageSource defaultBossImg;
+        static ImageSource defaultPlayerImg;
         #endregion
 
         #region editor
@@ -277,11 +281,12 @@ namespace Barrage
         private const int projStepsAhead = 30;
         #endregion
 
-        #region
+        #region ftp
         WebClient ftpClient = new WebClient();
         const string ftpAddress = "ftp://192.168.50.18/";
         readonly Uri ftpAddressUri = new Uri(ftpAddress);
-        readonly string[] allowedFtpFilenames = new string[] { "SP.txt", "preview.png" };  //ensure that only allowed files are uploaded/downloaded
+        readonly string[] allowedFtpFilenames = new string[] { "SP.txt", "preview.png", "boss.png", "player.png" };  //ensure that only allowed files are uploaded/downloaded
+        readonly (string, string)[] allowedFtpFilenamesWithNum = new (string, string)[] { ("projectile", ".png"), ("laser", ".png") };  //also allow format for files like projectile0.png
         #endregion
 
         public MainWindow()
@@ -293,23 +298,24 @@ namespace Barrage
             plyrPos.Y = 100;
 
             if (File.Exists(Path.Combine(filesFolderPath, "boss.png")))
-                Boss.Source = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "\\Boss.png")));
+                Boss.Source = defaultBossImg = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "boss.png")));
+            else
+                defaultBossImg = Boss.Source;
             if (File.Exists(Path.Combine(filesFolderPath, "player.png")))
-                Player.Source = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "Player.png")));
+                Player.Source = defaultPlayerImg = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "player.png")));
+            else
+                defaultPlayerImg = Player.Source;
 
             if (File.Exists(Path.Combine(filesFolderPath, "play.png")))
-            {
-                playPauseImgs[0] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "Play.png")));
-                imageEditorPlay.Source = playPauseImgs[0];
-            }
+                imageEditorPlay.Source = playPauseImgs[0] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "play.png")));
             if (File.Exists(Path.Combine(filesFolderPath, "pause.png")))
-                playPauseImgs[1] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "Pause.png")));
+                playPauseImgs[1] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "pause.png")));
             if (File.Exists(Path.Combine(filesFolderPath, "step.png")))
-                imageEditorStepForwards.Source = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "Step.png")));
+                imageEditorStepForwards.Source = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "step.png")));
             if (File.Exists(Path.Combine(filesFolderPath, "grid.png")))
-                gridUnderlay = new ImageBrush(new BitmapImage(new Uri(Path.Combine(filesFolderPath, "Grid.png"))));
+                gridUnderlay = new ImageBrush(new BitmapImage(new Uri(Path.Combine(filesFolderPath, "grid.png"))));
             if (File.Exists(Path.Combine(filesFolderPath, "preview.png")))
-                gridUnderlay = new ImageBrush(new BitmapImage(new Uri(Path.Combine(filesFolderPath, "Grid.png"))));
+                defaultPreview = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "preview.png")));
 
             if (System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed)
                 labelVersion.Content = "v" + System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion;
@@ -1498,33 +1504,49 @@ namespace Barrage
                     gridField.Background = Brushes.Transparent;
         }
 
-        public static BitmapImage GetProjectileImage(int index, bool laserImg)
+        public static ImageSource GetProjectileImage(int index, bool laserImg)
         {
             if (laserImg)
             {
-                while (index + laserImgsIndex >= projectileImgs.Count)
-                    projectileImgs.Add(null);
-
-                if (projectileImgs[index + laserImgsIndex] == null)
-                    if (File.Exists(Path.Combine(filesFolderPath, "laser" + index + ".png")))
-                        projectileImgs[index + laserImgsIndex] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "laser" + index + ".png")));
+                if (!laserLocalImgs.ContainsKey(index))
+                {
+                    //try load local skin
+                    if (File.Exists(Path.Combine(filesFolderPath, "scripts", selectedScript, "laser" + index + ".png")))
+                        laserLocalImgs[index] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "scripts", selectedScript, "laser" + index + ".png")));
                     else
-                        projectileImgs[index + laserImgsIndex] = defaultLaser;
-                return projectileImgs[index + laserImgsIndex];
+                    {
+                        if (!laserImgs.ContainsKey(index))
+                            //try load global skin
+                            if (File.Exists(Path.Combine(filesFolderPath, "laser" + index + ".png")))
+                                laserImgs[index] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "laser" + index + ".png")));
+                            else  //use default
+                                laserImgs[index] = defaultLaserImg;
+                        //transfer global skin to cache
+                        laserLocalImgs[index] = laserImgs[index];
+                    }
+                }
+                return laserLocalImgs[index];
             }
             else
             {
-                while (index >= laserImgsIndex)
+                if (!projectileLocalImgs.ContainsKey(index))
                 {
-                    projectileImgs.Insert(laserImgsIndex, null);
-                    laserImgsIndex++;
-                }
-                if (projectileImgs[index] == null)
-                    if (File.Exists(Path.Combine(filesFolderPath, "projectile" + index + ".png")))
-                        projectileImgs[index] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "projectile" + index + ".png")));
+                    //try load local skin
+                    if (File.Exists(Path.Combine(filesFolderPath, "scripts", selectedScript, "projectile" + index + ".png")))
+                        projectileLocalImgs[index] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "scripts", selectedScript, "projectile" + index + ".png")));
                     else
-                        projectileImgs[index] = defaultProj;
-                return projectileImgs[index];
+                    {
+                        if (!projectileImgs.ContainsKey(index))
+                            //try load global skin
+                            if (File.Exists(Path.Combine(filesFolderPath, "projectile" + index + ".png")))
+                                projectileImgs[index] = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "projectile" + index + ".png")));
+                            else  //use default
+                                projectileImgs[index] = defaultProjImg;
+                        //transfer global skin to cache
+                        projectileLocalImgs[index] = projectileImgs[index];
+                    }
+                }
+                return projectileLocalImgs[index];
             }
         }
 
@@ -1567,6 +1589,7 @@ namespace Barrage
 
             selectedScript = (LBScripts.SelectedItem as StackPanel).Tag as string;
 
+            //SP.txt
             ReadSPTxt();
             if (stopGameRequested)
             {
@@ -1612,6 +1635,18 @@ namespace Barrage
             }
             else
                 throw new NotImplementedException();
+
+            //images
+            projectileLocalImgs.Clear();
+
+            if (File.Exists(Path.Combine(filesFolderPath, "scripts", selectedScript, "boss.png")))
+                Boss.Source = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "scripts", selectedScript, "boss.png")));
+            else
+                Boss.Source = defaultBossImg;
+            if (File.Exists(Path.Combine(filesFolderPath, "scripts", selectedScript, "player.png")))
+                Player.Source = new BitmapImage(new Uri(Path.Combine(filesFolderPath, "scripts", selectedScript, "player.png")));
+            else
+                Player.Source = defaultPlayerImg;
         }
         void MakeNewScript()
         {
@@ -1757,8 +1792,23 @@ namespace Barrage
             int filesUploaded = 0;
             for (int i = 0; i < files.Length; i++)
             {
+                bool canUpload = false;
                 files[i] = Path.GetFileName(files[i]);
                 if (allowedFtpFilenames.Contains(files[i]))
+                    //allow uploading usual files
+                    canUpload = true;
+                else
+                    for (int a = 0; a < allowedFtpFilenamesWithNum.Length; a++)
+                        if (files[i].StartsWith(allowedFtpFilenamesWithNum[a].Item1) &&
+                            files[i].EndsWith(allowedFtpFilenamesWithNum[a].Item2) &&
+                            int.TryParse(files[i].Substring(allowedFtpFilenamesWithNum[a].Item1.Length, files[i].Length - allowedFtpFilenamesWithNum[a].Item2.Length - allowedFtpFilenamesWithNum[a].Item1.Length), out int n))
+                        {
+                            //files with numbered format
+                            canUpload = true;
+                            break;
+                        }
+
+                if (canUpload)
                 {
                     ftpClient.UploadFile(new Uri(ftpAddressUri, Path.Combine(folderName, files[i])), Path.Combine(filesFolderPath, "scripts", folderName, files[i]));
                     filesUploaded++;
@@ -1791,8 +1841,22 @@ namespace Barrage
             {
                 while (!sr.EndOfStream)
                 {
+                    bool canDownload = false;
                     string file = sr.ReadLine();
                     if (allowedFtpFilenames.Contains(Path.GetFileName(file)))
+                        canDownload = true;
+                    else
+                        for (int a = 0; a < allowedFtpFilenamesWithNum.Length; a++)
+                            if (file.StartsWith(allowedFtpFilenamesWithNum[a].Item1) &&
+                                file.EndsWith(allowedFtpFilenamesWithNum[a].Item2) &&
+                                int.TryParse(file.Substring(allowedFtpFilenamesWithNum[a].Item1.Length, file.Length - allowedFtpFilenamesWithNum[a].Item2.Length - allowedFtpFilenamesWithNum[a].Item1.Length), out int n))
+                            {
+                                //files with numbered format
+                                canDownload = true;
+                                break;
+                            }
+
+                    if (canDownload)
                     {
                         ftpClient.DownloadFile(ftpAddress + file, Path.Combine(filesFolderPath, "scripts", file));
                         filesDownloaded++;

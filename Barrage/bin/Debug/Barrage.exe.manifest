@@ -4,7 +4,7 @@
   <description asmv2:iconFile="Icon.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="Barrage" version="1.0.7684.1244" language="neutral" processorArchitecture="msil" />
+    <assemblyIdentity name="Barrage" version="1.0.7689.1276" language="neutral" processorArchitecture="msil" />
     <commandLine file="Barrage.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Barrage.exe" size="267776">
-      <assemblyIdentity name="Barrage" version="1.0.7684.1244" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Barrage.exe" size="268800">
+      <assemblyIdentity name="Barrage" version="1.0.7689.1276" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>uzI5bj1bF6joc8vaqTYZAdeB3+DNW4MEfH05uFj+u2o=</dsig:DigestValue>
+        <dsig:DigestValue>DKwYL5cXKN8LVXnsbp+zo4TUwk223NWWGuYslTKwT2s=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -94,15 +94,6 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
       <dsig:DigestValue>GziNm6TR/51xoew+KGsLfiVjg18YfS8tIcwzNv3zDSU=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="readme.txt" size="454">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>nVFGWoPz5kdPKLNnJ2QRKqwZ0HnUra8O5MOSTsRL7Mk=</dsig:DigestValue>
     </hash>
   </file>
   <file name="userFiles\laser0.png" size="119">
