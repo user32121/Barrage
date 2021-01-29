@@ -1,0 +1,34 @@
+# Barrage Script v2.1
+val|0|0
+
+:LOOP
+val|1|0
+
+val|2|0
+
+:SCAN
+proj|tags=laser|duration=1|angle=180|startX=200|startY=val0|actDelay=1|size=val2
+proj|tags=laser|duration=1|angle=180|startX=200|startY=val0 - 150|actDelay=1|size=val2
+proj|tags=laser|duration=1|angle=180|startX=200|startY=val0 + 150|actDelay=1|size=val2
+val|1|( val1 + ( PLYRY - val0 ) * 0.001 ) * 0.95
+val|0|val0 + val1
+
+val|2|val2 + 0.1
+wait|1
+
+gotoIf|:SKIP1|RNG 0 1 > 0.05
+proj|tags=circle|startX=PLYRX|startY=-200|angle=90|speed=3
+:SKIP1
+gotoIf|:SKIP2|RNG 0 1 > 0.1
+val|3|RNG -200 200
+proj|tags=circle|startX=val3|startY=-200|angle=90|speed=3
+:SKIP2
+
+repeat|:SCAN|300
+
+proj|tags=laser|duration=90|angle=180|startX=200|startY=val0|size=val2
+proj|tags=laser|duration=90|angle=180|startX=200|startY=val0 - 150|size=val2
+proj|tags=laser|duration=90|angle=180|startX=200|startY=val0 + 150|size=val2
+
+wait|60
+gotoIf|:LOOP|1

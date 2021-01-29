@@ -1,0 +1,4 @@
+# Barrage Script v2.1
+proj|tags=circle|angle=31 * n|speed=2|file=MOD n 6
+wait|1
+gotoIf|0|1

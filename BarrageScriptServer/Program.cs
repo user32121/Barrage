@@ -173,6 +173,16 @@ namespace MHBServer
 
             //receive password and compare with meta file
             string password = socket.ReceiveString();
+
+            //check if exists
+            if (!Directory.Exists(scriptName))
+            {
+                Console.WriteLine(socket.RemoteEndPoint + ": " + scriptName + " does not exist");
+                smlBuf[0] = (byte)MHBINFO.DOESNOTEXIST;
+                socket.Send(smlBuf, 1);
+                return;
+            }
+
             HashAlgorithm hasher = SHA256.Create();
             byte[] hash = hasher.ComputeHash(Encoding.ASCII.GetBytes(password));
             byte[] fileHash = File.ReadAllBytes(Path.Combine(scriptName, ".meta"));
@@ -228,7 +238,7 @@ namespace MHBServer
             string[] filenames = Directory.GetFiles(scriptName);
             for (int i = 0; i < filenames.Length; i++)
             {
-                if (filenames[i].EndsWith(".meta"))  //don't send metadata files
+                if (!MHSocket.IsAllowedFile(filenames[i]))
                     continue;
 
                 Console.WriteLine(socket.RemoteEndPoint + ": sending " + filenames[i] + " to client");
@@ -279,15 +289,13 @@ namespace MHBServer
                     socket.Send(smlBuf, 1);
                     return;
                 }
-                else
-                {
-                    smlBuf[0] = (byte)MHBINFO.OK;
-                    socket.Send(smlBuf, 1);
-                }
             }
 
             //delete directory
             Directory.Delete(scriptName, true);
+
+            smlBuf[0] = (byte)MHBINFO.OK;
+            socket.Send(smlBuf, 1);
         }
     }
 }

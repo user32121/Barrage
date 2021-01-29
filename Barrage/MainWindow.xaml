@@ -114,8 +114,14 @@
                     </Grid.ColumnDefinitions>
 
                     <Label x:Name="labelOnlineBack" Content="Back" FontSize="16" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelBack_MouseUp" Grid.Column="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderBrush="White" BorderThickness="0,0,1,0"/>
-                    <Label x:Name="labelOnlineUpload" Content="Upload" FontSize="16" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelMenu_MouseUp" Grid.Column="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderBrush="White"/>
-                    <Label x:Name="labelOnlineDownload" Content="Download" FontSize="16" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelMenu_MouseUp" Grid.Column="4" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderBrush="White"/>
+                    <StackPanel Orientation="Horizontal" Grid.Column="2">
+                        <Label x:Name="labelOnlineUpload" Content="Upload" FontSize="16" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelMenu_MouseUp" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderBrush="White" BorderThickness="0,0,1,0"/>
+                        <Label x:Name="labelOnlineUpdate" Content="Update" FontSize="16" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelMenu_MouseUp" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderBrush="White" BorderThickness="0,0,1,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Column="4">
+                        <Label x:Name="labelOnlineDownload" Content="Download" FontSize="16" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelMenu_MouseUp" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderBrush="White" BorderThickness="0,0,1,0"/>
+                        <Label x:Name="labelOnlineDelete" Content="Delete" FontSize="16" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelMenu_MouseUp" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderBrush="White" BorderThickness="0,0,1,0"/>
+                    </StackPanel>
                     <Label x:Name="labelOnlineRefresh" Content="Refresh" FontSize="16" Background="#FFC8C8C8" MouseEnter="LabelMenu_MouseEnter" MouseLeave="LabelMenu_MouseLeave" MouseUp="LabelMenu_MouseUp" Grid.Column="6" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" BorderBrush="White" BorderThickness="0,0,1,0"/>
                 </Grid>
             </Grid>

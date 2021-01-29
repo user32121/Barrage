@@ -4,17 +4,17 @@
   <description asmv2:publisher="Barrage" asmv2:product="Barrage" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <deployment install="true" mapFileExtensions="true" />
   <compatibleFrameworks xmlns="urn:schemas-microsoft-com:clickonce.v2">
-    <framework targetVersion="4.6.1" profile="Full" supportedRuntime="4.0.30319" />
+    <framework targetVersion="4.7.2" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="Barrage.exe.manifest" size="11570">
+    <dependentAssembly dependencyType="install" codebase="Barrage.exe.manifest" size="11518">
       <assemblyIdentity name="Barrage.exe" version="1.0.5.1" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>6pMDJRCFkN7nP+U08ADfEgfkUy4+96t8sFa39G4UqoI=</dsig:DigestValue>
+        <dsig:DigestValue>NY+fdAvtnGGrXeVGvUw4+948ZTqyA/AtjdZf9nImVw0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

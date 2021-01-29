@@ -281,14 +281,6 @@ namespace Barrage
         private const int projStepsAhead = 30;
         #endregion
 
-        #region ftp
-        WebClient ftpClient = new WebClient();
-        const string ftpAddress = "ftp://192.168.50.18/";
-        readonly Uri ftpAddressUri = new Uri(ftpAddress);
-        readonly string[] allowedFtpFilenames = new string[] { "SP.txt", "preview.png", "boss.png", "player.png" };  //ensure that only allowed files are uploaded/downloaded
-        readonly (string, string)[] allowedFtpFilenamesWithNum = new (string, string)[] { ("projectile", ".png"), ("laser", ".png") };  //also allow format for files like projectile0.png
-        #endregion
-
         public MainWindow()
         {
             InitializeComponent();
@@ -327,8 +319,6 @@ namespace Barrage
             checkError.IsChecked = GameSettings.checkForErrors;
             checkUseGrid.IsChecked = GameSettings.useGrid;
             checkPredict.IsChecked = GameSettings.predictProjectile;
-
-            ftpClient.Credentials = new NetworkCredential("barrageftpconnection", "barrageFtpClient");
 
             LoadScripts();
         }
@@ -1310,23 +1300,33 @@ namespace Barrage
                 gridOnline.Visibility = Visibility.Visible;
                 gridScriptDisplay.ColumnDefinitions[1].Width = new GridLength(1, GridUnitType.Star);
                 LBOnlineScripts.Visibility = Visibility.Visible;
-                LoadWebScripts(false);
+                ListWebScripts();
                 return;
             }
             else if (sender == labelOnlineRefresh)
             {
                 LoadScripts();
-                LoadWebScripts(true);
+                ListWebScripts();
                 return;
             }
             else if (sender == labelOnlineUpload)
             {
-                UploadSelectedScript();
+                UploadSelectedScriptToWeb();
+                return;
+            }
+            else if (sender == labelOnlineUpdate)
+            {
+                UpdateSelectedScriptOnWeb();
                 return;
             }
             else if (sender == labelOnlineDownload)
             {
                 DownloadSelectedWebScript();
+                return;
+            }
+            else if (sender == labelOnlineDelete)
+            {
+                DeleteSelectedWebScript();
                 return;
             }
 
@@ -1737,86 +1737,48 @@ namespace Barrage
             LoadScripts();
         }
 
-        void LoadWebScripts(bool notifyUser)
+        void ListWebScripts()
         {
-            FtpWebRequest ftpwr = (FtpWebRequest)FtpWebRequest.Create(ftpAddress);
-            ftpwr.Credentials = ftpClient.Credentials;
-            ftpwr.Method = WebRequestMethods.Ftp.ListDirectory;
-            WebResponse wr = ftpwr.GetResponse();
-            StreamReader sr = new StreamReader(wr.GetResponseStream());
+            string[] scripts = MHBClient.ListScripts().Split('\n', '\r');
             LBOnlineScripts.Items.Clear();
-            try
-            {
-                while (!sr.EndOfStream)
-                    LBOnlineScripts.Items.Add(sr.ReadLine());
-            }
-            catch (ObjectDisposedException) { }
+            for (int i = 0; i < scripts.Length; i++)
+                if (scripts[i].Length > 0)
+                    LBOnlineScripts.Items.Add(Path.GetFileName(scripts[i]));
+
             LBOnlineScripts.SelectedIndex = 0;
             LBOnlineScripts.Focus();
-
-            if (notifyUser)
-                MessageBox.Show("Found " + LBOnlineScripts.Items.Count + " scripts");
         }
-        void UploadSelectedScript()
+        void UploadSelectedScriptToWeb()
         {
             if (LBScripts.SelectedIndex == -1)
                 return;
 
             string folderName = (LBScripts.SelectedItem as StackPanel).Tag as string;
 
-            //check if folder already exists
-            FtpWebRequest ftpwr = (FtpWebRequest)FtpWebRequest.Create(ftpAddress);
-            ftpwr.Credentials = ftpClient.Credentials;
-            ftpwr.Method = WebRequestMethods.Ftp.ListDirectory;
-            WebResponse wr = ftpwr.GetResponse();
-            StreamReader sr = new StreamReader(wr.GetResponseStream());
-            try
-            {
-                while (!sr.EndOfStream)
-                    if (folderName == sr.ReadLine())
-                    {
-                        MessageBox.Show("Unable to upload script. Script already exists online.");
-                        return;
-                    }
-            }
-            catch (ObjectDisposedException) { }
-            sr.Close();
-            wr.Close();
+            //get script password
+            string password = InputDialog.Prompt("Please set a script password to allow editing access");
+            if (password == null)
+                return;
 
-            ftpwr = (FtpWebRequest)FtpWebRequest.Create(new Uri(ftpAddressUri, folderName));
-            ftpwr.Credentials = ftpClient.Credentials;
-            ftpwr.Method = WebRequestMethods.Ftp.MakeDirectory;
-            ftpwr.GetResponse().Close();
+            MHBClient.Upload(Path.Combine(filesFolderPath, "scripts"), folderName, password);
 
-            string[] files = Directory.GetFiles(Path.Combine(filesFolderPath, "scripts", folderName));
-            int filesUploaded = 0;
-            for (int i = 0; i < files.Length; i++)
-            {
-                bool canUpload = false;
-                files[i] = Path.GetFileName(files[i]);
-                if (allowedFtpFilenames.Contains(files[i]))
-                    //allow uploading usual files
-                    canUpload = true;
-                else
-                    for (int a = 0; a < allowedFtpFilenamesWithNum.Length; a++)
-                        if (files[i].StartsWith(allowedFtpFilenamesWithNum[a].Item1) &&
-                            files[i].EndsWith(allowedFtpFilenamesWithNum[a].Item2) &&
-                            int.TryParse(files[i].Substring(allowedFtpFilenamesWithNum[a].Item1.Length, files[i].Length - allowedFtpFilenamesWithNum[a].Item2.Length - allowedFtpFilenamesWithNum[a].Item1.Length), out int n))
-                        {
-                            //files with numbered format
-                            canUpload = true;
-                            break;
-                        }
+            ListWebScripts();
+        }
+        void UpdateSelectedScriptOnWeb()
+        {
+            if (LBScripts.SelectedIndex == -1)
+                return;
 
-                if (canUpload)
-                {
-                    ftpClient.UploadFile(new Uri(ftpAddressUri, Path.Combine(folderName, files[i])), Path.Combine(filesFolderPath, "scripts", folderName, files[i]));
-                    filesUploaded++;
-                }
-            }
-            MessageBox.Show(filesUploaded + " files uploaded.");
+            string folderName = (LBScripts.SelectedItem as StackPanel).Tag as string;
 
-            LoadWebScripts(false);
+            //get script password
+            string password = InputDialog.Prompt("Please enter the script password to update it");
+            if (password == null)
+                return;
+
+            MHBClient.UploadWithPassword(Path.Combine(filesFolderPath, "scripts"), folderName, password);
+
+            ListWebScripts();
         }
         void DownloadSelectedWebScript()
         {
@@ -1824,49 +1786,26 @@ namespace Barrage
                 return;
 
             string folderName = LBOnlineScripts.SelectedItem as string;
-            if (Directory.Exists(Path.Combine(filesFolderPath, "scripts", folderName)))
-            {
-                if (MessageBox.Show("Script already exists. Update it?", "", MessageBoxButton.YesNo) == MessageBoxResult.No)
-                    return;
-            }
-            else
-                Directory.CreateDirectory(folderName);
-            FtpWebRequest ftpwr = (FtpWebRequest)FtpWebRequest.Create(ftpAddress + folderName);
-            ftpwr.Credentials = ftpClient.Credentials;
-            ftpwr.Method = WebRequestMethods.Ftp.ListDirectory;
-            WebResponse wr = ftpwr.GetResponse();
-            StreamReader sr = new StreamReader(wr.GetResponseStream());
-            int filesDownloaded = 0;
-            try
-            {
-                while (!sr.EndOfStream)
-                {
-                    bool canDownload = false;
-                    string file = sr.ReadLine();
-                    if (allowedFtpFilenames.Contains(Path.GetFileName(file)))
-                        canDownload = true;
-                    else
-                        for (int a = 0; a < allowedFtpFilenamesWithNum.Length; a++)
-                            if (file.StartsWith(allowedFtpFilenamesWithNum[a].Item1) &&
-                                file.EndsWith(allowedFtpFilenamesWithNum[a].Item2) &&
-                                int.TryParse(file.Substring(allowedFtpFilenamesWithNum[a].Item1.Length, file.Length - allowedFtpFilenamesWithNum[a].Item2.Length - allowedFtpFilenamesWithNum[a].Item1.Length), out int n))
-                            {
-                                //files with numbered format
-                                canDownload = true;
-                                break;
-                            }
 
-                    if (canDownload)
-                    {
-                        ftpClient.DownloadFile(ftpAddress + file, Path.Combine(filesFolderPath, "scripts", file));
-                        filesDownloaded++;
-                    }
-                }
-            }
-            catch (ObjectDisposedException) { }
-            MessageBox.Show(filesDownloaded + " files downloaded.");
+            MHBClient.Download(Path.Combine(filesFolderPath, "scripts"), folderName);
 
             LoadScripts();
+        }
+        void DeleteSelectedWebScript()
+        {
+            if (LBOnlineScripts.SelectedIndex == -1)
+                return;
+
+            string folderName = LBOnlineScripts.SelectedItem as string;
+
+            //get script password
+            string password = InputDialog.Prompt("Please enter the script password to update it");
+            if (password == null)
+                return;
+
+            MHBClient.Delete(folderName, password);
+
+            ListWebScripts();
         }
     }
     public static class ExtensionMethods

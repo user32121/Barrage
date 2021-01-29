@@ -18,6 +18,7 @@ enum MHBINFO : byte
     GENERICERROR,  //used when an unknown error occured
     OK,  //no error
     DONE,  //looping finished
+    COULDNOTCONNECT,
     FAILEDAUTHENTICATION,  //failed to login to server
     UNKNOWNCOMMAND,  //an invalid command index was sent
     ALREADYEXISTS,  //script folder already exists
@@ -70,7 +71,7 @@ class MHSocket
             //info header
             smlBuf[0] = (byte)MHBINFO.CONTINUEFILE;
             Send(smlBuf, 1);
-            
+
             int bytesRead = fs.Read(lgBuf, 4, 1020);  //read from stream
             byte[] ar = BitConverter.GetBytes(bytesRead);  //data header
             for (int i = 0; i < 4; i++)
@@ -132,5 +133,32 @@ class MHSocket
             bytesToRead -= bytesRead;
             curPos += bytesRead;
         }
+    }
+
+    readonly static string[] allowedFilenames = new string[] { "SP.txt", "preview.png", "boss.png", "player.png" };  //ensure that only allowed files are uploaded/downloaded
+    readonly static (string, string)[] allowedFilenamesWithNum = new (string, string)[] { ("projectile", ".png"), ("laser", ".png") };  //also allow format for files like projectile0.png
+    public static bool IsAllowedFile(string filename)
+    {
+        //checks if the file is allowed to be sent according to the allowed filenames definitions
+
+        filename = Path.GetFileName(filename);
+
+        bool canDownload = false;
+        for (int i = 0; i < allowedFilenames.Length; i++)
+            if (allowedFilenames[i] == filename)
+                canDownload = true;
+
+        if (!canDownload)
+            for (int a = 0; a < allowedFilenamesWithNum.Length; a++)
+                if (filename.StartsWith(allowedFilenamesWithNum[a].Item1) &&
+                    filename.EndsWith(allowedFilenamesWithNum[a].Item2) &&
+                    int.TryParse(filename.Substring(allowedFilenamesWithNum[a].Item1.Length, filename.Length - allowedFilenamesWithNum[a].Item2.Length - allowedFilenamesWithNum[a].Item1.Length), out int n))
+                {
+                    //files with numbered format
+                    canDownload = true;
+                    break;
+                }
+
+        return canDownload;
     }
 }
