@@ -10,13 +10,13 @@ using System.Windows;
 
 static class MHBClient
 {
-    const string MHBAddress = "ftp://192.168.50.18/";
+    const string ServerAddress = "barragegame.ddns.net";
     private static byte[] smlBuf = new byte[4];  //a small buffer large enough to store size or command info
 
     private static MHSocket CreateSocket()
     {
         //get target ip address
-        IPAddress ipAddress = Dns.GetHostEntry(Dns.GetHostName()).AddressList[0];
+        IPAddress ipAddress = Dns.GetHostEntry(ServerAddress).AddressList[0];
         IPEndPoint remoteEndPoint = new IPEndPoint(ipAddress, 10101);
 
         //create and connect client
@@ -25,7 +25,7 @@ static class MHBClient
         {
             socket.Connect(remoteEndPoint);
         }
-        catch (SocketException)
+        catch (SocketException e)
         {
             MessageBox.Show("Failed to connect to server");
             return null;

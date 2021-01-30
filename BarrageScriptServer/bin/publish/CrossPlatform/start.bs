@@ -1,0 +1,4 @@
+#!/bin/sh
+cd BarrageServer
+dotnet BarrageScriptServer.dll
+

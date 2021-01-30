@@ -19,10 +19,9 @@ namespace MHBServer
 
         static void Main(string[] args)
         {
-            IPAddress ipAddress = Dns.GetHostEntry(Dns.GetHostName()).AddressList[0];
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 10101);
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, 10101);
 
-            Socket server = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Socket server = new Socket(SocketType.Stream, ProtocolType.Tcp);
             server.ReceiveTimeout = 10000;
             server.SendTimeout = 10000;
             server.Bind(localEndPoint);

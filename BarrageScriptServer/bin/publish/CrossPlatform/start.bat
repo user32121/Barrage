@@ -1,0 +1,3 @@
+cd BarrageServer
+dotnet BarrageScriptServer.dll
+pause
