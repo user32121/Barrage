@@ -52,7 +52,9 @@ namespace MHBServer
 
                 //receive protocool type
                 handler.Receive(smlBuf, 1, SocketFlags.None);
-                if (smlBuf[0] == (byte)MHBPROTOCOOL.MHB40v1)
+                MHBPROTOCOOL protcool = (MHBPROTOCOOL)smlBuf[0];
+                Console.WriteLine(handler.RemoteEndPoint + ": using " + protcool.ToString() + " protocool");
+                if (protcool == MHBPROTOCOOL.MHB40v1)
                 {
                     //send ok
                     smlBuf[0] = (byte)MHBINFO.OK;
@@ -61,6 +63,7 @@ namespace MHBServer
                 else
                 {
                     //send not ok
+                    Console.WriteLine(handler.RemoteEndPoint + ": wrong protocool; close");
                     smlBuf[0] = (byte)MHBINFO.UNSUPPORTEDPROTOCOOL;
                     handler.Send(smlBuf, 1, SocketFlags.None);
                     handler.Close();
@@ -83,7 +86,7 @@ namespace MHBServer
                     mhHandler.Send(new byte[1] { (byte)MHBINFO.OK }, 1);
                 else
                 {
-                    Console.WriteLine(handler.RemoteEndPoint + ": failed authentication");
+                    Console.WriteLine(handler.RemoteEndPoint + ": failed authentication; close");
                     mhHandler.Send(new byte[1] { (byte)MHBINFO.FAILEDAUTHENTICATION }, 1);
                     mhHandler.Close();
                     return;
