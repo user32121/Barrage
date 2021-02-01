@@ -225,14 +225,14 @@ static class MHBClient
                 throw new Exception("Unexpected response from server");
         }
 
-        Directory.CreateDirectory(scriptName);
+        Directory.CreateDirectory(Path.Combine(scriptFolder, scriptName));
 
         //check if sent all files
         while (mhs.Receive()[0] == (byte)MHBINFO.NEXTFILE)
         {
             string filename = mhs.ReceiveString();
 
-            FileStream fs = new FileStream(Path.Combine(scriptName, filename), FileMode.Create);
+            FileStream fs = new FileStream(Path.Combine(scriptFolder, scriptName, filename), FileMode.Create);
             mhs.ReceiveFile(fs);
             fs.Close();
         }
