@@ -63,7 +63,7 @@ namespace MHBServer
                 else
                 {
                     //send not ok
-                    Console.WriteLine(handler.RemoteEndPoint + ": wrong protocool; close");
+                    Console.WriteLine(handler.RemoteEndPoint + ": invalid protocool; close");
                     smlBuf[0] = (byte)MHBINFO.UNSUPPORTEDPROTOCOOL;
                     handler.Send(smlBuf, 1, SocketFlags.None);
                     handler.Close();

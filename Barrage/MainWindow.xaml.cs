@@ -38,6 +38,10 @@ namespace Barrage
         bool gameOver;
         bool isVisual;
         int time;  //age of the game in frames
+        private static Random gameRng = new Random();  //separate random for non interpreter uses
+        private const int laserImgLength = 100;
+        public const int laserImgScale = 6;
+        private const int laserLength = laserImgLength * laserImgScale;
         #endregion
 
         #region player
@@ -366,6 +370,7 @@ namespace Barrage
                 if (!paused)
                 {
                     time++;
+                    spawnVars[(int)GLOBALVARS.T] = time;
 
                     if (!gameOver)
                     {
@@ -522,11 +527,33 @@ namespace Barrage
             {
                 if (GameSettings.autoPlay)
                 {
-                    Vector mov = new Vector(), dir;
+                    Vector mov = new Vector((gameRng.NextDouble() - 0.5) / 10000, (gameRng.NextDouble() - 0.5) / 10000), dir;
                     for (int p = 0; p < projectiles.Count; p++)
                     {
-                        dir = plyrPos - projectiles[p].Position;
-                        mov += dir / Math.Pow(dir.LengthSquared - projectiles[p].RadiusSqr, 1.5);
+                        if (projectiles[p].Tags.HasFlag(TAGS.CIRCLE))
+                        {
+                            dir = plyrPos - projectiles[p].Position;
+                            mov += dir / Math.Abs(Math.Pow(dir.Length - Math.Sqrt(projectiles[p].RadiusSqr), 3));
+                        }
+                        if (projectiles[p].Tags.HasFlag(TAGS.LASER))
+                        {
+                            //rotation of axes method
+                            double ang = projectiles[p].Angle;
+                            Matrix origToTrans, transToOrig;  //rotation matrices to move between original axes and transformed (to rectangle) axes
+                            origToTrans = transToOrig = Matrix.Identity;
+                            origToTrans.Rotate(-ang);
+                            transToOrig.Rotate(ang);
+
+                            //find transformed positions
+                            Vector tfRectPos = origToTrans.Transform(projectiles[p].Position) + new Vector(laserLength / 2, 0);  //center of rectangle
+                            Vector tfPlyrPos = origToTrans.Transform(plyrPos);
+
+                            //find closest point on rectangle
+                            Vector closePos = transToOrig.Transform(new Vector(Math.Max(Math.Min(tfPlyrPos.X, tfRectPos.X + laserLength / 2), tfRectPos.X - laserLength / 2), Math.Max(Math.Min(tfPlyrPos.Y, tfRectPos.Y + projectiles[p].Radius), tfRectPos.Y - projectiles[p].Radius)) * 0.9999 + tfRectPos * 0.0001);
+
+                            dir = plyrPos - closePos;
+                            mov += dir / Math.Abs(Math.Pow(dir.Length, 3));
+                        }
                     }
                     double d = plyrPos.X + 200.1;
                     mov.X += 10 / d / d;
@@ -616,18 +643,16 @@ namespace Barrage
                 }
                 else if (item.Tags.HasFlag(TAGS.LASER))
                 {
-                    //dist to line is less than radius, also checks if plyr is behind laser
-                    ReadString.projVars = item.projVars;
-                    ReadString.numVals = item.numValues;
-                    double ang = ReadString.Interpret(item.Angle, PARAMETERS.ANGLE),
-                        radians = ang * Math.PI / 180,
-                        m1 = Math.Sin(radians) / Math.Cos(radians), m2 = -1 / m1;
-                    if (m1 > 1000) m1 = 1000; else if (m1 < -1000) m1 = -1000;
-                    if (m2 > 1000) m2 = 1000; else if (m2 < -1000) m2 = -1000;
+                    //rotation of axes method
+                    Matrix origToTrans;  //rotation matrices to move between original axes and transformed (to rectangle) axes
+                    origToTrans = Matrix.Identity;
+                    origToTrans.Rotate(-item.Angle);
 
-                    double b1 = item.Position.Y - m1 * item.Position.X, b2 = plyrPos.Y - m2 * plyrPos.X,
-                        ix = (b2 - b1) / (m1 - m2), iy = m1 * ix + b1;
-                    if (Math.Pow(plyrPos.X - ix, 2) + Math.Pow(plyrPos.Y - iy, 2) < item.RadiusSqr && ((Math.Abs(ang % 360) <= 90 || Math.Abs(ang % 360) > 270) ? ix >= item.Position.X : ix <= item.Position.X))
+                    //find transformed positions
+                    Vector tfRectPos = origToTrans.Transform(item.Position) + new Vector(laserLength / 2, 0);  //center of rectangle
+                    Vector tfPlyrPos = origToTrans.Transform(plyrPos);
+
+                    if (Math.Abs(tfRectPos.X - tfPlyrPos.X) <= laserLength / 2 && Math.Abs(tfRectPos.Y - tfPlyrPos.Y) <= item.Radius)
                         hit = true;
                 }
             }
@@ -675,7 +700,6 @@ namespace Barrage
                     SPTimeout.Restart();
                 }
 
-                spawnVars[(int)GLOBALVARS.T] = time;
                 ReadString.gameVars = spawnVars;
                 ReadString.numVals = spawnVals;
                 ReadString.projVars = null;
@@ -822,7 +846,7 @@ namespace Barrage
             {
                 projImage.Stretch = Stretch.Fill;
                 projImage.Width = r * 2;
-                projImage.Height = 100;
+                projImage.Height = laserImgLength;
                 projImage.Source = GetProjectileImage((int)ReadString.Interpret(props[PROPERTIES.FILE], PARAMETERS.FILE), true);
                 projImage.RenderTransformOrigin = new Point(0.5, 0);
             }
@@ -836,20 +860,20 @@ namespace Barrage
             Projectile tempProjectile = new Projectile(props[PROPERTIES.SIZE], projVars)
             {
                 img = projImage,
-                Duration = props[PROPERTIES.DURATION],
-                File = props[PROPERTIES.FILE],
+                DurationRS = props[PROPERTIES.DURATION],
+                FileRS = props[PROPERTIES.FILE],
                 Position = new Vector(ReadString.Interpret(props[PROPERTIES.STARTX], PARAMETERS.STARTX), ReadString.Interpret(props[PROPERTIES.STARTY], PARAMETERS.STARTY)),
-                Speed = props[PROPERTIES.SPEED],
-                Angle = props[PROPERTIES.ANGLE],
-                XPos = props[PROPERTIES.XPOS],
-                YPos = props[PROPERTIES.YPOS],
-                XVel = props[PROPERTIES.XVEL],
-                YVel = props[PROPERTIES.YVEL],
+                SpeedRS = props[PROPERTIES.SPEED],
+                AngleRS = props[PROPERTIES.ANGLE],
+                XPosRS = props[PROPERTIES.XPOS],
+                YPosRS = props[PROPERTIES.YPOS],
+                XVelRS = props[PROPERTIES.XVEL],
+                YVelRS = props[PROPERTIES.YVEL],
                 Tags = tags,
-                TagCount = props[PROPERTIES.TAGCOUNT],
+                TagCountRS = props[PROPERTIES.TAGCOUNT],
                 Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * ReadString.Interpret(props[PROPERTIES.SPEED], PARAMETERS.SPEED),
-                ActDelay = props[PROPERTIES.ACTDELAY],
-                state = props[PROPERTIES.STATE],
+                ActDelayRS = props[PROPERTIES.ACTDELAY],
+                stateRS = props[PROPERTIES.STATE],
                 numValues = new Dictionary<int, double>(spawnVals),
             };
 
@@ -875,9 +899,9 @@ namespace Barrage
             }
         }
         //similar to above function, provides a template for incorrect text, line number, and error message
-        public static void MessageIssue(string text, int line, string issue)
+        public static void MessageIssue(string errorText, int line, string issue)
         {
-            if (GameSettings.checkForErrors && !stopGameRequested && MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n{2}\n Continue?", text, line, issue),
+            if (GameSettings.checkForErrors && !stopGameRequested && MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n{2}\n Continue?", errorText, line, issue),
                 "An error occurred", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
             {
                 stopGameRequested = true;
@@ -1041,21 +1065,33 @@ namespace Barrage
                             goto case COMMANDS.GOTOIF;
                         case COMMANDS.GOTOIF:
                         case COMMANDS.VAL:
-                            spawnPattern.Add((cmd, (ReadString.ToPostfix(lineSplt[1]), ReadString.ToPostfix(lineSplt[2]))));
+                            if (lineSplt.Length < 3)
+                                MessageIssue(lines[i], i, "Not enough parameters. (Needs 2)");
+                            else
+                                spawnPattern.Add((cmd, (ReadString.ToPostfix(lineSplt[1]), ReadString.ToPostfix(lineSplt[2]))));
                             break;
                         case COMMANDS.BOSS:
-                            spawnPattern.Add((cmd, (ReadString.ToPostfix(lineSplt[1]), ReadString.ToPostfix(lineSplt[2]), ReadString.ToPostfix(lineSplt[3]), ReadString.ToPostfix(lineSplt[4]))));
+                            if (lineSplt.Length < 5)
+                                MessageIssue(lines[i], i, "Not enough parameters. (Needs 4)");
+                            else
+                                spawnPattern.Add((cmd, (ReadString.ToPostfix(lineSplt[1]), ReadString.ToPostfix(lineSplt[2]), ReadString.ToPostfix(lineSplt[3]), ReadString.ToPostfix(lineSplt[4]))));
                             break;
                         case COMMANDS.WAIT:
                         case COMMANDS.RNG:
                         case COMMANDS.FREEZE:
-                            spawnPattern.Add((cmd, ReadString.ToPostfix(lineSplt[1])));
+                            if (lineSplt.Length < 2)
+                                MessageIssue(lines[i], i, "Not enough parameters. (Needs 1)");
+                            else
+                                spawnPattern.Add((cmd, ReadString.ToPostfix(lineSplt[1])));
                             break;
                         case COMMANDS.VISUAL:
                             spawnPattern.Add((cmd, null));
                             break;
                         case COMMANDS.TEXT:
-                            spawnPattern.Add((cmd, lineSplt[1]));
+                            if (lineSplt.Length < 2)
+                                MessageIssue(lines[i], i, "Not enough parameters. (Needs 1)");
+                            else
+                                spawnPattern.Add((cmd, lineSplt[1]));
                             break;
                         default:
                             throw new NotImplementedException();
@@ -1149,24 +1185,24 @@ namespace Barrage
 
                                 Vector vel;
                                 double spd, ang;
-                                if (projectiles[i].XVel != null && projectiles[i].YVel != null)
+                                if (projectiles[i].XVelRS != null && projectiles[i].YVelRS != null)
                                 {
-                                    vel = new Vector(ReadString.Interpret(projectiles[i].XVel, PARAMETERS.XVEL), ReadString.Interpret(projectiles[i].YVel, PARAMETERS.YVEL));
+                                    vel = new Vector(ReadString.Interpret(projectiles[i].XVelRS, PARAMETERS.XVEL), ReadString.Interpret(projectiles[i].YVelRS, PARAMETERS.YVEL));
                                     spd = vel.Length;
                                     ang = Math.Atan2(vel.Y, vel.X);
                                 }
                                 //xyPos
-                                else if (projectiles[i].XPos != null && projectiles[i].YPos != null)
+                                else if (projectiles[i].XPosRS != null && projectiles[i].YPosRS != null)
                                 {
-                                    vel = new Vector(ReadString.Interpret(projectiles[i].XPos, PARAMETERS.XPOS), ReadString.Interpret(projectiles[i].YPos, PARAMETERS.YPOS)) - pos;
+                                    vel = new Vector(ReadString.Interpret(projectiles[i].XPosRS, PARAMETERS.XPOS), ReadString.Interpret(projectiles[i].YPosRS, PARAMETERS.YPOS)) - pos;
                                     spd = vel.Length;
                                     ang = Math.Atan2(vel.Y, vel.X);
                                 }
                                 //speed and angle
                                 else
                                 {
-                                    ang = ReadString.Interpret(projectiles[i].Angle, PARAMETERS.ANGLE);
-                                    spd = ReadString.Interpret(projectiles[i].Speed, PARAMETERS.SPEED);
+                                    ang = ReadString.Interpret(projectiles[i].AngleRS, PARAMETERS.ANGLE);
+                                    spd = ReadString.Interpret(projectiles[i].SpeedRS, PARAMETERS.SPEED);
                                     double radians = ang * Math.PI / 180;
                                     vel = new Vector(Math.Cos(radians), Math.Sin(radians)) * spd;
                                 }

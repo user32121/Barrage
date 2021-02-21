@@ -15,23 +15,25 @@ namespace Barrage
         public Vector Velocity;
         public Vector VelDir = new Vector(1, 1);
         public MainWindow.TAGS Tags;
-        public object[] Speed;
-        public object[] Angle;
-        public object[] XPos;
-        public object[] YPos;
-        public object[] XVel;
-        public object[] YVel;
-        public object[] Radius;
+        public object[] SpeedRS;  //RS postfix means it needs to be interpreted by ReadString
+        public object[] AngleRS;
+        public double Angle;  //angle in degrees
+        public object[] XPosRS;
+        public object[] YPosRS;
+        public object[] XVelRS;
+        public object[] YVelRS;
+        public object[] RadiusRS;
+        public int Radius;  //radius of circle or half-width of laser
         public int RadiusSqr;
-        public object[] Duration;
-        public object[] TagCount;
+        public object[] DurationRS;
+        public object[] TagCountRS;
         public int TagUses;
-        public object[] ActDelay;
-        public object[] File;
+        public object[] ActDelayRS;
+        public object[] FileRS;
         public bool IsAlive;
-        public bool enabled;
+        public bool enabled;  //whether or not the projectile is active and can collide with player
         public int Age;
-        public object[] state;
+        public object[] stateRS;
 
         public static readonly Dictionary<MainWindow.PROPERTIES, object[]> defaultProps = new Dictionary<MainWindow.PROPERTIES, object[]>()
         {
@@ -59,14 +61,14 @@ namespace Barrage
 
         public Projectile(object[] radius, double[] projVars)
         {
-            Radius = radius;
+            RadiusRS = radius;
             this.projVars = projVars;
             projVars[(int)MainWindow.PROJVARS.T] = Age;
             projVars[(int)MainWindow.PROJVARS.LXPOS] = Position.X;
             projVars[(int)MainWindow.PROJVARS.LYPOS] = Position.Y;
             ReadString.projVars = projVars;
-            int r = (int)ReadString.Interpret(Radius, MainWindow.PARAMETERS.SIZE);
-            RadiusSqr = r * r;
+            Radius = (int)ReadString.Interpret(RadiusRS, MainWindow.PARAMETERS.SIZE);
+            RadiusSqr = Radius * Radius;
             IsAlive = true;
         }
 
@@ -80,16 +82,16 @@ namespace Barrage
             TransformGroup TG = new TransformGroup();
             if (Tags.HasFlag(MainWindow.TAGS.LASER))
             {
-                y1 = 50;    //add 50 to y because ...
-                TG.Children.Add(new ScaleTransform(1, 6));
-                img.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(File, MainWindow.PARAMETERS.FILE), true);
+                y1 = 50;    //add 50 to y because ... ?
+                img.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(FileRS, MainWindow.PARAMETERS.FILE), true);
+                TG.Children.Add(new ScaleTransform(1, MainWindow.laserImgScale));
             }
 
-            TG.Children.Add(new RotateTransform((double)ReadString.Interpret(Angle, MainWindow.PARAMETERS.ANGLE) - 90));
+            TG.Children.Add(new RotateTransform((Angle = ReadString.Interpret(AngleRS, MainWindow.PARAMETERS.ANGLE)) - 90));
             if (Tags.HasFlag(MainWindow.TAGS.CIRCLE))
             {
                 TG.Children.Add(new ScaleTransform(VelDir.X, VelDir.Y));
-                img.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(File, MainWindow.PARAMETERS.FILE), false);
+                img.Source = MainWindow.GetProjectileImage((int)ReadString.Interpret(FileRS, MainWindow.PARAMETERS.FILE), false);
             }
             TG.Children.Add(new TranslateTransform(Position.X, Position.Y + y1));
             img.RenderTransform = TG;
@@ -99,22 +101,22 @@ namespace Barrage
             else
                 img.Opacity = 0.3;
 
-            double dr = ReadString.Interpret(Radius, MainWindow.PARAMETERS.SIZE);
+            double dr = ReadString.Interpret(RadiusRS, MainWindow.PARAMETERS.SIZE);
             if (double.IsNaN(dr))
                 dr = 0;
-            int r = Math.Abs((int)dr);
-            if (img.Width / 2 != r)
+            Radius = Math.Abs((int)dr);
+            if (img.Width / 2 != Radius)
             {
                 if (Tags.HasFlag(MainWindow.TAGS.CIRCLE))
                 {
-                    img.Width = r * 2;
-                    img.Height = r * 2;
+                    img.Width = Radius * 2;
+                    img.Height = Radius * 2;
                 }
-                else if (Tags.HasFlag(MainWindow.TAGS.LASER))
+                if (Tags.HasFlag(MainWindow.TAGS.LASER))
                 {
-                    img.Width = r * 2;
+                    img.Width = Radius * 2;
                 }
-                RadiusSqr = r * r;
+                RadiusSqr = Radius * Radius;
             }
         }
 
@@ -125,7 +127,7 @@ namespace Barrage
             ReadString.numVals = numValues;
 
             //ActDelay
-            int temp = (int)ReadString.Interpret(ActDelay, MainWindow.PARAMETERS.ACTDELAY);
+            int temp = (int)ReadString.Interpret(ActDelayRS, MainWindow.PARAMETERS.ACTDELAY);
             if (temp > Age || temp == -1)
                 enabled = false;
             else
@@ -135,15 +137,15 @@ namespace Barrage
             Age++;
 
             //projectiles that have duration have a limited lifespan
-            temp = (int)ReadString.Interpret(Duration, MainWindow.PARAMETERS.DURATION);
+            temp = (int)ReadString.Interpret(DurationRS, MainWindow.PARAMETERS.DURATION);
             if (temp != -1 && temp < Age)
                 IsAlive = false;
 
             //radius
-            int r = Math.Abs((int)ReadString.Interpret(Radius, MainWindow.PARAMETERS.SIZE));
+            Radius = Math.Abs((int)ReadString.Interpret(RadiusRS, MainWindow.PARAMETERS.SIZE));
 
             //checks if offscreen (x)
-            temp = (int)ReadString.Interpret(TagCount, MainWindow.PARAMETERS.TAGCOUNT);
+            temp = (int)ReadString.Interpret(TagCountRS, MainWindow.PARAMETERS.TAGCOUNT);
             if (Math.Abs(Position.X) > 200)
             {
                 if (Tags.HasFlag(MainWindow.TAGS.WALLBOUNCE) && (temp == -1 || temp > TagUses))
@@ -157,7 +159,7 @@ namespace Barrage
                     Position.X -= 400 * Math.Sign(Position.X);
                     TagUses++;
                 }
-                else if (Math.Abs(Position.X) > 200 + r)
+                else if (Math.Abs(Position.X) > 200 + Radius)
                     if (Tags.HasFlag(MainWindow.TAGS.OUTSIDE) && (temp == -1 || temp > TagUses))
                         TagUses++;
                     else
@@ -177,35 +179,35 @@ namespace Barrage
                     Position.Y -= 400 * Math.Sign(Position.Y);
                     TagUses++;
                 }
-                else if (Math.Abs(Position.Y) > 200 + r)
+                else if (Math.Abs(Position.Y) > 200 + Radius)
                     if (Tags.HasFlag(MainWindow.TAGS.OUTSIDE) && (temp == -1 || temp > TagUses))
                         TagUses++;
                     else
                         IsAlive = false;
             }
 
-            RadiusSqr = r * r;
+            RadiusSqr = Radius * Radius;
 
             double ang, spd;
             //xyVel
-            if (XVel != null && YVel != null)
+            if (XVelRS != null && YVelRS != null)
             {
-                Velocity = new Vector(ReadString.Interpret(XVel, MainWindow.PARAMETERS.XVEL), ReadString.Interpret(YVel, MainWindow.PARAMETERS.YVEL));
+                Velocity = new Vector(ReadString.Interpret(XVelRS, MainWindow.PARAMETERS.XVEL), ReadString.Interpret(YVelRS, MainWindow.PARAMETERS.YVEL));
                 spd = Velocity.Length;
                 ang = Math.Atan2(Velocity.Y, Velocity.X);
             }
             //xyPos
-            else if (XPos != null && YPos != null)
+            else if (XPosRS != null && YPosRS != null)
             {
-                Velocity = new Vector(ReadString.Interpret(XPos, MainWindow.PARAMETERS.XPOS), ReadString.Interpret(YPos, MainWindow.PARAMETERS.YPOS)) - Position;
+                Velocity = new Vector(ReadString.Interpret(XPosRS, MainWindow.PARAMETERS.XPOS), ReadString.Interpret(YPosRS, MainWindow.PARAMETERS.YPOS)) - Position;
                 spd = Velocity.Length;
                 ang = Math.Atan2(Velocity.Y, Velocity.X);
             }
             //speed and angle
             else
             {
-                ang = ReadString.Interpret(Angle, MainWindow.PARAMETERS.ANGLE);
-                spd = ReadString.Interpret(Speed, MainWindow.PARAMETERS.SPEED);
+                ang = ReadString.Interpret(AngleRS, MainWindow.PARAMETERS.ANGLE);
+                spd = ReadString.Interpret(SpeedRS, MainWindow.PARAMETERS.SPEED);
                 double radians = ang * Math.PI / 180;
                 Velocity = new Vector(Math.Cos(radians), Math.Sin(radians)) * spd;
             }
@@ -215,7 +217,7 @@ namespace Barrage
 
             Render();
 
-            double lstate = ReadString.Interpret(state, MainWindow.PARAMETERS.STATE);
+            double lstate = ReadString.Interpret(stateRS, MainWindow.PARAMETERS.STATE);
 
             //sets last projVals
             projVars[(int)MainWindow.PROJVARS.T] = Age;
