@@ -31,6 +31,7 @@
                         </Image.RenderTransform>
                     </Image>
                 </Grid>
+                <Label x:Name="labelWarning" Content="There was an error" HorizontalAlignment="Stretch" VerticalAlignment="Top" HorizontalContentAlignment="Center" FontSize="10" Visibility="Visible" Background="Pink" Opacity="0"/>
                 <Label x:Name="labelVisual" Content="V i s u a l" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" FontSize="10" Visibility="Collapsed"/>
                 <Label x:Name="labelSPText" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,330"/>
                 <Label x:Name="projCount" Content="projectiles" Margin="0,10,0,0"  VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderBrush="Transparent" Opacity="0.5" Panel.ZIndex="100" FontSize="10"/>

@@ -32,6 +32,8 @@ namespace Barrage
         static MainWindow Main;
         public static readonly string filesFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Barrage\\files");
 
+        #region
+
         #region game
         List<Projectile> projectiles = new List<Projectile>();
         bool paused;
@@ -42,6 +44,7 @@ namespace Barrage
         private const int laserImgLength = 100;
         public const int laserImgScale = 6;
         private const int laserLength = laserImgLength * laserImgScale;
+        private static int msgBarDuration;  //frames left for the warning bar
         #endregion
 
         #region player
@@ -285,6 +288,8 @@ namespace Barrage
         private const int projStepsAhead = 30;
         #endregion
 
+        #endregion
+
         public MainWindow()
         {
             InitializeComponent();
@@ -369,6 +374,9 @@ namespace Barrage
             {
                 if (!paused)
                 {
+                    msgBarDuration--;
+                    labelWarning.Opacity = msgBarDuration / 100.0;
+
                     time++;
                     spawnVars[(int)GLOBALVARS.T] = time;
 
@@ -902,16 +910,16 @@ namespace Barrage
             }
             else if (GameSettings.errorMode == GameSettings.ErrorMode.Continue)
             {
-                //display message at top of screen
+                WarnIssue(text);
             }
         }
         //similar to above function, provides a template for incorrect text, line number, and error message
         public static void MessageIssue(string errorText, int line, string issue)
         {
+            string text = string.Format("There was an issue with \"{0}\" at line {1}\n{2}\n Continue?", errorText, line, issue);
             if (GameSettings.errorMode == GameSettings.ErrorMode.Interrupt)
             {
-                if (!stopGameRequested && MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n{2}\n Continue?", errorText, line, issue),
-                "An error occurred", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                if (!stopGameRequested && MessageBox.Show(text, "An error occurred", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
                 {
                     stopGameRequested = true;
                     if (Main != null)
@@ -923,8 +931,14 @@ namespace Barrage
             }
             else if (GameSettings.errorMode == GameSettings.ErrorMode.Continue)
             {
-                //display message at top of screen
+                WarnIssue(text);
             }
+        }
+        //display the message in the message/warning bar
+        public static void WarnIssue(string text)
+        {
+            Main.labelWarning.Content = text;
+            msgBarDuration = 300;
         }
 
         void MoveProjectiles()
@@ -1021,7 +1035,7 @@ namespace Barrage
                             labelToInt.Add(lines[i], i);
                     else if (GameSettings.errorMode == GameSettings.ErrorMode.Continue)
                     {
-                        //display message at top of screen
+                        WarnIssue("\"" + lines[i] + "\" is already a label");
                     }
                 }
 
