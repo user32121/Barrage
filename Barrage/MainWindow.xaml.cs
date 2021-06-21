@@ -320,7 +320,7 @@ namespace Barrage
             GameSettings.TryLoad();
             checkMouse.IsChecked = GameSettings.useMouse;
             checkInfiniteLoop.IsChecked = GameSettings.checkForInfiniteLoop;
-            checkError.IsChecked = GameSettings.checkForErrors;
+            dropDownErrorMode.SelectedIndex = (int)GameSettings.errorMode;
             checkUseGrid.IsChecked = GameSettings.useGrid;
             checkPredict.IsChecked = GameSettings.predictProjectile;
 
@@ -889,27 +889,41 @@ namespace Barrage
         //display a message box with the error message, also gives an option to stop the program. text is the message to be displayed
         public static void MessageIssue(string text)
         {
-            if (GameSettings.checkForErrors && !stopGameRequested && MessageBox.Show(text, "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            if (GameSettings.errorMode == GameSettings.ErrorMode.Interrupt)
             {
-                stopGameRequested = true;
-                if (gamestate == GAMESTATE.EDITOR)
-                    Main.MainWindow_KeyDown(Main, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
-                else
-                    Main.LabelBack_MouseUp(Main.labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
+                if (!stopGameRequested && MessageBox.Show(text, "", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                {
+                    stopGameRequested = true;
+                    if (gamestate == GAMESTATE.EDITOR)
+                        Main.MainWindow_KeyDown(Main, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
+                    else
+                        Main.LabelBack_MouseUp(Main.labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
+                }
+            }
+            else if (GameSettings.errorMode == GameSettings.ErrorMode.Continue)
+            {
+                //display message at top of screen
             }
         }
         //similar to above function, provides a template for incorrect text, line number, and error message
         public static void MessageIssue(string errorText, int line, string issue)
         {
-            if (GameSettings.checkForErrors && !stopGameRequested && MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n{2}\n Continue?", errorText, line, issue),
-                "An error occurred", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            if (GameSettings.errorMode == GameSettings.ErrorMode.Interrupt)
             {
-                stopGameRequested = true;
-                if (Main != null)
-                    if (gamestate == GAMESTATE.EDITOR)
-                        Main.MainWindow_KeyDown(Main, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
-                    else
-                        Main.LabelBack_MouseUp(Main.labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
+                if (!stopGameRequested && MessageBox.Show(string.Format("There was an issue with \"{0}\" at line {1}\n{2}\n Continue?", errorText, line, issue),
+                "An error occurred", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                {
+                    stopGameRequested = true;
+                    if (Main != null)
+                        if (gamestate == GAMESTATE.EDITOR)
+                            Main.MainWindow_KeyDown(Main, new KeyEventArgs(Keyboard.PrimaryDevice, new HwndSource(0, 0, 0, 0, 0, "", IntPtr.Zero), 0, Key.P));
+                        else
+                            Main.LabelBack_MouseUp(Main.labelPauseBack, new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left));
+                }
+            }
+            else if (GameSettings.errorMode == GameSettings.ErrorMode.Continue)
+            {
+                //display message at top of screen
             }
         }
 
@@ -966,7 +980,7 @@ namespace Barrage
                 string temp = sr.ReadToEnd();
 
                 //check for update
-                if (checkError.IsChecked == true && !temp.StartsWith(SPUpdater.SPUpdater.versionText) && MessageBox.Show("The script was made in an older version.\nUpdate?", "", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (GameSettings.errorMode == GameSettings.ErrorMode.Interrupt && !temp.StartsWith(SPUpdater.SPUpdater.versionText) && MessageBox.Show("The script was made in an older version.\nUpdate?", "", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     sr.Close();
                     sr.Dispose();
@@ -1000,10 +1014,15 @@ namespace Barrage
             for (int i = 0; i < lines.Length; i++)
                 if (lines[i].Length > 0 && lines[i][0] == ':')  //label
                 {
-                    if (checkError.IsChecked == true && labelToInt.ContainsKey(lines[i]))
-                        MessageBox.Show("\"" + lines[i] + "\" is already a label", "", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    else
-                        labelToInt.Add(lines[i], i);
+                    if (GameSettings.errorMode == GameSettings.ErrorMode.Interrupt)
+                        if (labelToInt.ContainsKey(lines[i]))
+                            MessageBox.Show("\"" + lines[i] + "\" is already a label", "", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        else
+                            labelToInt.Add(lines[i], i);
+                    else if (GameSettings.errorMode == GameSettings.ErrorMode.Continue)
+                    {
+                        //display message at top of screen
+                    }
                 }
 
             //parse each line
@@ -1430,7 +1449,7 @@ namespace Barrage
                 GameSettings.useMouse = (bool)checkMouse.IsChecked;
                 GameSettings.checkForInfiniteLoop = (bool)checkInfiniteLoop.IsChecked;
                 GameSettings.useGrid = (bool)checkUseGrid.IsChecked;
-                GameSettings.checkForErrors = (bool)checkError.IsChecked;
+                GameSettings.errorMode = (GameSettings.ErrorMode)dropDownErrorMode.SelectedIndex;
                 GameSettings.predictProjectile = (bool)checkPredict.IsChecked;
                 GameSettings.Save();
 

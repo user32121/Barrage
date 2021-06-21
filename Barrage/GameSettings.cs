@@ -16,8 +16,15 @@ namespace Barrage
         public static bool useGrid = true;
         public static int maxHistFrames = 1000;
         public static bool autoPlay = false;
-        public static bool checkForErrors = true;
+        public static ErrorMode errorMode = ErrorMode.Interrupt;
         public static bool predictProjectile = false;
+
+        public enum ErrorMode : byte
+        {
+            Interrupt,
+            Continue,
+            Silent,
+        }
 
         public static void Save()
         {
@@ -28,7 +35,7 @@ namespace Barrage
             bw.Write(maxHistFrames);
             bw.Write("a");
             bw.Write(autoPlay);
-            bw.Write(checkForErrors);
+            bw.Write((byte)errorMode);
             bw.Write(predictProjectile);
             bw.Close();
         }
@@ -46,7 +53,7 @@ namespace Barrage
                     maxHistFrames = br.ReadInt32();
                     br.ReadString();
                     autoPlay = br.ReadBoolean();
-                    checkForErrors = br.ReadBoolean();
+                    errorMode = (ErrorMode)br.ReadByte();
                     predictProjectile = br.ReadBoolean();
                 }
                 catch (EndOfStreamException) { }
