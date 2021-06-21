@@ -1,0 +1,26 @@
+val4|1
+val2|RNG 0.2 0.7
+val1|val1 + 30
+proj|tags=circle|speed=3|angle=val1 + t * val2 * val4
+repeat|2|12
+wait|20
+repeat|1|10
+:p1
+val2|RNG 0.2 0.7
+val1|val1 + 30
+proj|tags=circle|speed=3|angle=val1 + t * val2 * val4
+repeat|:p1|12
+
+:p2
+val3|val3 + 20 * val4
+:p3
+val3|val3 + 60
+proj|tags=circle|speed=5|angle=val3|size=20
+repeat|:p3|6
+wait|2
+repeat|:p3|3
+wait|10
+repeat|:p1|7
+
+val4|val4 * -1
+repeat|1|10000

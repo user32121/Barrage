@@ -1867,7 +1867,7 @@ namespace Barrage
         }
 
         //attempt to pop from the stack, will call message issue if no items
-        public static double AttPop(this Stack<double> stack)
+        public static double AttemptPop(this Stack<double> stack)
         {
             if (stack.Count > 0)
                 return stack.Pop();

@@ -18,7 +18,7 @@ DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 CreateAppDir=no
-OutputDir=C:\Users\pengj\source\repos\Barrage\Barrage\publish
+OutputDir=C:\Users\jupit\source\repos\Barrage\Barrage\publish
 OutputBaseFilename=BarrageInstall
 Compression=lzma
 SolidCompression=yes
@@ -30,11 +30,11 @@ Uninstallable=no
 Name: "english"; MessagesFile: "compiler:Default.isl"
   
 [Files]
-Source: "C:\Users\pengj\source\repos\Barrage\Barrage\publish\setup.exe"; DestDir: "{%TEMP}\Barrage"; Flags: ignoreversion
-Source: "C:\Users\pengj\source\repos\Barrage\Barrage\publish\Barrage.application"; DestDir: "{%TEMP}\Barrage"; Flags: ignoreversion
-Source: "C:\Users\pengj\source\repos\Barrage\Barrage\publish\Application Files\*"; DestDir: "{%TEMP}\Barrage\Application Files"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "C:\Users\pengj\source\repos\Barrage\Barrage\userFiles\*"; DestDir: "{%localappdata}\Barrage\files"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "C:\Users\pengj\source\repos\Barrage\SPUpdater\bin\Debug\SPUpdater.exe"; DestDir: "{%localappdata}\Barrage\files\scripts"; Flags: ignoreversion
+Source: "C:\Users\jupit\source\repos\Barrage\Barrage\publish\setup.exe"; DestDir: "{%TEMP}\Barrage"; Flags: ignoreversion
+Source: "C:\Users\jupit\source\repos\Barrage\Barrage\publish\Barrage.application"; DestDir: "{%TEMP}\Barrage"; Flags: ignoreversion
+Source: "C:\Users\jupit\source\repos\Barrage\Barrage\publish\Application Files\*"; DestDir: "{%TEMP}\Barrage\Application Files"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\jupit\source\repos\Barrage\Barrage\userFiles\*"; DestDir: "{%localappdata}\Barrage\files"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\jupit\source\repos\Barrage\SPUpdater\bin\Debug\SPUpdater.exe"; DestDir: "{%localappdata}\Barrage\files\scripts"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Run]

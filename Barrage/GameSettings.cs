@@ -26,6 +26,7 @@ namespace Barrage
             bw.Write(checkForInfiniteLoop);
             bw.Write(useGrid);
             bw.Write(maxHistFrames);
+            bw.Write("a");
             bw.Write(autoPlay);
             bw.Write(checkForErrors);
             bw.Write(predictProjectile);
@@ -43,6 +44,7 @@ namespace Barrage
                     checkForInfiniteLoop = br.ReadBoolean();
                     useGrid = br.ReadBoolean();
                     maxHistFrames = br.ReadInt32();
+                    br.ReadString();
                     autoPlay = br.ReadBoolean();
                     checkForErrors = br.ReadBoolean();
                     predictProjectile = br.ReadBoolean();

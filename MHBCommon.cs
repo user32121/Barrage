@@ -121,6 +121,7 @@ class MHSocket
 
     public void Close()
     {
+        socket.Shutdown(SocketShutdown.Both);
         socket.Close();
     }
 
