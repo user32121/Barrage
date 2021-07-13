@@ -982,6 +982,7 @@ namespace Barrage
             if (!File.Exists(spPath))
             {
                 MessageBox.Show(spPath + " not found");
+                stopGameRequested = true;
                 return;
             }
 
