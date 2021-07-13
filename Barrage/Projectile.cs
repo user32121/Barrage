@@ -105,16 +105,17 @@ namespace Barrage
             if (double.IsNaN(dr))
                 dr = 0;
             Radius = Math.Abs((int)dr);
-            if (img.Width / 2 != Radius)
+            const double imgScale = 3;  //radius factor to increase appearance
+            if (img.Width / imgScale != Radius)
             {
                 if (Tags.HasFlag(MainWindow.TAGS.CIRCLE))
                 {
-                    img.Width = Radius * 2;
-                    img.Height = Radius * 2;
+                    img.Width = Radius * imgScale;
+                    img.Height = Radius * imgScale;
                 }
                 if (Tags.HasFlag(MainWindow.TAGS.LASER))
                 {
-                    img.Width = Radius * 2;
+                    img.Width = Radius * imgScale;
                 }
                 RadiusSqr = Radius * Radius;
             }
